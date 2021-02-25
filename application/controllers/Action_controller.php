@@ -43,24 +43,24 @@ abstract class Action_controller extends Secure_Controller{
 	}
 	
 	//PROVIDE BASE DATA FOR MODULE
-	public function collect_base_info(){
-		$this->control_name      = strtolower($this->router->fetch_class());
-		$this->logged_id         = $this->session->userdata('logged_id');
-		$this->logged_role       = $this->session->userdata('logged_role');
+	public function collect_base_info(){		
+		$this->control_name       = strtolower($this->router->fetch_class());
+		$this->logged_id          = $this->session->userdata('logged_id');
+		$this->logged_role        = $this->session->userdata('logged_role');
 		$this->logged_consultancy = $this->session->userdata('logged_consultancy');
-		$this->logged_dept       = $this->session->userdata('logged_dept');
-		$this->logged_user_role  = $this->session->userdata('logged_user_role');
-		$this->prime_id          = "prime_".$this->control_name."_id";
-		$this->prime_table       = $this->db->dbprefix($this->control_name);
-		$this->base_query        = "select @SELECT@ from $this->prime_table";
-		$this->select_query      = "$this->prime_table.$this->prime_id,";
+		$this->logged_dept        = $this->session->userdata('logged_dept');
+		$this->logged_user_role   = $this->session->userdata('logged_user_role');
+		$this->prime_id           = "prime_".$this->control_name."_id";
+		$this->prime_table        = $this->db->dbprefix($this->control_name);
+		$this->base_query         = "select @SELECT@ from $this->prime_table";
+		$this->select_query       = "$this->prime_table.$this->prime_id,";
 		$this->get_quick_link();
 		$this->get_table_head();		
 		$this->get_view_info();
 		$this->get_form_info();
 		$this->get_role_condition();
 		$this->get_query_and_drop();
-		$this->get_condition();
+		$this->get_condition();		
 	}
 	
 	/* ==============================================================*/

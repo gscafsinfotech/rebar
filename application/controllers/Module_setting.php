@@ -408,6 +408,7 @@ class Module_setting  extends Secure_Controller{
 		$module_data = $this->db->query("CALL sp_a_run ('SELECT','$module_qry')");
 		$module_rslt = $module_data->result();
 		$module_data->next_result();
+		// print_r($module_rslt);die;
 		$data['module_info'] = $module_rslt[0];
 		
 		$role_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT * FROM `cw_category` where  trans_status = 1')");
@@ -492,6 +493,7 @@ class Module_setting  extends Secure_Controller{
 			$get_colums = 'SELECT TABLE_NAME as table_info,COLUMN_NAME as column_info  FROM `INFORMATION_SCHEMA`.`COLUMNS`  WHERE `TABLE_SCHEMA`="'.$this->config->item("db_name").'" AND `TABLE_NAME` = "cw_custom_employees" AND COLUMN_NAME NOT LIKE "%trans%" AND COLUMN_NAME != "prime_custom_employees_id"';
 		}else{
 			$get_colums = 'SELECT TABLE_NAME as table_info,COLUMN_NAME as column_info  FROM `INFORMATION_SCHEMA`.`COLUMNS`  WHERE `TABLE_SCHEMA`="'.$this->config->item("db_name").'" AND `TABLE_NAME` IN ('.$table_names.') AND COLUMN_NAME NOT LIKE "%trans%" AND COLUMN_NAME NOT IN ('.$prime_ids.')';
+			// echo $get_colums;die;
 		}
 		//$get_colums = 'SELECT TABLE_NAME as table_info,COLUMN_NAME as column_info  FROM `INFORMATION_SCHEMA`.`COLUMNS`  WHERE `TABLE_SCHEMA`="'.$this->config->item("db_name").'" AND `TABLE_NAME` IN ('.$table_names.') AND COLUMN_NAME NOT LIKE "%trans%" AND COLUMN_NAME NOT IN ('.$prime_ids.')';
 		$column_info   = $this->db->query("CALL sp_a_run ('SELECT','$get_colums')");
@@ -560,8 +562,8 @@ class Module_setting  extends Secure_Controller{
 			$out_column_list[$out_column_info] = $out_column_name;
 		}
 		$data['out_column_list']      = $out_column_list;*/
-		$formula_content    = $this->get_saved_payroll_formula();	
-		$data['formula_content'] = $formula_content;
+		// $formula_content    = $this->get_saved_payroll_formula();	
+		// $data['formula_content'] = $formula_content;
 		
 		$print_qry  = 'SELECT * FROM cw_print_info where trans_status = 1 and print_info_module_id ="'.$prime_module_id.'"';
 		$print_data = $this->db->query("CALL sp_a_run ('SELECT','$print_qry')");
@@ -575,32 +577,31 @@ class Module_setting  extends Secure_Controller{
 		}
 		$data['print_map_list'] = $print_map_list;
 		$data['print_info_list'] = $this->get_print_map_list($prime_module_id);
-		
+
 		// -- 01March2019 -- start
 		
 		//get statutory value name list
-		$statutory_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT * FROM `cw_statutory_field` where trans_status = 1')");
-		$statutory_result = $statutory_info->result();
-		$statutory_info->next_result();
-		$statutory_name_list[""] = "---- Statutory Name ----";
-		foreach($statutory_result as $statutory){
-			$stautory_id   = $statutory->prime_statutory_field_id;
-			$stautory_name = $statutory->statutory_field_name;
-			$statutory_name_list[$stautory_id] = $stautory_name;
-		}
-		$data['statutory_name_list']  = $statutory_name_list;
-		
+		// $statutory_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT * FROM `cw_statutory_field` where trans_status = 1')");
+		// $statutory_result = $statutory_info->result();
+		// $statutory_info->next_result();
+		// $statutory_name_list[""] = "---- Statutory Name ----";
+		// foreach($statutory_result as $statutory){
+		// 	$stautory_id   = $statutory->prime_statutory_field_id;
+		// 	$stautory_name = $statutory->statutory_field_name;
+		// 	$statutory_name_list[$stautory_id] = $stautory_name;
+		// }
+		// $data['statutory_name_list']  = $statutory_name_list;
 		//get statutory function name list
-		$statutory_function_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT * FROM `cw_statutory_function` where trans_status = 1')");
-		$statutory_function_result = $statutory_function_info->result();
-		$statutory_function_info->next_result();
-		$statutory_function_list[""] = "---- Statutory Function ----";
-		foreach($statutory_function_result as $stat_function){
-			$statutory_function_id   = $stat_function->prime_statutory_function_id;
-			$statutory_function_name = $stat_function->statutory_function_name;
-			$statutory_function_list[$statutory_function_id] = $statutory_function_name;
-		}
-		$data['statutory_function_list']  = $statutory_function_list;
+		// $statutory_function_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT * FROM `cw_statutory_function` where trans_status = 1')");
+		// $statutory_function_result = $statutory_function_info->result();
+		// $statutory_function_info->next_result();
+		// $statutory_function_list[""] = "---- Statutory Function ----";
+		// foreach($statutory_function_result as $stat_function){
+		// 	$statutory_function_id   = $stat_function->prime_statutory_function_id;
+		// 	$statutory_function_name = $stat_function->statutory_function_name;
+		// 	$statutory_function_list[$statutory_function_id] = $statutory_function_name;
+		// }
+		// $data['statutory_function_list']  = $statutory_function_list;
 		
 		//get total transaction table column
 		$get_trans_colums = 'SELECT TABLE_NAME as table_info,COLUMN_NAME as column_info  FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`= "'.$this->config->item("db_name").'" AND `TABLE_NAME` = "cw_transactions"
@@ -615,36 +616,34 @@ class Module_setting  extends Secure_Controller{
 			$trans_column_list[$column_info] = $column_name;
 		}
 		$data['trans_column_list']      = $trans_column_list;
-		
 		//Formula category is displayed
-		$formula_role_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT prime_category_id,category_name FROM cw_category inner join cw_payroll_formula on cw_payroll_formula.formula_for=cw_category.prime_category_id WHERE cw_payroll_formula.trans_status = 1 GROUP by prime_category_id')");
-		$formula_role_result = $formula_role_info->result();
-		$formula_role_info->next_result();
-		$formula_role_for[""] = "---- Select Category ----";
-		foreach($formula_role_result as $formula_for){
-			$role_id           = $formula_for->prime_category_id;
-			$category_name     = $formula_for->category_name;
-			$formula_role_for[$role_id] = $category_name;
-		}
-		$data['formula_role_for']  = $formula_role_for;
-		
+		// $formula_role_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT prime_category_id,category_name FROM cw_category inner join cw_payroll_formula on cw_payroll_formula.formula_for=cw_category.prime_category_id WHERE cw_payroll_formula.trans_status = 1 GROUP by prime_category_id')");
+		// $formula_role_result = $formula_role_info->result();
+		// $formula_role_info->next_result();
+		// $formula_role_for[""] = "---- Select Category ----";
+		// foreach($formula_role_result as $formula_for){
+		// 	$role_id           = $formula_for->prime_category_id;
+		// 	$category_name     = $formula_for->category_name;
+		// 	$formula_role_for[$role_id] = $category_name;
+		// }
+		// $data['formula_role_for']  = $formula_role_for;
 		//No Formula category is displayed
-		$noformula_role_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT prime_category_id, category_name FROM cw_category WHERE prime_category_id Not in (SELECT formula_for FROM cw_payroll_formula WHERE trans_status = 1 GROUP by formula_for) and prime_category_id != 1')");
-		$noformula_role_result = $noformula_role_info->result();
-		$noformula_role_info->next_result();
-		$noformula_role_for[""] = "---- Select Category ----";
-		foreach($noformula_role_result as $noformula_for){
-			$role_id            = $noformula_for->prime_category_id;
-			$category_name      = $noformula_for->category_name;
-			$noformula_role_for[$role_id] = $category_name;
-		}
-		$data['noformula_role_for']  = $noformula_role_for;
+		// $noformula_role_info   = $this->db->query("CALL sp_a_run ('SELECT','SELECT prime_category_id, category_name FROM cw_category WHERE prime_category_id Not in (SELECT formula_for FROM cw_payroll_formula WHERE trans_status = 1 GROUP by formula_for) and prime_category_id != 1')");
+		// $noformula_role_result = $noformula_role_info->result();
+		// $noformula_role_info->next_result();
+		// $noformula_role_for[""] = "---- Select Category ----";
+		// foreach($noformula_role_result as $noformula_for){
+		// 	$role_id            = $noformula_for->prime_category_id;
+		// 	$category_name      = $noformula_for->category_name;
+		// 	$noformula_role_for[$role_id] = $category_name;
+		// }
+		// $data['noformula_role_for']  = $noformula_role_for;
 		
-		$function_list         = $this->payroll_function_list();
-		$data['function_list'] = $function_list;
+		// $function_list         = $this->payroll_function_list();
+		// $data['function_list'] = $function_list;
 		
-		$mapping_list          = $this->column_mapping_list();
-		$data['mapping_list']  = $mapping_list;
+		// $mapping_list          = $this->column_mapping_list();
+		// $data['mapping_list']  = $mapping_list;
 		$this->load->view("module_setting/module_view",$data);
 	}
 	

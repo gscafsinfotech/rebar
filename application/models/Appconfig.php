@@ -1,10 +1,10 @@
 <?php
 class Appconfig extends CI_Model
 {
-	public function isAppvalid(){
+	public function isAppvalid(){		
 		if(($this->get('address') === "") || ($this->get('city') === "") || ($this->get('company') === "") || ($this->get('country') === "") || ($this->get('phone') === "") || ($this->get('pincode') === "")){
 			return false;
-		}
+		}		
 		return true;
 	}
 	public function exists($key){

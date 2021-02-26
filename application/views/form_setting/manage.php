@@ -8,6 +8,7 @@
 	$access_search  = (int)$access_data[$controller_name]['access_search']; 
 	$access_export  = (int)$access_data[$controller_name]['access_export'];
 	$page_name      = "Screen Setting";
+
 ?>
 <script type="text/javascript">
     $(document).ready(function (){
@@ -16,7 +17,7 @@
             resource: '<?php echo site_url($controller_name); ?>',
             headers: <?php echo $table_headers; ?>,
             pageSize: <?php echo $this->config->item('lines_per_page'); ?>,
-            uniqueId: '<?php echo "prime_".$controller_name."_id";?>',
+            uniqueId: 'echo "prime_".$controller_name."_id";?>',
         });
     });
 

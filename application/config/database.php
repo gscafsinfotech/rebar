@@ -7,7 +7,7 @@
 						'hostname'     => 'localhost',
 						'username'     => 'root',
 						'password'     => '',
-						'database'     => 'rebar',//imop_blank
+						'database'     => 'rebardnd',//imop_blank
 						'dbdriver'     => 'mysqli',
 						'dbprefix'     => 'cw_',
 						'pconnect'     => FALSE,

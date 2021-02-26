@@ -64,7 +64,6 @@ class Form_setting  extends Secure_Controller{
 		$count_result   = $count_info->result();
 		$count_info->next_result();
 		$num_rows = $count_result[0]->data_count;
-		
 		echo json_encode(array('total'=>$num_rows,'rows'=>$data_rows));
 	}
 	
@@ -132,6 +131,7 @@ class Form_setting  extends Secure_Controller{
 				}
 			}
 		}
+
 		$data['table_list'] = $table_list;
 		
 		$table_prime    = "cw_".$prime_module_id;
@@ -140,7 +140,6 @@ class Form_setting  extends Secure_Controller{
 		//$table_cf_id    = "prime_".$prime_module_id."_cf_id";
 		$table_names    = "$table_prime,$table_cf,";
 		$prime_ids      = "$table_prime_id,$table_cf_id,";
-		
 		$view_qry    = 'select * from cw_form_view_setting where prime_view_module_id = "'.$prime_module_id.'" and  form_view_type = "3" and trans_status = 1';
 		$view_data   = $this->db->query("CALL sp_a_run ('SELECT','$view_qry')");
 		$view_result = $view_data->result();
@@ -160,7 +159,7 @@ class Form_setting  extends Secure_Controller{
 		$get_colums = 'SELECT `COLUMN_NAME`  FROM `INFORMATION_SCHEMA`.`COLUMNS`  WHERE `TABLE_SCHEMA`="'.$this->config->item("db_name").'" AND `TABLE_NAME` IN ('.$table_names.') AND COLUMN_NAME NOT LIKE "%trans%" AND COLUMN_NAME NOT IN ('.$prime_ids.')';
 		$column_info   = $this->db->query("CALL sp_a_run ('SELECT','$get_colums')");
 		$column_result = $column_info->result();
-		$column_info->next_result();
+		$column_info->next_result();									
 		$column_list[""] = "---- Select Column ----";
 		foreach($column_result as $column){
 			$column_value = $column->COLUMN_NAME;
@@ -176,7 +175,6 @@ class Form_setting  extends Secure_Controller{
 		$cond_content_rslt = json_decode($cond_view);
 		$cond_content      = $cond_content_rslt->cond_content;
 		$data['cond_content'] = $cond_content;
-		
 		
 		$cond_table_data = array( 'cond_module_id' => $prime_module_id);
 		$cond_table_data = json_encode($cond_table_data);

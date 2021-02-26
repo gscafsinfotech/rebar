@@ -176,7 +176,6 @@ class Form_setting  extends Secure_Controller{
 		$cond_content      = $cond_content_rslt->cond_content;
 		$data['cond_content'] = $cond_content;
 		
-		
 		$cond_table_data = array( 'cond_module_id' => $prime_module_id);
 		$cond_table_data = json_encode($cond_table_data);
 		$cond_info = $this->db->query("CALL sp_cond_crud ('VIEW', '$cond_table_data',$logged_id)");

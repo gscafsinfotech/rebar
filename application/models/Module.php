@@ -69,9 +69,7 @@ class Module extends CI_Model{
 		$this->db->select('prime_report_setting_id,report_name');
 		$this->db->from('report_setting');
 		$this->db->where('report_setting.trans_status',1);
-		$this->db->where("report_for LIKE '%".$logged_role."%'");
-		//$this->db->where("report_for IN (".$logged_role.")",NULL, false);
-		//$this->db->where("FIND_IN_SET('".$logged_role."',report_for)!=",0);
+		$this->db->where('FIND_IN_SET('.$logged_role.',report_for)!=',0);
 		$this->db->order_by('prime_report_setting_id', 'asc');
 		$query =  $this->db->get();
 		//echo $this->db->last_query();

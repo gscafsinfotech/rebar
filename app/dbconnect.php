@@ -5,7 +5,7 @@ class dbconnect {
 	private $host     = "localhost";
 	private $username = "root";
 	private $password = "";
-	private $database = "collman_hrms";
+	private $database = "rebardnd";
 
 	//MSSQL
 	protected $sql_db;	

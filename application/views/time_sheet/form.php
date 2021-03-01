@@ -623,6 +623,18 @@ $(document).ready(function(){
 			show_projectmanager_worktype(work_type);
 		}
 	}
+	var client_name 	 = $("#client_name").val();
+	$("#client_name").change(function(){
+		var client_name  = $(this).val();
+		select_clientname(client_name);
+	});
+	select_clientname(client_name);
+	var project_name 	 = $("#project").val();
+	$("#project").change(function(){
+		var project_name = $(this).val();
+		select_project(project_name);
+	});
+	select_project(project_name);
 	<?php echo $user_read_only; ?>
 	if(date_exist === "1"){
 		$(function () {
@@ -893,5 +905,30 @@ function row_set_remove(row_id,table_name,view_id,prime_id){
 			});
 		}		
 	}
+}
+function select_clientname(client_name){
+	var project_name 	 = $("#project").val();
+	var send_url 	     = '<?php echo site_url("$controller_name/select_clientname"); ?>';
+	$.ajax({
+		type: "POST",
+		url: send_url,
+		data:{client_name:client_name,project_name:project_name},
+		success: function(data){
+			$('#project').html(data);
+		}
+	});
+}
+function select_project(project_name){	
+	var diagram_no   = $("#diagram_no").val();
+	var send_url 	 = '<?php echo site_url("$controller_name/select_project"); ?>';
+	$.ajax({
+		type: "POST",
+		url: send_url,
+		data:{project_name:project_name,diagram_no:diagram_no},
+		success: function(data){
+			console.log(data);
+			$('#diagram_no').html(data);
+		}
+	});
 }
 </script>

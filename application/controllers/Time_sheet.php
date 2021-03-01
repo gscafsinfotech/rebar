@@ -430,5 +430,45 @@ class Time_sheet  extends Action_controller{
 		
 		$this->load->view("$this->control_name/import",$data);
 	}
+	public function select_clientname(){
+		$client_name    = (int)$this->input->post("client_name");
+		$project_id     = (int)$this->input->post("project_name");
+		$client_qry     = 'select prime_project_and_drawing_master_id,project_name from cw_project_and_drawing_master where client_name ="'.$client_name.'" and trans_status = 1';
+		$client_info    = $this->db->query("CALL sp_a_run ('SELECT','$client_qry')");
+		$client_result  = $client_info->result();
+		$client_info->next_result();
+		$client_list = "<option value=''>--- Select Project ---</option>";
+		foreach($client_result as $result){
+			$id        	   = $result->prime_project_and_drawing_master_id;
+			$project_name  = $result->project_name;
+			if((int)$project_id === (int)$id){
+				$selected  = 'selected';
+			}else{
+				$selected  = '';
+			}
+			$client_list  .= "<option value='$id' $selected> $project_name </option>";
+		}
+		echo $client_list;
+	}
+	public function select_project(){
+		$project_name   = (int)$this->input->post("project_name");
+		$diagram_id     = (int)$this->input->post("diagram_no");
+		$project_qry    = 'select prime_project_and_drawing_master_drawings_id,drawing_no from cw_project_and_drawing_master_drawings where prime_project_and_drawing_master_id ="'.$project_name.'" and trans_status = 1';
+		$project_info   = $this->db->query("CALL sp_a_run ('SELECT','$project_qry')");
+		$project_result = $project_info->result();
+		$project_info->next_result();
+		$project_list   = "<option value=''>--- Select Diagram No ---</option>";
+		foreach($project_result as $result){
+			$id        	    = $result->prime_project_and_drawing_master_drawings_id;
+			$drawing_no     = $result->drawing_no;
+			if((int)$diagram_id === (int)$id){
+				$selected = "selected";
+			}else{
+				$selected = "";
+			}
+			$project_list  .= "<option value='$id' $selected> $drawing_no </option>";
+		}
+		echo $project_list;
+	}
 }
 ?>

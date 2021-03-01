@@ -1,5 +1,6 @@
 <?php
 include('./dbconnect.php');
+error_reporting(0);
 class api_model extends dbconnect{	
 	public function __construct() {
 		$this->open_db();
@@ -15,7 +16,7 @@ class api_model extends dbconnect{
 		$mysql_emp_info    = $this->runQuery("$mysql_emp_qry");
 		$mysql_emp_result  = $this->result($mysql_emp_info);
 		$mysql_emp_result  = json_decode(json_encode($mysql_emp_result),true);		
-		$emp_result = array_reduce($mysql_emp_result, function ($result, $arr) {			
+		$emp_result = array_reduce($mysql_emp_result, function($result, $arr){			
 		    $result[$arr['employee_code']] = $arr;
 		    return $result;
 		}, array());

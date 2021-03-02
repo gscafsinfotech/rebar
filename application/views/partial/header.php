@@ -13,7 +13,7 @@
 					<link rel="stylesheet" media="print" href="css/print.css" type="text/css" />
 				<![endif]-->
 				<link rel="stylesheet" type="text/css" href="dist/bootstrap.min.css?rel=<?php echo date('Ymd');?>"/>
-				<link rel="stylesheet" type="text/css" href="dist/cafs_rms.css?rel=<?php echo date('Ymd');?>"/>
+				<link rel="stylesheet" type="text/css" href="dist/rebar.css?rel=<?php echo date('Ymd');?>"/>
 				<script type="text/javascript" src="dist/opensourcepos.min.js?rel=<?php echo date('Ymd');?>"></script>
 				<script type="text/javascript" src="dist/validate.js?rel=<?php echo date('Ymd');?>"></script>
 				

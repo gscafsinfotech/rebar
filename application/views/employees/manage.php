@@ -308,13 +308,13 @@ $(document).ready(function(){
 					?>
 				}
 			},
-			{title:'Print',
+			/*{title:'Print',
 				data: '<?php echo $prime_id; ?>',
 				type: 'html',
 				render:function (value) {
 					return '<a class="btn btn-xs btn-edit print_text" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $print_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-print"></span> Print</a>';
 				}
-			},
+			},*/
 			/*{title:'payslip',
 				data: 'employee_code',
 				type: 'html',

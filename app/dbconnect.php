@@ -71,7 +71,7 @@ class dbconnect {
 	public function sql_runQuery($query) {
 		$result = sqlsrv_query($this->sql_db,$query);
 		if(!$result){
-			echo("Error description: ".mysqli_error($this->sql_db)."<br/>");
+			//echo("Error description: ".sqlsrv_errors($this->sql_db)."<br/>");
 			return false;
 		}else{
 			return $result;

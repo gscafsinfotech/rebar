@@ -65,8 +65,11 @@ foreach($view_info as $view){
 			}					
 			//TEXT BOX
 			if((int)$field_type === 1){
-				if($label_id === 'employee_name'){
+				if($text_type === 1){
 					$valid_class = "alpha_text";
+				}else
+				if($text_type === 2){
+					$valid_class = "alpha";
 				}
 				$input_value = str_replace('^',"'",$input_value);
 				$form_input = form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$input_value,"placeholder"=>$label_name, $read=>true,"class"=>"form-control input-sm $valid_class"));

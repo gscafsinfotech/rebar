@@ -713,6 +713,12 @@ $(document).ready(function(){
 	var view_id          = "<?php echo $form_view->$prime_id; ?>";
 	var user_right       = "<?php echo $logged_user_role; ?>";
 	var user_role        = $('#user_right').val();	
+	var employee_status  = $('#employee_status').val();
+	$("#employee_status").change(function(){
+		var employee_status  = $(this).val();
+		employee_status_hide_show(employee_status);
+	});
+	employee_status_hide_show(employee_status);
 	<?php echo $user_read_only; ?>
 	/*if(user_role){
 		get_permission_list(user_role);
@@ -1365,6 +1371,17 @@ function check_loan_installment(){
 		}
 	});
 }
+function employee_status_hide_show(employee_status){
+		if(parseInt(employee_status) === 1){
+			$("#inactive_date").parent().hide();
+			$("#inactive_date").addClass('ignore');
+			$("#inactive_date").val('');
+		}else
+		if(parseInt(employee_status) === 2){
+			$("#inactive_date").parent().show();
+			$("#inactive_date").removeClass('ignore');
+		}
+	}
 </script>
 <style>
 .textcolor{

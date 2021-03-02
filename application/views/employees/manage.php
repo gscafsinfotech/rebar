@@ -1,6 +1,7 @@
 <?php 
 	$this->load->view("partial/header"); 
 	$access_data    = $this->session->userdata('access_data');
+	$logged_role    = $this->session->userdata('logged_role');
 	$access_add     = (int)$access_data[$controller_name]['access_add'];
 	$access_update  = (int)$access_data[$controller_name]['access_update'];
 	$access_delete  = (int)$access_data[$controller_name]['access_delete'];
@@ -17,10 +18,12 @@
 		
 	/* PAGE TITLE AND BUTTONS- START */
 	$breadcrumb = "";
-	if($access_add === 1){
-		$breadcrumb .= "<li>
-							<a class='btn btn-xs btn-primary add' data-btn-submit='Submit' title='Add $page_name' href='$view_url' data_form='$controller_name'> <span class='fa fa-user-plus'>&nbsp</span>Add $page_name</a>
-						</li>";
+	if((int)$logged_role === 1){
+		if($access_add === 1){
+			$breadcrumb .= "<li>
+								<a class='btn btn-xs btn-primary add' data-btn-submit='Submit' title='Add $page_name' href='$view_url' data_form='$controller_name'> <span class='fa fa-user-plus'>&nbsp</span>Add $page_name</a>
+							</li>";
+		}
 	}
 	if($access_import === 1){
 		$breadcrumb .= "<li>

@@ -276,46 +276,6 @@ class Employees  extends Action_controller{
 			$separation_type  = $this->input->post('separation_type');
 		}
 		//old application insert query building details start --18JAN2020
-		/*$role             = $this->input->post('role');
-		$code             = $this->input->post('employee_code');
-		$empname          = strtoupper($this->input->post('emp_name'));
-		$department       = $this->input->post('department');
-		$designation      = $this->input->post('designation');
-		$gender           = $this->input->post('gender');			
-		$dob              = date('Y-m-d',strtotime($this->input->post('date_of_birth')));
-		$doj              = date('Y-m-d',strtotime($this->input->post('date_of_joining')));
-		$marital_status   = $this->input->post('marital_status');
-		if($role){
-			$oldcategory  =  (int)$role - 1;
-			$oldcategory  = "S000".$oldcategory;
-		}
-		if($designation){
-			$design_query = 'select designation from cw_designation where prime_designation_id = "'.$designation.'"  and trans_status =1';
-			$design_data   = $this->db->query("CALL sp_a_run ('SELECT','$design_query')");
-			$design_result = $design_data->result();
-			$design_data->next_result();
-			$designation = strtoupper($design_result[0]->designation);
-		}
-		if($department){
-			$depart_query = 'select department from cw_department where prime_department_id = "'.$department.'" and trans_status =1';
-			$depart_data   = $this->db->query("CALL sp_a_run ('SELECT','$depart_query')");
-			$depart_result = $depart_data->result();
-			$depart_data->next_result();
-			$department = strtoupper($depart_result[0]->department);
-		}
-		//static updated
-		if((int)$gender === 2){
-			$gender = "F";
-		}else{
-			$gender = "M";
-		}
-		if((int)$marital_status === 1){
-			$marital_status = "Y";
-		}else{
-			$marital_status = "N";
-		}
-		*/
-		//old application insert query building details start --18JAN2020
 		/*============ UDY EMPLOYEE CUSTOME BLOCK ============*/
 		$user_name = $this->input->post('user_name');
 		$password  = $this->input->post('password');
@@ -356,20 +316,9 @@ class Employees  extends Action_controller{
 				$insert_result      = $insert_info->result();
 				$insert_info->next_result();
 				$insert_id = $insert_result[0]->ins_id;
-				
-				//INSERT IN EMPLOYEES LOG TABLE //neha edit 19march2020
-			/*	$operation   = "INSERT";
-				$prime_custom_key  .= "prime_employees_id,employee_name,employee_code,operation,trans_created_by,trans_created_date";
-				$prime_custom_val  .= '"'.$insert_id.'","'.$empname.'","'.$emp_code.'","'.$operation.'","'.$this->logged_id.'",'.'"'.$created_on.'"';
-				$prime_log_insert_query = "insert into cw_employee_log ($prime_custom_key) values ($prime_custom_val)";
-				$insert_log_info        = $this->db->query("CALL sp_a_run ('INSERT','$prime_log_insert_query')");
-				$insert_log_result      = $insert_log_info->result();
-				$insert_log_info->next_result();
-				*/
 				/*== UDY CUSTOME BLOCK ==*/
 				$this->Module->update_grants($this->control_name,$insert_id,$grants_data,$access_data);
-				/*== UDY CUSTOME BLOCK ==*/
-				$this->esi_statutory_elig($role,$employee_code);
+
 				$emp_data = array("Compcode"=>"C0001","CODE"=>$code,"EMPNAME"=>$empname,"DEPT"=>$department,"DESIG"=>$designation,"DOJ"=>$doj,"DOB"=>$dob,"MARTIAL"=>$marital_status,"SEX"=>$gender,"cCode"=>$oldcategory);
 				$this->curl($emp_data);
 				if($termination_status === 1){
@@ -386,8 +335,6 @@ class Employees  extends Action_controller{
 				$prime_upd_query    .= 'employee_code = "'.$emp_code.'",trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
 				$prime_update_query  = 'UPDATE '. $this->prime_table .' SET '. $prime_upd_query .' WHERE '. $this->prime_id .' = "'. $form_id .'"';
 				$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
-				
-				//$this->esi_statutory_elig($role,$employee_code);
 				/*== UDY CUSTOME BLOCK ==*/ 
 				$this->Module->update_grants($this->control_name,$form_id,$grants_data,$access_data);
 				/*== UDY CUSTOME BLOCK ==*/
@@ -1368,86 +1315,6 @@ class Employees  extends Action_controller{
 		 $objWriter->save('php://output');
 		echo json_encode(array('success' => TRUE, 'output' => $excelOutput));
 	}
-	
-	public function esi_statutory_elig($role,$employee_code){
-		$get_esi_stat_qry      = 'select esi_limit,esi_eligibilit_formula from cw_statutory where trans_status = 1 and category="'.$role.'"';
-		$esi_statutory_data    = $this->db->query("CALL sp_a_run ('SELECT','$get_esi_stat_qry')");
-		$esi_statutory_result  = $esi_statutory_data->result();
-		$esi_statutory_data->next_result();
-		if($esi_statutory_result){
-			$esi_limit        = $esi_statutory_result[0]->esi_limit;
-			$esi_elig_formula = $esi_statutory_result[0]->esi_eligibilit_formula;
-			$esi_elig_formula = str_replace('@', '', $esi_elig_formula);
-			$esi_elig_query = 'SELECT '.$esi_elig_formula.' AS esi_elig_amt FROM cw_employees WHERE trans_status = 1 and employee_code = "'.$employee_code.'"';
-			$esi_elig_data    = $this->db->query("CALL sp_a_run ('SELECT','$esi_elig_query')");
-			$esi_elig_result  = $esi_elig_data->result();
-			$esi_elig_data->next_result();
-			$esi_elig_amt = $esi_elig_result[0]->esi_elig_amt;
-			if($esi_elig_amt > $esi_limit){
-				$upd_esi_elig_query  = 'UPDATE cw_employees SET esi_eligibility = 2 WHERE trans_status = 1 and employee_code="'.$employee_code.'"';
-			}else{
-				$upd_esi_elig_query  = 'UPDATE cw_employees SET esi_eligibility = 1 WHERE trans_status = 1 and employee_code="'.$employee_code.'"';
-			}
-			$this->db->query("CALL sp_a_run ('UPDATE','$upd_esi_elig_query')");
-			return true;
-		}
-	}
-	public function get_last_working(){
-		$role             = $this->input->post('role');
-		$resignation_date = date("Y-m-d",strtotime($this->input->post('resignation_date')));
-		$notice_period_qry      = 'select IFNULL(notice_period,0) as notice_period from cw_notice_period where trans_status = 1';
-		$notice_period_data    = $this->db->query("CALL sp_a_run ('SELECT','$notice_period_qry')");
-		$notice_period_result  = $notice_period_data->result();
-		$notice_period_data->next_result();
-		if($notice_period_result){
-			$notice = $notice_period_result[0]->notice_period;
-			$notice_day        = date('d-m-Y', strtotime($resignation_date. " + $notice days"));
-			$notice_day_check  = date('m-Y', strtotime($notice_day));
-			//Get Month Days start and end date
-			$month_day_qry     = 'select category,day_conditions,day_count,day_start,day_end from cw_month_day where cw_month_day.trans_status = 1 and category ="'.$role.'"';	
-			$month_day_data    = $this->db->query("CALL sp_a_run ('SELECT','$month_day_qry')");
-			$month_day_result  = $month_day_data->result();
-			$month_day_data->next_result();
-			if($month_day_result){
-				$day_conditions = $month_day_result[0]->day_conditions;
-				$day_count      = $month_day_result[0]->day_count;
-				$day_start      = $month_day_result[0]->day_start;
-				$day_end        = $month_day_result[0]->day_end;
-				if((int)$day_conditions === 3){
-					$prev_month = date("Y-m-".$day_start,strtotime("-1 month", strtotime($notice_day)));
-					$end_month  = date("Y-m-".$day_end, strtotime($notice_day));
-				}else{
-					$sal_start  = '01';
-					if((int)$day_conditions === 2){
-						$day_end = date("t");
-					}
-					$prev_month = date("Y-m-".$sal_start,strtotime($notice_day));
-					$end_month  = date("Y-m-".$day_end,strtotime($notice_day));
-				}
-			}
-			$end_date       = strtotime($end_month);
-			$start_date     = strtotime($prev_month);
-			$notice_date     = strtotime($notice_day);
-			$process_month  = date("m-Y",strtotime($notice_date));
-			if(($notice_date >= $start_date) && ($notice_date <= $end_date)){
-				$payroll_exit_qry  = 'select count(prime_transactions_id) as payroll_rslt from cw_transactions where transactions_month= "'.$process_month.'" and trans_status=1';
-				$payroll_exit_data  = $this->db->query("CALL sp_a_run ('SELECT','$payroll_exit_qry')");
-				$payroll_exit_result = $payroll_exit_data->result();
-				$payroll_exit_data->next_result();
-				$payroll_count = $payroll_exit_result[0]->payroll_rslt;
-				if((int)$payroll_count > 0){
-					echo json_encode(array('success' => FALSE, 'message' => "Already Payroll is proceed for this month, change the date first?"));
-				}else{
-					echo json_encode(array('success' => TRUE, 'notice_day' => $notice_day));
-				}
-			}else{
-				echo json_encode(array('success' => TRUE, 'notice_day' => $notice_day));
-			}
-		}else{
-			echo json_encode(array('success' => FALSE, 'msg' => "Please set notice period first?"));
-		}
-	}
-	
 	public function curl($emp_data){
 		$postdata = '';
 		foreach($emp_data as $key => $val){

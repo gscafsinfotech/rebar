@@ -27,6 +27,7 @@
 				<link rel="stylesheet" type="text/css" href="dist/jquery_confirm/jquery-confirm.min.css"  />				
 				<link rel="stylesheet" type="text/css" href="dist/data_table/css/data_tables.min.css"/>
 				<link rel="stylesheet" type="text/css" href="dist/bootstrap-colorpicker.css"/>
+				
             <?php endif; ?>
             <?php $this->load->view('partial/lang_lines'); ?>
             <?php $this->load->view('partial/header_js'); ?>

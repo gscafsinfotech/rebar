@@ -164,7 +164,7 @@
 				<div class="form-group">
 					<?php
 					echo form_label($this->lang->line('text_type'), 'text_type', array('class' => 'required'));
-					$text_type = array(""=>"--- Select Text Type ---","1"=>"Only Text","2"=>"Text With numbers");
+					$text_type = array(""=>"--- Select Text Type ---","1"=>"Only Text","2"=>"Text With numbers","3"=>"Only Numbers");
 					echo form_dropdown(array( 'name' => 'text_type', 'id' =>'text_type', 'class' => 'form-control input-sm'), $text_type);
 					?>
 				</div>				
@@ -220,6 +220,13 @@
 				</div>
 				<div class="form-group">
 					<?php
+					echo form_label($this->lang->line('pick_display_value'), 'pick_display_value', array('class' => 'required'));
+					$pick_table_col = array(""=>"--- Auto display column ---");
+					echo form_dropdown(array( 'name' => 'pick_display_value[]', 'multiple id' =>'pick_display_value', 'class' => 'form-control input-sm select2'), $pick_table_col);
+					?>
+				</div>
+				<div class="form-group">
+					<?php
 					echo form_label($this->lang->line('auto_prime_id'), 'auto_prime_id', array('class' => 'required'));
 					$pick_table_col = array(""=>"--- Auto prime id column ---");
 					echo form_dropdown(array( 'name' => 'auto_prime_id', 'id' =>'auto_prime_id', 'class' => 'form-control input-sm'), $pick_table_col);
@@ -263,6 +270,12 @@
 					<?php
 					echo form_label($this->lang->line('upload_extension'), 'upload_extension', array('class' => 'required'));
 					echo form_dropdown(array('name' => 'upload_extension[]','multiple id' =>'upload_extension','class' => 'form-control input-sm select2'), $upload_extension);
+					?>
+				</div>
+				<div class="form-group">
+					<?php
+						echo form_label($this->lang->line('upload_file_size'), 'default_value', array('class' => ''));
+						echo form_input(array( 'name' => 'upload_file_size', 'id' => 'upload_file_size', 'class' => 'form-control input-sm', 'placeholder'=>$this->lang->line('kb_size'),'value' => ''));
 					?>
 				</div>
 				<div class="form-group">
@@ -1068,6 +1081,7 @@ $(document).ready(function(){
 
 			pick_list_type: "required",
 			pick_list_import: "required",
+			"pick_display_value[]": "required",
 			pick_table: "required",
 			"field_for[]": "required",
 			"pick_list[]": "required",
@@ -1076,6 +1090,12 @@ $(document).ready(function(){
 				required: true,
 				number: true,
 				range:[10,255],
+			},
+			upload_file_size: "required",
+			upload_file_size:{
+				required: true,
+				number: true,
+				range:[1,3072],
 			},
 			text_type  : "required",
 			field_decimals:{
@@ -1330,6 +1350,9 @@ $(document).ready(function(){
 					}
 					$('#pick_table_col').parent().show();
 					$('#pick_table_col').append(option);
+					$('#pick_display_value').empty();
+					$('#pick_display_value').append(option);
+					$('#pick_display_value').parent().show();
 					if(field_type === "9"){
 						$('#auto_prime_id').empty();
 						$('#auto_prime_id').append(option);
@@ -1422,6 +1445,7 @@ function empty_all(){
 	$("#pick_list_import").val(2);
 	$("#pick_table").val("");
 	$("#pick_table_col").val("");
+	$("#pick_display_value").val("");
 	$("#pick_list").val("");
 	$("#default_value").val("");
 	$("#file_type").val("");
@@ -1438,7 +1462,7 @@ function empty_all(){
 	$('#duplicate_data').prop('checked', false);
 	$('#field_for option:selected').removeAttr('selected');
 	$('#upload_extension option:selected').removeAttr('selected');
-	$('#label_name,#view_name,#short_name,#text_type,#field_length,#field_decimals,#pick_list_type,#pick_list_import,#pick_table,#pick_table_col,#pick_list,#default_value,#field_for,#file_type,#upload_extension,#auto_prime_id,#auto_dispaly_value').parent().hide();
+	$('#label_name,#view_name,#short_name,#text_type,#field_length,#field_decimals,#pick_list_type,#pick_list_import,#pick_table,#pick_table_col,#pick_list,#default_value,#field_for,#file_type,#upload_extension,#auto_prime_id,#auto_dispaly_value,#pick_display_value,#upload_file_size').parent().hide();
 	$('#checkbox_group_div').hide();
 	//$("#transaction_type").val("");
 	$('#gross_check').prop('checked', false);
@@ -1509,10 +1533,10 @@ function update_ui(field_type){
 	}else
 	//FILE UPLOAD
 	if(field_type === "10"){
-		$('#label_name,#view_name,#short_name,#default_value,#field_for,#file_type,#upload_extension').parent().show();
+		$('#label_name,#view_name,#short_name,#default_value,#field_for,#file_type,#upload_extension,#upload_file_size').parent().show();
 		$('#checkbox_group_div').show();
 	}else{
-		$('#label_name,#view_name,#short_name,#text_type,#field_length,#field_decimals,#pick_list_type,#pick_list_import,#pick_table,#pick_table_col,#pick_list,#default_value,#field_for,#file_type,#upload_extension,#auto_prime_id,#auto_dispaly_value').parent().hide();
+		$('#label_name,#view_name,#short_name,#text_type,#field_length,#field_decimals,#pick_list_type,#pick_list_import,#pick_table,#pick_table_col,#pick_list,#default_value,#field_for,#file_type,#upload_extension,#auto_prime_id,#auto_dispaly_value,#pick_display_value,#upload_file_size').parent().hide();
 		$('#checkbox_group_div').hide();
 	}
 	call_select();
@@ -1522,10 +1546,10 @@ function update_ui(field_type){
 function update_pick_ui(pick_list_type){
 	if(pick_list_type === "1"){
 		$('#pick_table_col,#pick_list').parent().hide();
-		$('#pick_table').parent().show();
+		$('#pick_table,#pick_display_value').parent().show();
 	}else
 	if(pick_list_type === "2"){
-		$('#pick_table,#pick_table_col').parent().hide();
+		$('#pick_table,#pick_table_col,#pick_display_value').parent().hide();
 		$('#pick_list').parent().show();
 	}
 	call_select();
@@ -1585,6 +1609,7 @@ function update_field_info(rslt){
 		$("#common_table").val(rslt.field_info.pick_table);
 		$("#file_type").val(rslt.field_info.file_type);
 		$("#transaction_type").val(rslt.field_info.transaction_type);
+		$("#upload_file_size").val(rslt.field_info.upload_file_size);
 				
 		$('#mandatory_field').prop('checked', false);
 		if(rslt.field_info.mandatory_field === "1"){
@@ -1696,6 +1721,9 @@ function update_field_info(rslt){
 			$('#pick_table_col').empty();
 			$('#pick_table_col').append(option);
 			$('#pick_table_col').parent().show();
+			$('#pick_display_value').empty();
+			$('#pick_display_value').append(option);
+			$('#pick_display_value').parent().show();
 			if(rslt.field_info.field_type === "9"){
 				$('#auto_prime_id').empty();
 				$('#auto_prime_id').append(option);
@@ -1728,6 +1756,13 @@ function update_field_info(rslt){
 		for(var i in field_for_options) {
 			var optionVal = field_for_options[i];
 			$("#field_for").find("option[value='"+optionVal+"']").prop("selected", "selected");
+		}
+		if(rslt.field_info.pick_display_value){
+			var pick_display_value_options = rslt.field_info.pick_display_value.split(',');
+			for(var i in pick_display_value_options) {
+				var optionVal = pick_display_value_options[i];
+				$("#pick_display_value").find("option[value='"+optionVal+"']").prop("selected", "selected");
+			}
 		}
 		if(rslt.field_info.upload_extension){
 			var upload_extension_options = rslt.field_info.upload_extension.split(',');

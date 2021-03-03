@@ -52,6 +52,7 @@ class Login extends CI_Controller {
 			$this->session->set_userdata('logged_user_role', $logged_user_info->user_right);
 			$this->session->set_userdata('logged_emp_code', $logged_user_info->employee_code);
 			$this->session->set_userdata('logged_branch', $logged_user_info->branch);
+			$this->session->set_userdata('logged_reporting', $logged_user_info->reporting);
 			$this->session->set_userdata('logged_consultancy', $logged_user_info->consultancy);
 			$this->session->set_userdata('logged_dept', $logged_user_info->department);
 			$this->session->set_userdata('access_data', $this->get_all_access($logged_type,$logged_user_info->prime_employees_id));

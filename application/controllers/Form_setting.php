@@ -343,29 +343,31 @@ class Form_setting  extends Secure_Controller{
 		$form_view_label_name = $view_result[0]->form_view_label_name;
 		
 		$table_data = array(
-			'prime_form_id'   => $this->input->post('prime_form_id'),
-			'prime_module_id' => $this->input->post('prime_module_id'),
-			'input_view_type' => $input_view_type,
-			'input_for'       => $this->input->post('input_for'),
-			'field_type'      => $this->input->post('field_type'),
-			'label_name'      => $label_name,
-			'view_name'       => $view_name,
-			'short_name'      => $short_name,
-			'field_length'    => $this->input->post('field_length'),
-			'text_type'       => $this->input->post('text_type'),
-			'field_decimals'  => $this->input->post('field_decimals'),
-			'pick_list_type'  => $pick_list_type,
-			'pick_list_import' => $pick_list_import,
-			'field_isdefault' => $this->input->post('field_isdefault'),
-			'default_value'   => $this->input->post('default_value'),
-			'mandatory_field' => $mandatory_value,
-			'unique_field'    => $unique_value,
-			'field_show'      => $show_value,
-			'table_show'      => $table_show_val,
-			'search_show'     => $search_show_val,
-			'field_for'       => ltrim(implode(",",$this->input->post('field_for[]')),","),
-			'upload_extension' => ltrim(implode(",",$this->input->post('upload_extension[]')),","),
-			'file_type'       => $this->input->post('file_type'),
+			'prime_form_id'   		=> $this->input->post('prime_form_id'),
+			'prime_module_id' 		=> $this->input->post('prime_module_id'),
+			'input_view_type' 		=> $input_view_type,
+			'input_for'       		=> $this->input->post('input_for'),
+			'field_type'      		=> $this->input->post('field_type'),
+			'label_name'      		=> $label_name,
+			'view_name'       		=> $view_name,
+			'short_name'      		=> $short_name,
+			'field_length'    		=> $this->input->post('field_length'),
+			'text_type'       		=> $this->input->post('text_type'),
+			'field_decimals'  		=> $this->input->post('field_decimals'),
+			'pick_list_type'  		=> $pick_list_type,
+			'pick_list_import' 		=> $pick_list_import,
+			'field_isdefault' 		=> $this->input->post('field_isdefault'),
+			'default_value'   		=> $this->input->post('default_value'),
+			'mandatory_field' 		=> $mandatory_value,
+			'unique_field'    		=> $unique_value,
+			'field_show'      		=> $show_value,
+			'table_show'      		=> $table_show_val,
+			'search_show'     		=> $search_show_val,
+			'field_for'       		=> ltrim(implode(",",$this->input->post('field_for[]')),","),
+			'pick_display_value'  	=> ltrim(implode(",",$this->input->post('pick_display_value[]')),","),
+			'upload_extension' 		=> ltrim(implode(",",$this->input->post('upload_extension[]')),","),
+			'upload_file_size'  	=> $this->input->post('upload_file_size'),
+			'file_type'       		=> $this->input->post('file_type'),
 			'transaction_type'      => $this->input->post('transaction_type'),
 			'gross_check'           => $gross_check_val,
 			'taxable_check'         => $taxable_check_val,
@@ -1921,7 +1923,7 @@ class Form_setting  extends Secure_Controller{
 		$info->next_result();
 		$db_name         = $this->config->item("db_name");
 		
-		$field_type_array =  array(1=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",2=>"decimal(15,@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",3=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",4=>"date NULL DEFAULT NULL",5=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",6=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",7=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",8=>"TEXT NULL",9=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",10=>"TEXT NULL");
+		$field_type_array =  array(1=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",2=>"decimal(15,@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",3=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",4=>"date NULL DEFAULT NULL",5=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",6=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",7=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",8=>"TEXT NULL",9=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",10=>"TEXT NULL",11=>"varchar(@LENGTH) NULL DEFAULT NULL",12=>"varchar(@LENGTH) NULL DEFAULT NULL",13=>"datetime NULL DEFAULT NULL",14=>"varchar(@LENGTH) NULL DEFAULT NULL");
 		
 		$row_table_name  = $this->db->dbprefix($table_name);
 		$query           = $this->db->query("SELECT COUNT(*)AS data_count FROM information_schema.tables WHERE  TABLE_SCHEMA ='$db_name' AND table_name = '$row_table_name'");

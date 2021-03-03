@@ -69,6 +69,9 @@ $lang["cond_drop_down_val"]                      = "Drop down value for conditio
 $lang["transaction_type"]                        = "Transaction Type";
 $lang["short_name"]                              = "Short Name";
 $lang["upload_extension"]                        = "Upload Extension";
+$lang["upload_file_size"]                        = "Upload File Size";
+$lang["pick_display_value"]                      = "Picklist Display";
+$lang["kb_size"]                        		 = "KB Size Only";
 
 //Menu Setting 
 $lang["menu_name"]          = "Menu Name";

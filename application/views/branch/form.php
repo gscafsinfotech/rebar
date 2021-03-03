@@ -70,6 +70,9 @@ foreach($view_info as $view){
 				}else
 				if($text_type === 2){
 					$valid_class = "alpha";
+				}else
+				if($text_type === 3){
+					$valid_class = "number";
 				}
 				$input_value = str_replace('^',"'",$input_value);
 				$form_input = form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$input_value,"placeholder"=>$label_name, $read=>true,"class"=>"form-control input-sm $valid_class"));
@@ -578,6 +581,7 @@ echo "$form_open
 	$form_close";
 
 ?>
+
 <script type="text/javascript">
 $(document).ready(function(){
 	var prime_id         = "#<?php echo $prime_id;?>";

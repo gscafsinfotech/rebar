@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script is allowed');
 require_once("Action_controller.php");
-class Rebar_location  extends Action_controller{	
+class Client_location  extends Action_controller{	
 	public function __construct(){
-		parent::__construct('rebar_location');
+		parent::__construct('client_location');
 		$this->collect_base_info();
 	}
 	

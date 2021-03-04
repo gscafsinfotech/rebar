@@ -422,7 +422,7 @@ $(document).ready(function (){
 	});
 	
 	$("#delete_btn").click(function(event){
-		if(confirm("Are you sure. you want delete select records??")){
+		if(confirm("Are you sure. you want delete select records?")){
 			var delete_ids = [];
 			$.each($("input[name='select_one']:checked"), function(){
 				delete_ids.push($(this).val());

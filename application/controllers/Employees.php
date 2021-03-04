@@ -84,6 +84,7 @@ class Employees  extends Action_controller{
 							if(strtotime($search)){
 								$search_val = date('Y-m-d',strtotime($search));
 								$common_search .= ' or '. $search_label .' like "'.$search_val.'%"';
+
 							}
 						}else
 						if(($field_type === 5) || ($field_type === 7) || ($field_type === 9)){
@@ -95,14 +96,15 @@ class Employees  extends Action_controller{
 							});
 							if($result){
 								$pick_key   = implode(",",array_keys($result));
-								$common_search .= ' or '. $search_label .' in('.$pick_key.')';
+								$common_search .= ' or '. $search_label .' in("'.$pick_key.'")';
 							}
 						}else{
-							$common_search .= ' or '. $search_label .' like "'.$search.'%"';
+							$common_search .= ' or '. $search_label .' like "%'.$search.'%"';
 						}
 					}
 				}
 			}
+
 			if($common_search){
 				$common_search = ltrim($common_search,' or ');
 				$common_search = " and ($common_search)";

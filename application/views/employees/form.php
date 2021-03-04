@@ -257,6 +257,9 @@ foreach($view_info as $view){
 				}else					
 				if((int)$field_type === 14){ //READ ONLY
 					$validation_rule .=  "$label_id:{ $required $len },";
+				}else
+				if((int)$field_type === 15){ //DATE
+					$validation_rule .=  "$label_id:{ $required $len },";
 				}
 			}
 			/*================= FORM VALIDATION SCRIPT - END =================*/
@@ -763,6 +766,9 @@ $(document).ready(function(){
 			});
 		});
 	}
+	$('.only_time').datetimepicker({
+        format: 'HH:mm',
+    });
 	$("#stop_pay_month").datetimepicker({
 		format: 'MM-YYYY',
 		//debug: true

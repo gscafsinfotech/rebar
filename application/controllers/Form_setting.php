@@ -640,7 +640,7 @@ class Form_setting  extends Secure_Controller{
 			$input_info->next_result();
 			$input_li = "";
 			$input_count = 0;
-			$field_type_array =  array(1=>"Text",2=>"Decimals",3=>"Integer",4=>"Date",5=>"Picklist",6=>"Checkbox",7=>"Multi Picklist",8=>"summary box",9=>"Auto complete box",10=>"File upload box",11=>"Mobile Number",12=>"Email",13=>"Date & Time",14=>"Read Only");
+			$field_type_array =  array(1=>"Text",2=>"Decimals",3=>"Integer",4=>"Date",5=>"Picklist",6=>"Checkbox",7=>"Multi Picklist",8=>"summary box",9=>"Auto complete box",10=>"File upload box",11=>"Mobile Number",12=>"Email",13=>"Date & Time",14=>"Read Only",15=>"Time");
 			foreach($input_result as $setting){ 
 				$input_count++;
 				$prime_form_id   = $setting->prime_form_id;
@@ -1762,7 +1762,7 @@ class Form_setting  extends Secure_Controller{
 		$info         = $this->db->query("CALL sp_form_setting_crud ('QUERY_VIEW', '$table_data',null)");
 		$form_setting = $info->result();
 		$info->next_result();
-		$field_type_array =  array(1=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",2=>"decimal(15,@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",3=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",4=>"date NULL DEFAULT NULL",5=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",6=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",7=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",8=>"TEXT NULL",9=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",10=>"TEXT NULL",11=>"varchar(@LENGTH) NULL DEFAULT NULL",12=>"varchar(@LENGTH) NULL DEFAULT NULL",13=>"datetime NULL DEFAULT NULL",14=>"varchar(@LENGTH) NULL DEFAULT NULL");
+		$field_type_array =  array(1=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",2=>"decimal(15,@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",3=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",4=>"date NULL DEFAULT NULL",5=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",6=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",7=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",8=>"TEXT NULL",9=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",10=>"TEXT NULL",11=>"varchar(@LENGTH) NULL DEFAULT NULL",12=>"varchar(@LENGTH) NULL DEFAULT NULL",13=>"datetime NULL DEFAULT NULL",14=>"varchar(@LENGTH) NULL DEFAULT NULL",15=>"time NULL DEFAULT NULL");
 		
 		$prime_table_name  = $this->db->dbprefix($prime_module_id);
 		//$cf_table_name     = $prime_module_id."_cf";
@@ -1923,7 +1923,7 @@ class Form_setting  extends Secure_Controller{
 		$info->next_result();
 		$db_name         = $this->config->item("db_name");
 		
-		$field_type_array =  array(1=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",2=>"decimal(15,@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",3=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",4=>"date NULL DEFAULT NULL",5=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",6=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",7=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",8=>"TEXT NULL",9=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",10=>"TEXT NULL",11=>"varchar(@LENGTH) NULL DEFAULT NULL",12=>"varchar(@LENGTH) NULL DEFAULT NULL",13=>"datetime NULL DEFAULT NULL",14=>"varchar(@LENGTH) NULL DEFAULT NULL");
+		$field_type_array =  array(1=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",2=>"decimal(15,@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",3=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",4=>"date NULL DEFAULT NULL",5=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",6=>"int(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",7=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",8=>"TEXT NULL",9=>"varchar(@LENGTH) NULL DEFAULT '@DEFAULTVALUE'",10=>"TEXT NULL",11=>"varchar(@LENGTH) NULL DEFAULT NULL",12=>"varchar(@LENGTH) NULL DEFAULT NULL",13=>"datetime NULL DEFAULT NULL",14=>"varchar(@LENGTH) NULL DEFAULT NULL",15=>"time NULL DEFAULT NULL");
 		
 		$row_table_name  = $this->db->dbprefix($table_name);
 		$query           = $this->db->query("SELECT COUNT(*)AS data_count FROM information_schema.tables WHERE  TABLE_SCHEMA ='$db_name' AND table_name = '$row_table_name'");

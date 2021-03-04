@@ -216,6 +216,16 @@ foreach($view_info as $view){
 				}
 				$form_input = form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$input_value,"placeholder"=>$label_name, $read => 'true',"class"=>"form-control input-sm $valid_class"));
 				$input_box .= "<div class='form-group'>$form_label $form_input</div>";
+			}else
+			// TIME ONLY
+			if((int)$field_type === 15){
+				if($input_value){
+					$time = $input_value;
+				}else{
+					$time = "00:00";
+				}
+				$form_input =  form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$time,"placeholder"=>$label_name, $read=>true, "class"=>"form-control input-sm only_time"));
+				$input_box .= "<div class='form-group'>$form_label $form_input</div>";
 			}
 			/*=================== FORM INPUT PROCESS - END ===================*/
 			
@@ -271,6 +281,9 @@ foreach($view_info as $view){
 					$validation_rule .=  "$label_id:{ $required $len },";
 				}else					
 				if((int)$field_type === 14){ //READ ONLY
+					$validation_rule .=  "$label_id:{ $required $len },";
+				}else
+				if((int)$field_type === 15){ //DATE
 					$validation_rule .=  "$label_id:{ $required $len },";
 				}
 			}
@@ -581,6 +594,9 @@ $(document).ready(function(){
 			});
 		});
 	}
+	$('.only_time').datetimepicker({
+        format: 'HH:mm',
+    });
 	if(date_time_exist === "1"){
 		$(function () {
 			$(".datepicker_time").datetimepicker({
@@ -634,11 +650,11 @@ $(document).ready(function(){
 		}
 	});
 	$(".alpha_text").keypress(function(event){
-     var inputValue = event.charCode;
-     if(!(inputValue >= 65 && inputValue <= 120) && (inputValue != 32 && inputValue != 0)){
-         event.preventDefault();
-     }
-});
+	     var inputValue = event.charCode;
+	     if(!(inputValue >= 65 && inputValue <= 122) && (inputValue != 32 && inputValue != 0)){
+	         event.preventDefault();
+	     }
+	});
 	$.validator.setDefaults({ignore:[]});	
 	$.validator.addMethod("alphanumeric", function(value, element) {
 		return this.optional(element) || /^[a-z0-9\-\s]+$/i.test(value);

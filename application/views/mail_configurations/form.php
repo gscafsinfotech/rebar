@@ -497,6 +497,9 @@ $(document).ready(function(){
 			});
 		});
 	}
+	$('.only_time').datetimepicker({
+        format: 'HH:mm',
+    });
 	var drop_exist = "<?php echo $drop_exist;?>";
 	if(drop_exist === "1"){
 		$(function(){

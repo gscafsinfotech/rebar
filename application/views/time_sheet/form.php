@@ -220,6 +220,16 @@ foreach($view_info as $view){
 				}
 				$form_input = form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$input_value,"placeholder"=>$label_name, $read => 'true',"class"=>"form-control input-sm $valid_class"));
 				$input_box .= "<div class='form-group'>$form_label $form_input</div>";
+			}else
+			// TIME ONLY
+			if((int)$field_type === 15){
+				if($input_value){
+					$time = $input_value;
+				}else{
+					$time = "00:00";
+				}
+				$form_input =  form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$time,"placeholder"=>$label_name, $read=>true, "class"=>"form-control input-sm only_time"));
+				$input_box .= "<div class='form-group'>$form_label $form_input</div>";
 			}
 			/*=================== FORM INPUT PROCESS - END ===================*/
 			
@@ -275,6 +285,9 @@ foreach($view_info as $view){
 					$validation_rule .=  "$label_id:{ $required $len },";
 				}else					
 				if((int)$field_type === 14){ //READ ONLY
+					$validation_rule .=  "$label_id:{ $required $len },";
+				}else
+				if((int)$field_type === 15){ //DATE
 					$validation_rule .=  "$label_id:{ $required $len },";
 				}
 			}
@@ -651,6 +664,9 @@ $(document).ready(function(){
 			});
 		});
 	}
+	$('.only_time').datetimepicker({
+        format: 'HH:mm',
+    });
 	if(date_time_exist === "1"){
 		$(function () {
 			$(".datepicker_time").datetimepicker({
@@ -704,11 +720,11 @@ $(document).ready(function(){
 		}
 	});
 	$(".alpha_text").keypress(function(event){
-     var inputValue = event.charCode;
-     if(!(inputValue >= 65 && inputValue <= 120) && (inputValue != 32 && inputValue != 0)){
-         event.preventDefault();
-     }
-});
+	     var inputValue = event.charCode;
+	     if(!(inputValue >= 65 && inputValue <= 122) && (inputValue != 32 && inputValue != 0)){
+	         event.preventDefault();
+	     }
+	});
 	$.validator.setDefaults({ignore:[]});	
 	$.validator.addMethod("alphanumeric", function(value, element) {
 		return this.optional(element) || /^[a-z0-9\-\s]+$/i.test(value);
@@ -717,6 +733,7 @@ $(document).ready(function(){
 	$(form_id).submit(function(event){ event.preventDefault(); }).validate({
 		ignore: ".ignore",
         invalidHandler: function(e, validator){
+        	
         	if(validator.errorList.length)
             $('.nav-tabs a[href="#' + $(validator.errorList[0].element).closest(".tab-pane").attr('id') + '"]').tab('show');
         },
@@ -726,8 +743,11 @@ $(document).ready(function(){
 		submitHandler: function (form){
 			$("#submit").html("<i class='fa fa-spinner fa-spin'></i> Processing...");
 			$('#submit').attr('disabled','disabled');
+			$('.nav-tabs a[href="#time_line"]').tab('show');
 			$(form).ajaxSubmit({
 				success: function (response){
+					console.log(response);
+
 					$('#submit').attr('disabled',false);
 					$("#submit").html("Submit");
 					if(response.success){
@@ -735,8 +755,9 @@ $(document).ready(function(){
 						//table_support.handle_submit('<?php echo site_url($controller_name); ?>', response);
 						//table_support.refresh();
 						$('.row_btn').show();
-						$('.modal').modal('hide');
+						// $('.modal').modal('hide');
 						//$('#table').DataTable.reload();
+						toastr.success(response.message);
 						$('#table').DataTable().ajax.reload();
 					}else{
 						toastr.error(response.message);
@@ -765,14 +786,14 @@ function show_detailer_worktype(work_type){
 	if(parseInt(work_type) === 1){
 		$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').parent().show();
 		$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').removeClass('ignore');
-		// $('#co_number,#revision_time,#non_revision_time,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours').parent().hide();
-		// $('#co_number,#revision_time,#non_revision_time,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours').addClass('ignore');
+		$('#co_number,#revision_time,#non_revision_time,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours').parent().hide();
+		$('#co_number,#revision_time,#non_revision_time,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours').addClass('ignore');
 		// $('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').val('');
 	}else{
 		$('#co_number,#revision_time,#non_revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#bar_listing_time,#bar_list_quantity,#other_works,#work_status,#work_description,#billable,#billable_hours,#non_billable_hours').parent().show();
-		$('#co_number,#revision_time,#non_revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#bar_listing_time,#bar_list_quantity,#other_works,#work_status,#work_description,#billable,#billable_hours,#non_billable_hours').parent().removeClass('ignore');
-		// $('#detailing_time,#non_detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').parent().hide();
-		// $('#detailing_time,#non_detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').addClass('ignore');
+		$('#co_number,#revision_time,#non_revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#bar_listing_time,#bar_list_quantity,#other_works,#work_status,#work_description,#billable,#billable_hours,#non_billable_hours').removeClass('ignore');
+		$('#detailing_time,#non_detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').parent().hide();
+		$('#detailing_time,#non_detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').addClass('ignore');
 		// $('#co_number,#revision_time,#non_revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#bar_listing_time,#bar_list_quantity,#other_works,#work_status,#work_description,#billable,#billable_hours,#non_billable_hours').val('');
 	}
 	
@@ -782,14 +803,14 @@ function show_teamleader_worktype(work_type){
 	if(parseInt(work_type) === 1){
 		$('#emails,#study,#checking,#discussion,#was,#correction_time,#tonnage_change,#actual_tonnage').parent().show();
 		$('#emails,#study,#checking,#discussion,#was,#correction_time,#tonnage_change,#actual_tonnage').removeClass('ignore');
-		// $('#rfi,#study,#aec,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().hide();
-		// $('#rfi,#study,#aec,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().addClass('ignore');
+		$('#rfi,#study,#aec,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().hide();
+		$('#rfi,#study,#aec,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').addClass('ignore');
 		// $('#emails,#study,#checking,#discussion,#was,#correction_time,#tonnage_change,#actual_tonnage').val('');
 	}else{
 		$('#rfi,#study,#checking,#aec,#correction_time,#was,#emails,#discussion,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().show();
 		$('#rfi,#study,#checking,#aec,#correction_time,#was,#emails,#discussion,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().removeClass('ignore');
-		// $('#tonnage_change,#actual_tonnage').parent().hide();
-		// $('#tonnage_change,#actual_tonnage').parent().addClass('ignore');
+		$('#tonnage_change,#actual_tonnage').parent().hide();
+		$('#tonnage_change,#actual_tonnage').addClass('ignore');
 		// $('#rfi,#study,#checking,#aec,#correction_time,#was,#emails,#discussion,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').val('');
 	}
 }
@@ -798,14 +819,14 @@ function show_projectmanager_worktype(work_type){
 	if(parseInt(work_type) === 1){
 		$('#emails,#study,#qa_checking,#discussion,#was,#monitoring').parent().show();
 		$('#emails,#study,#qa_checking,#discussion,#was,#monitoring').removeClass('ignore');
-		// $('#rfi,#other_works,#co_checking,#bar_listing_checking').parent().hide();
-		// $('#rfi,#other_works,#co_checking,#bar_listing_checking').addClass('ignore');
+		$('#rfi,#other_works,#co_checking,#bar_listing_checking').parent().hide();
+		$('#rfi,#other_works,#co_checking,#bar_listing_checking').addClass('ignore');
 		// $('#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#other_works,#co_checking,#bar_listing_checking').val('');
 	}else{
 		$('#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#other_works,#co_checking,#bar_listing_checking').parent().show();
 		$('#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#other_works,#co_checking,#bar_listing_checking').removeClass('ignore');
-		// $('#emails').parent().hide();
-		// $('#emails').addClass('ignore');
+		$('#emails').parent().hide();
+		$('#emails').addClass('ignore');
 		// $('#emails,#study,#qa_checking,#discussion,#was,#monitoring').val('');
 	}
 }

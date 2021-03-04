@@ -127,7 +127,7 @@
 								<?php 
 								if($company_info[0]->company_logo){
 								?>
-								<div style='text-align:center;'>
+								<div style='text-align:left;'>
 									<img src="<?php echo base_url($company_info[0]->company_logo); ?>" width="149px" height="49px">
 								</div>
 								<?php 

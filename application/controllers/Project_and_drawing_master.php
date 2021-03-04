@@ -96,10 +96,10 @@ class Project_and_drawing_master  extends Action_controller{
 							});
 							if($result){
 								$pick_key   = implode(",",array_keys($result));
-								$common_search .= ' or '. $search_label .' in('.$pick_key.')';
+								$common_search .= ' or '. $search_label .' in("'.$pick_key.'")';
 							}
 						}else{
-							$common_search .= ' or '. $search_label .' like "'.$search.'%"';
+							$common_search .= ' or '. $search_label .' like "%'.$search.'%"';
 						}
 					}
 				}

@@ -157,7 +157,7 @@
 				<div class="form-group">
 					<?php
 						echo form_label($this->lang->line('field_type'), 'field_type', array('class' => 'required'));
-						$field_type_array =  array(""=>"---- Field Type ----",1=>"Text",2=>"Decimals",3=>"Integer",4=>"Date",5=>"Picklist",6=>"Checkbox",7=>"Multi Picklist",8=>"summary box",9=>"Auto complete box",10=>"File upload box",11=>"Mobile Number",12=>"Email",13=>"Date & Time",14=>"Read Only");
+						$field_type_array =  array(""=>"---- Field Type ----",1=>"Text",2=>"Decimals",3=>"Integer",4=>"Date",5=>"Picklist",6=>"Checkbox",7=>"Multi Picklist",8=>"summary box",9=>"Auto complete box",10=>"File upload box",11=>"Mobile Number",12=>"Email",13=>"Date & Time",14=>"Read Only",15=>"Time");
 						echo form_dropdown(array( 'name' => 'field_type', 'id' => 'field_type', 'class' => 'form-control input-sm'), $field_type_array);
 					?>
 				</div>
@@ -1517,7 +1517,7 @@ function update_ui(field_type){
 		$('#field_decimals').val(2);
 	}else
 	//DATE,CHECKBOX,SUMMARY
-	if((field_type === "4") || (field_type === "6") || (field_type === "8")|| (field_type === "13")){
+	if((field_type === "4") || (field_type === "6") || (field_type === "8")|| (field_type === "13") || (field_type === "15")){
 		$('#label_name,#view_name,#short_name,#default_value,#field_for').parent().show();
 		$('#checkbox_group_div').show();
 	}else

@@ -54,6 +54,54 @@
 				}			
 			}			
 		return_rslt($frm,$rslt);
+	}else
+	if($frm === "get_punched_data"){
+		$date = new DateTime('2019-11-21');
+		$punch_date = $date->modify("-1 days")->format('Y-m-d');
+		$rslt ="";
+		$sql_emp_rslt   = $api_model->get_sql_emp("SELECT CODE,R_CODE,ENTRY_DATE,IN_TIME,IN_HOUR,OUT_TIME,OUT_HOUR,IN_DATE,OUT_DATE,VALID_DATA,ENTRY_TYPE,ENTRY_METHOD,HFDAY_TYPE,ENTRY_DAYS FROM TIME_ENTRY where ENTRY_DATE = '".$punch_date."'");
+		$mysql_emp_rslt = $api_model->get_mysql_emp("select employee_code from cw_punched_data_details where entry_date = '".$punch_date."'");
+		foreach ($sql_emp_rslt as $key => $value){
+			$employee_code = $value->CODE;				
+			$rcode         = $value->R_CODE;	
+			$entry_date    = $value->ENTRY_DATE;
+			$in_time       = $value->IN_TIME;
+			$in_hour       = $value->IN_HOUR;
+			$out_time      = $value->OUT_TIME;
+			$out_hour      = $value->OUT_HOUR;
+			$in_date       = $value->IN_DATE;
+			$out_date      = $value->OUT_DATE;
+			$valid_data    = $value->VALID_DATA;
+			$entry_type    = $value->ENTRY_TYPE;
+			$entry_method  = $value->ENTRY_METHOD;
+			$hfday_type    = $value->HFDAY_TYPE;
+			$entry_days    = $value->ENTRY_DAYS;
+			if($entry_date){
+				$entry_date  = $entry_date->format("Y-m-d");
+			}else{
+				$entry_date  = "";
+			}
+			if($in_date){
+				$in_date = $in_date->format("Y-m-d");
+			}else{
+				$in_date = "";
+			}
+			if($out_date){
+				$out_date = $out_date->format("Y-m-d");
+			}else{
+				$out_date = "";
+			}
+			if($employee_code){
+				if($mysql_emp_rslt[$employee_code]['employee_code']){
+					$prime_update_query  = 'UPDATE cw_punched_data_details SET entry_date = "'. $entry_date .'",in_time = "'. $in_time .'",in_hour = "'. $in_hour .'",out_time = "'.$out_time.'",out_hour = "'.$gender.'",in_date = "'.$in_date.'",out_date = "'.$out_date.'",valid_data = "'.$valid_data.'",entry_type = "'.$entry_type.'",entry_method = "'.$entry_method.'",half_day_type = "'.$halfday_type.'",entry_days = "'.$entry_days.'" WHERE employee_code = "'. $employee_code .'"';
+					$rslt = $api_model->runQuery($prime_update_query);
+				}else{
+					$sql = "insert into cw_punched_data_details(employee_code,entry_date,in_time,in_hour,out_time,out_hour,in_date,out_date,valid_data,entry_type,entry_method,half_day_type,entry_days) values ('".$employee_code."','".$entry_date."','". $in_time ."','".$in_hour."','". $out_time ."','". $out_hour ."','". $in_date ."','". $out_date ."','".$valid_data."','". $entry_type ."','". $entry_method ."','". $halfday_type ."','". $entry_days ."')";
+					$rslt = $api_model->runQuery($sql);
+				}
+			}			
+		}		
+	return_rslt($frm,$rslt);
 	}else{
 	    echo json_encode(array(
 			'Status' => 400,

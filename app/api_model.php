@@ -1,6 +1,6 @@
 <?php
 include('./dbconnect.php');
-//error_reporting(0);
+error_reporting(0);
 class api_model extends dbconnect{	
 	public function __construct() {
 		$this->open_db();

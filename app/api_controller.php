@@ -33,7 +33,6 @@
 				}else{
 					$term_flag = 2;
 				}
-				//echo "BSK $term_flag<br/>";
 				if($dob){
 					$dob  = $dob->format("Y-m-d");
 				}else{

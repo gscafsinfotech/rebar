@@ -1,9 +1,5 @@
 <?php 
 $logged_user_role     = $this->session->userdata('logged_user_role');
-$logged_role 		  = $this->session->userdata('logged_role');
-$logged_branch		  = $this->session->userdata('logged_branch');
-$logged_reporting	  =	$this->session->userdata('logged_reporting');
-$logged_emp_code	  =	$this->session->userdata('logged_emp_code');
 $prime_id             = "prime_".$controller_name."_id";
 $form_id              = $controller_name."_form";
 $count                = 0;
@@ -14,7 +10,6 @@ $view_count           = 0;
 $view_content         = "";
 $document_load_script = "";
 $validation_rule      = "";
-$form_view_id 		  = $form_view_id;
 foreach($view_info as $view){
 	$prime_form_view_id   = (int)$view->prime_form_view_id;
 	$prime_view_module_id = $view->prime_view_module_id;
@@ -76,6 +71,9 @@ foreach($view_info as $view){
 				}else
 				if($text_type === 2){
 					$valid_class = "alpha";
+				}else
+				if($text_type === 3){
+					$valid_class = "number";
 				}
 				$input_value = str_replace('^',"'",$input_value);
 				$form_input = form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$input_value,"placeholder"=>$label_name, $read=>true,"class"=>"form-control input-sm $valid_class"));
@@ -107,15 +105,6 @@ foreach($view_info as $view){
 			}else
 			//PICKLIST
 			if((int)$field_type === 5){
-				if($label_id === "branch"){
-					$input_value  = $logged_branch;
-				}else
-				if($label_id === "reporting"){
-					$input_value  = $logged_reporting;
-				}else
-				if($label_id === "employee_code"){
-					$input_value  = $logged_emp_code;
-				}
 				$drop_exist = true;
 				$drop_down_array = array("name" => $label_id,"id" => $label_id,"class" =>'form-control input-sm select2');
 				if($read){
@@ -503,15 +492,16 @@ foreach($view_info as $view){
 		$row_check_input = rtrim($row_check_input,',');
 		$row_clear_data  = rtrim($row_clear_data,',');
 		$row_send_data   = "{".rtrim($row_send_data,',')."}";
+		
 		if($row_check_input){
 			$row_check_input = "var isValid = true;
 								$('$row_check_input').each(function() {
-								  if ($(this).val() === '' && (!$(this).hasClass('ignore'))) {
+								  if ($(this).val() === '') {
 									isValid = false;
 									toastr.error('Please fill all required field');
-									$(this).addClass('ignore');
+									$(this).addClass('error');
 								  }else{
-									 $(this).removeClass('ignore');
+									 $(this).removeClass('error');
 								  }
 								});
 								if(isValid){
@@ -619,46 +609,6 @@ $(document).ready(function(){
 	var form_id          = "#<?php echo $form_id;?>";
 	var date_exist       = "<?php echo $date_exist;?>";
 	var date_time_exist  = "<?php echo $date_time_exist;?>";
-	var logged_role 	 = "<?php echo $logged_role;?>";
-	var form_view_id     = "<?php echo $form_view_id;?>";
-	default_hide();
-	var work_type = $("#work_type").val();
-
-	$("#work_type").change(function(){
-		var work_type 		 = $(this).val();
-		if(parseInt(logged_role) === 5){
-			show_detailer_worktype(work_type);
-		}else
-		if(parseInt(logged_role) === 4){
-			show_teamleader_worktype(work_type);
-		}else
-		if(parseInt(logged_role) === 3){
-			show_projectmanager_worktype(work_type);
-		}
-	});
-	if(parseInt(form_view_id) !== -1){
-		if(parseInt(logged_role) === 5){
-			show_detailer_worktype(work_type);
-		}else
-		if(parseInt(logged_role) === 4){
-			show_teamleader_worktype(work_type);
-		}else
-		if(parseInt(logged_role) === 3){
-			show_projectmanager_worktype(work_type);
-		}
-	}
-	var client_name 	 = $("#client_name").val();
-	$("#client_name").change(function(){
-		var client_name  = $(this).val();
-		select_clientname(client_name);
-	});
-	select_clientname(client_name);
-	var project_name 	 = $("#project").val();
-	$("#project").change(function(){
-		var project_name = $(this).val();
-		select_project(project_name);
-	});
-	select_project(project_name);
 	<?php echo $user_read_only; ?>
 	if(date_exist === "1"){
 		$(function () {
@@ -737,7 +687,6 @@ $(document).ready(function(){
 	$(form_id).submit(function(event){ event.preventDefault(); }).validate({
 		ignore: ".ignore",
         invalidHandler: function(e, validator){
-        	
         	if(validator.errorList.length)
             $('.nav-tabs a[href="#' + $(validator.errorList[0].element).closest(".tab-pane").attr('id') + '"]').tab('show');
         },
@@ -747,11 +696,8 @@ $(document).ready(function(){
 		submitHandler: function (form){
 			$("#submit").html("<i class='fa fa-spinner fa-spin'></i> Processing...");
 			$('#submit').attr('disabled','disabled');
-			$('.nav-tabs a[href="#time_line"]').tab('show');
 			$(form).ajaxSubmit({
 				success: function (response){
-					console.log(response);
-
 					$('#submit').attr('disabled',false);
 					$("#submit").html("Submit");
 					if(response.success){
@@ -759,9 +705,8 @@ $(document).ready(function(){
 						//table_support.handle_submit('<?php echo site_url($controller_name); ?>', response);
 						//table_support.refresh();
 						$('.row_btn').show();
-						// $('.modal').modal('hide');
+						$('.modal').modal('hide');
 						//$('#table').DataTable.reload();
-						toastr.success(response.message);
 						$('#table').DataTable().ajax.reload();
 					}else{
 						toastr.error(response.message);
@@ -780,60 +725,7 @@ $(document).ready(function(){
 	?>
 	/* LOAD SCRIPT AND CONDITION LOAD */
 });
-// DEFAULT HIDE
-function default_hide(){
-	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking').parent().hide();
-	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking').addClass('ignore');
-}
-//DETAILER SHOW
-function show_detailer_worktype(work_type){
-	if(parseInt(work_type) === 1){
-		$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').parent().show();
-		$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').removeClass('ignore');
-		$('#co_number,#revision_time,#non_revision_time,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours').parent().hide();
-		$('#co_number,#revision_time,#non_revision_time,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours').addClass('ignore');
-		// $('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').val('');
-	}else{
-		$('#co_number,#revision_time,#non_revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#bar_listing_time,#bar_list_quantity,#other_works,#work_status,#work_description,#billable,#billable_hours,#non_billable_hours').parent().show();
-		$('#co_number,#revision_time,#non_revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#bar_listing_time,#bar_list_quantity,#other_works,#work_status,#work_description,#billable,#billable_hours,#non_billable_hours').removeClass('ignore');
-		$('#detailing_time,#non_detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').parent().hide();
-		$('#detailing_time,#non_detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage').addClass('ignore');
-		// $('#co_number,#revision_time,#non_revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#bar_listing_time,#bar_list_quantity,#other_works,#work_status,#work_description,#billable,#billable_hours,#non_billable_hours').val('');
-	}
-	
-}
-//TEAM LEADER SHOW
-function show_teamleader_worktype(work_type){
-	if(parseInt(work_type) === 1){
-		$('#emails,#study,#checking,#discussion,#was,#correction_time,#tonnage_change,#actual_tonnage').parent().show();
-		$('#emails,#study,#checking,#discussion,#was,#correction_time,#tonnage_change,#actual_tonnage').removeClass('ignore');
-		$('#rfi,#study,#aec,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().hide();
-		$('#rfi,#study,#aec,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').addClass('ignore');
-		// $('#emails,#study,#checking,#discussion,#was,#correction_time,#tonnage_change,#actual_tonnage').val('');
-	}else{
-		$('#rfi,#study,#checking,#aec,#correction_time,#was,#emails,#discussion,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().show();
-		$('#rfi,#study,#checking,#aec,#correction_time,#was,#emails,#discussion,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').parent().removeClass('ignore');
-		$('#tonnage_change,#actual_tonnage').parent().hide();
-		$('#tonnage_change,#actual_tonnage').addClass('ignore');
-		// $('#rfi,#study,#checking,#aec,#correction_time,#was,#emails,#discussion,#billable_hours,#co_checking,#bar_listing_checking,#other_works,#non_billable_hours,#actual_billable_time').val('');
-	}
-}
-//PROJECT MANAGER SHOW
-function show_projectmanager_worktype(work_type){
-	if(parseInt(work_type) === 1){
-		$('#emails,#study,#qa_checking,#discussion,#was,#monitoring').parent().show();
-		$('#emails,#study,#qa_checking,#discussion,#was,#monitoring').removeClass('ignore');
-		$('#rfi,#other_works,#co_checking,#bar_listing_checking').parent().hide();
-		$('#rfi,#other_works,#co_checking,#bar_listing_checking').addClass('ignore');
-		// $('#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#other_works,#co_checking,#bar_listing_checking').val('');
-	}else{
-		$('#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#other_works,#co_checking,#bar_listing_checking').parent().show();
-		$('#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#other_works,#co_checking,#bar_listing_checking').removeClass('ignore');
-		$('#emails').parent().hide();
-		$('#emails').addClass('ignore');
-		// $('#emails,#study,#qa_checking,#discussion,#was,#monitoring').val('');
-	}
-}
+
 // FILE UPLOAD REMOVE
 function remove_file(prime_id,is_defult,input_name){
 	var prime_id_val = $("#"+prime_id).val();
@@ -937,30 +829,5 @@ function row_set_remove(row_id,table_name,view_id,prime_id){
 			});
 		}		
 	}
-}
-function select_clientname(client_name){
-	var project_name 	 = $("#project").val();
-	var send_url 	     = '<?php echo site_url("$controller_name/select_clientname"); ?>';
-	$.ajax({
-		type: "POST",
-		url: send_url,
-		data:{client_name:client_name,project_name:project_name},
-		success: function(data){
-			$('#project').html(data);
-		}
-	});
-}
-function select_project(project_name){	
-	var diagram_no   = $("#diagram_no").val();
-	var send_url 	 = '<?php echo site_url("$controller_name/select_project"); ?>';
-	$.ajax({
-		type: "POST",
-		url: send_url,
-		data:{project_name:project_name,diagram_no:diagram_no},
-		success: function(data){
-			console.log(data);
-			$('#diagram_no').html(data);
-		}
-	});
 }
 </script>

@@ -16,9 +16,9 @@ th{
     white-space: nowrap !important;
     text-transform: uppercase !important;
 }
-td{
+/*td{
     text-transform: uppercase !important;
-}
+}*/
 /* Sathish ADD on 28Nov2019 END*/
 .bootstrap-datetimepicker-widget {padding:5px; color:#2c3e50 !important;}
 .bootstrap-datetimepicker-widget table th {

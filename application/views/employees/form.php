@@ -934,57 +934,57 @@ $(document).ready(function(){
 	if(old_role){
 		consultancy_hide(old_role);
 	}	
-	$("#role").change(function(){
-		var view_id  = "<?php echo $form_view->$prime_id; ?>";
-		var role     = $("#role").val();
-		consultancy_hide(role);
-		if(view_id === ""){
-			get_employee_code(role);
-		}else
-		if(view_id){
-			//if(check_loan_installment()){
-				$.confirm({
-					content: 'Are you sure you want to change this rights?',
-					escapeKey: 'Yes',
-					onOpenBefore: function () {
-					},
-					buttons: {
-						Yes: function(){
-							get_employee_code(role);
-						},
-						No: function(){
-							$("#role").val(old_role);
-							$(function(){
-								$('.select2').select2({
-									placeholder: '---- Select ----',
-									allowClear: true,
-									dropdownParent: $('.modal-dialog')
-								});
-								$('.select2-tags').select2({
-									tags: true,
-									tokenSeparators: [',']
-								});
-							});
-						}
-					}
-				});
-			/*}else{
-				toastr.warning('Please Update the loan foreclose and try again!');
-				$("#role").val(old_role);
-				$(function(){
-					$('.select2').select2({
-						placeholder: '---- Select ----',
-						allowClear: true,
-						dropdownParent: $('.modal-dialog')
-					});
-					$('.select2-tags').select2({
-						tags: true,
-						tokenSeparators: [',']
-					});
-				});
-			}*/
-		}
-	});
+	// $("#role").change(function(){
+	// 	var view_id  = "<?php echo $form_view->$prime_id; ?>";
+	// 	var role     = $("#role").val();
+	// 	consultancy_hide(role);
+	// 	if(view_id === ""){
+	// 		get_employee_code(role);
+	// 	}else
+	// 	if(view_id){
+	// 		//if(check_loan_installment()){
+	// 			$.confirm({
+	// 				content: 'Are you sure you want to change this rights?',
+	// 				escapeKey: 'Yes',
+	// 				onOpenBefore: function () {
+	// 				},
+	// 				buttons: {
+	// 					Yes: function(){
+	// 						get_employee_code(role);
+	// 					},
+	// 					No: function(){
+	// 						$("#role").val(old_role);
+	// 						$(function(){
+	// 							$('.select2').select2({
+	// 								placeholder: '---- Select ----',
+	// 								allowClear: true,
+	// 								dropdownParent: $('.modal-dialog')
+	// 							});
+	// 							$('.select2-tags').select2({
+	// 								tags: true,
+	// 								tokenSeparators: [',']
+	// 							});
+	// 						});
+	// 					}
+	// 				}
+	// 			});
+	// 		/*}else{
+	// 			toastr.warning('Please Update the loan foreclose and try again!');
+	// 			$("#role").val(old_role);
+	// 			$(function(){
+	// 				$('.select2').select2({
+	// 					placeholder: '---- Select ----',
+	// 					allowClear: true,
+	// 					dropdownParent: $('.modal-dialog')
+	// 				});
+	// 				$('.select2-tags').select2({
+	// 					tags: true,
+	// 					tokenSeparators: [',']
+	// 				});
+	// 			});
+	// 		}*/
+	// 	}
+	// });
 	
 	$("#user_right").change(function(){		
 		//var view_id    = "<?php echo $form_view->$prime_id; ?>";

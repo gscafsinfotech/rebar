@@ -859,26 +859,26 @@ class Employees  extends Action_controller{
 		return $data;
 	}
 	
-	public function get_employee_code(){
-		$role                  = $this->input->post('role');
-		$check_code_gen_qry    = 'select code_type from cw_employee_code_auto where trans_status = 1';
-		$check_code_gen_data   = $this->db->query("CALL sp_a_run ('SELECT','$check_code_gen_qry')");
-		$check_code_gen_result = $check_code_gen_data->result();
-		$check_code_gen_data->next_result();
-		$code_gen_mode   = $check_code_gen_result[0]->code_type;
-		$sts = 0;
-		if((int)$code_gen_mode === 1){
-			$sts = 1;
-			$result = $this->get_digits($role);
-			if($result){
-				echo json_encode(array('success' => TRUE, 'sts' => $sts, 'digits' => $result));
-			}else{
-				echo json_encode(array('success' => FALSE, 'sts' => $sts, 'message' => "Employee Code Auto Not Updated for this role"));
-			}
-		}else{
-			echo json_encode(array('sts' => $sts,'message' => "Manually enter the  Employee code"));
-		}
-	}
+	// public function get_employee_code(){
+	// 	$role                  = $this->input->post('role');
+	// 	$check_code_gen_qry    = 'select code_type from cw_employee_code_auto where trans_status = 1';
+	// 	$check_code_gen_data   = $this->db->query("CALL sp_a_run ('SELECT','$check_code_gen_qry')");
+	// 	$check_code_gen_result = $check_code_gen_data->result();
+	// 	$check_code_gen_data->next_result();
+	// 	$code_gen_mode   = $check_code_gen_result[0]->code_type;
+	// 	$sts = 0;
+	// 	if((int)$code_gen_mode === 1){
+	// 		$sts = 1;
+	// 		$result = $this->get_digits($role);
+	// 		if($result){
+	// 			echo json_encode(array('success' => TRUE, 'sts' => $sts, 'digits' => $result));
+	// 		}else{
+	// 			echo json_encode(array('success' => FALSE, 'sts' => $sts, 'message' => "Employee Code Auto Not Updated for this role"));
+	// 		}
+	// 	}else{
+	// 		echo json_encode(array('sts' => $sts,'message' => "Manually enter the  Employee code"));
+	// 	}
+	// }
 	
 	public function get_digits($role){
 		$select_qry    = 'select * from cw_employee_code_auto where (category = "'.$role.'" or category = "All") and trans_status = 1';

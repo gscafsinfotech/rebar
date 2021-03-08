@@ -4,6 +4,7 @@ $logged_role 		  = $this->session->userdata('logged_role');
 $logged_branch		  = $this->session->userdata('logged_branch');
 $logged_reporting	  =	$this->session->userdata('logged_reporting');
 $logged_emp_code	  =	$this->session->userdata('logged_emp_code');
+$logged_team	      = $this->session->userdata('logged_team');
 $prime_id             = "prime_".$controller_name."_id";
 $form_id              = $controller_name."_form";
 $count                = 0;
@@ -115,6 +116,9 @@ foreach($view_info as $view){
 				}else
 				if($label_id === "employee_code"){
 					$input_value  = $logged_emp_code;
+				}else
+				if($label_id === "team"){
+					$input_value  = $logged_team;
 				}
 				$drop_exist = true;
 				$drop_down_array = array("name" => $label_id,"id" => $label_id,"class" =>'form-control input-sm select2');
@@ -621,6 +625,7 @@ $(document).ready(function(){
 	var date_time_exist  = "<?php echo $date_time_exist;?>";
 	var logged_role 	 = "<?php echo $logged_role;?>";
 	var form_view_id     = "<?php echo $form_view_id;?>";
+	$('#branch,#reporting,#employee_code').attr('readonly', true);
 	default_hide();
 	var work_type = $("#work_type").val();
 
@@ -782,8 +787,8 @@ $(document).ready(function(){
 });
 // DEFAULT HIDE
 function default_hide(){
-	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking').parent().hide();
-	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking').addClass('ignore');
+	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking,#team').parent().hide();
+	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking,#team').addClass('ignore');
 }
 //DETAILER SHOW
 function show_detailer_worktype(work_type){

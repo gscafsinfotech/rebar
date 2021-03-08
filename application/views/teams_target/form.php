@@ -1,6 +1,5 @@
 <?php 
 $logged_user_role     = $this->session->userdata('logged_user_role');
-$logged_team	      = $this->session->userdata('logged_team');
 $prime_id             = "prime_".$controller_name."_id";
 $form_id              = $controller_name."_form";
 $count                = 0;
@@ -106,9 +105,6 @@ foreach($view_info as $view){
 			}else
 			//PICKLIST
 			if((int)$field_type === 5){
-				if($label_id === "team"){
-					$input_value  = $logged_team;
-				}
 				$drop_exist = true;
 				$drop_down_array = array("name" => $label_id,"id" => $label_id,"class" =>'form-control input-sm select2');
 				if($read){

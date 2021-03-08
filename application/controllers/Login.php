@@ -55,6 +55,7 @@ class Login extends CI_Controller {
 			$this->session->set_userdata('logged_reporting', $logged_user_info->reporting);
 			$this->session->set_userdata('logged_consultancy', $logged_user_info->consultancy);
 			$this->session->set_userdata('logged_dept', $logged_user_info->department);
+			$test =$this->session->set_userdata('logged_team', $logged_user_info->team);
 			$this->session->set_userdata('access_data', $this->get_all_access($logged_type,$logged_user_info->prime_employees_id));
 		}
 	}

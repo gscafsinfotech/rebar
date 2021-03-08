@@ -25,6 +25,19 @@
 				?>
 				<div id='append_div'></div>
 			</div>
+			<div class="form-group">
+				<?php
+					echo form_label("From Date", 'from_date', array('class' => 'required'));
+					echo form_input(array( 'name' => 'from_date', 'id' => 'from_date', 'class' => 'form-control input-sm datepicker'));
+				?>
+			</div>
+			<div class="form-group">
+				<?php
+					echo form_label("To Date", 'to_date', array('class' => 'required'));
+					echo form_input(array( 'name' => 'to_date', 'id' => 'to_date', 'class' => 'form-control input-sm datepicker'));
+				?>
+			</div>
+
 			<!-- <div class="form-group" style='display:none;'>
 				<?php
 					echo form_label("Process Role", 'process_role', array('class' => 'required'));
@@ -48,7 +61,7 @@
 	$(document).ready(function (){
 		$(function(){
 			$(".datepicker").datetimepicker({
-				format: 'MM-YYYY',
+				format: 'DD-MM-YYYY',
 			});
 		});
 		hide_all();
@@ -96,11 +109,13 @@
 		});
 		$('#detailer_search').click(function(){
 			var employee_code 	= $("#employee_name").val();
+			var from_date 		= $("#from_date").val();
+			var to_date		 	= $("#to_date").val();
 			var send_url = '<?php echo site_url("$controller_name/get_single_detailer_report");?>'
 			$.ajax({
 				type: 'POST',
 				url: send_url,
-				data:{employee_code:employee_code},
+				data:{employee_code:employee_code,from_date:from_date,to_date:to_date},
 				success: function(data) {
 					var rslt = JSON.parse(data);
 					if(rslt.success){

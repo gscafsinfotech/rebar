@@ -93,7 +93,7 @@
 			}
 			if($employee_code){
 				if($mysql_emp_rslt[$employee_code]['employee_code']){
-					$prime_update_query  = 'UPDATE cw_punched_data_details SET entry_date = "'. $entry_date .'",in_time = "'. $in_time .'",in_hour = "'. $in_hour .'",out_time = "'.$out_time.'",out_hour = "'.$gender.'",in_date = "'.$in_date.'",out_date = "'.$out_date.'",valid_data = "'.$valid_data.'",entry_type = "'.$entry_type.'",entry_method = "'.$entry_method.'",half_day_type = "'.$halfday_type.'",entry_days = "'.$entry_days.'" WHERE employee_code = "'. $employee_code .'"';
+					$prime_update_query  = 'UPDATE cw_punched_data_details SET entry_date = "'. $entry_date .'",in_time = "'. $in_time .'",in_hour = "'. $in_hour .'",out_time = "'.$out_time.'",out_hour = "'.$out_hour.'",in_date = "'.$in_date.'",out_date = "'.$out_date.'",valid_data = "'.$valid_data.'",entry_type = "'.$entry_type.'",entry_method = "'.$entry_method.'",half_day_type = "'.$halfday_type.'",entry_days = "'.$entry_days.'" WHERE employee_code = "'. $employee_code .'"';
 					$rslt = $api_model->runQuery($prime_update_query);
 				}else{
 					$sql = "insert into cw_punched_data_details(employee_code,entry_date,in_time,in_hour,out_time,out_hour,in_date,out_date,valid_data,entry_type,entry_method,half_day_type,entry_days) values ('".$employee_code."','".$entry_date."','". $in_time ."','".$in_hour."','". $out_time ."','". $out_hour ."','". $in_date ."','". $out_date ."','".$valid_data."','". $entry_type ."','". $entry_method ."','". $halfday_type ."','". $entry_days ."')";

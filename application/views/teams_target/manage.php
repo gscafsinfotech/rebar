@@ -103,7 +103,7 @@
 		// });
 
 
-
+			var total_count = $("#total_count").val();
 			var target_month = $("#target_month").val();
 			var team 		 = $("#team").val();
 			var sub_emp_code = $('input[name^=sub_emp_code]').map(function(idx, elem) {
@@ -119,7 +119,7 @@
 			$.ajax({
 				type: 'POST',
 				url: send_url,
-				data:{target_month:target_month,team:team,sub_emp_code:sub_emp_code,target_value:target_value,target_unit:target_unit},
+				data:{target_month:target_month,team:team,sub_emp_code:sub_emp_code,target_value:target_value,target_unit:target_unit,total_count:total_count},
 				success: function(data) {
 					var rslt = JSON.parse(data);
 					$('#rslt_info').html(rslt.table_content);

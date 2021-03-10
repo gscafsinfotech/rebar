@@ -79,6 +79,8 @@ $route['reports/(detailed_topsellings)/([^/]+)/([^/]+)/([^/]+)'] = 'reports/$1/$
 $route['reports/detailed_topsellings'] = 'reports/detailed_from_to';
 $route['reports/(detailed_topcustomers)/([^/]+)/([^/]+)/([^/]+)'] = 'reports/$1/$2/$3$/$4';
 $route['reports/detailed_topcustomers'] = 'reports/detailed_from_to';
+$route['detailer_report/excel_export/(:any)/(:any)/(:any)'] = 'Detailer_report/excel_export/$1/$2/$3';
+
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

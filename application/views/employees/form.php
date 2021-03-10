@@ -1,5 +1,6 @@
 <?php 
 $logged_user_role     = $this->session->userdata('logged_user_role');
+$logged_role     	  = $this->session->userdata('logged_role');
 $prime_id             = "prime_".$controller_name."_id";
 $form_id              = $controller_name."_form";
 $count                = 0;
@@ -720,6 +721,12 @@ $(document).ready(function(){
 	var user_right       = "<?php echo $logged_user_role; ?>";
 	var user_role        = $('#user_right').val();	
 	var employee_status  = $('#employee_status').val();
+	var logged_role      = "<?php echo $logged_role;?>";
+	// if(parseInt(logged_role) !== 1){
+	// 	$("#super_admin").hide();
+	// 	$("#ul_sub_super_admin").hide();
+	// 	$("#super_admin").children().hide(); 		
+	// }
 	$("#employee_status").change(function(){
 		var employee_status  = $(this).val();
 		employee_status_hide_show(employee_status);

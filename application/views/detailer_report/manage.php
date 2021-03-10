@@ -1,7 +1,7 @@
 <?php 
 	$this->load->view("partial/header");
 	$page_name      = ucwords(str_replace("_"," ",$controller_name));
-
+	$excel_export       = site_url().'/'.$controller_name.'/excel_export';
 ?>
 <div class='row title_content'>
 	<div class='col-md-2 col-xs-4'>
@@ -13,7 +13,7 @@
 		<div class="col-md-9">
 			<div class="form-group">
 				<?php
-					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise",'2'=>"All");
+					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise");
 					echo form_label("Process By", 'process_by', array('class' => 'required'));
 					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
 				?>
@@ -37,15 +37,9 @@
 					echo form_input(array( 'name' => 'to_date', 'id' => 'to_date', 'class' => 'form-control input-sm datepicker'));
 				?>
 			</div>
-
-			<!-- <div class="form-group" style='display:none;'>
-				<?php
-					echo form_label("Process Role", 'process_role', array('class' => 'required'));
-					echo form_dropdown(array("name" =>'process_role',"id" =>'process_role',"class" =>'form-control input-sm select2'),$process_role);
-				?>
-			</div> -->
+			<a id="link" style="display: none;" href="#" title='Export All Data'><span class="fa fa-user-exit">&nbsp</span></a>
 			<div class="form-group">
-				<button class='btn btn-primary btn-sm' id="detailer_search">Search</button>
+				<button class='btn btn-primary btn-sm' id="detailer_export">Search</button>
 			</div>
 		</div>
 	</div>
@@ -107,58 +101,67 @@
 					return false;
 			}
 		});
-		$('#detailer_search').click(function(){
+		$('#detailer_export').click(function(){
 			var employee_code 	= $("#employee_name").val();
 			var from_date 		= $("#from_date").val();
 			var to_date		 	= $("#to_date").val();
-			var send_url = '<?php echo site_url("$controller_name/get_single_detailer_report");?>'
-			$.ajax({
-				type: 'POST',
-				url: send_url,
-				data:{employee_code:employee_code,from_date:from_date,to_date:to_date},
-				success: function(data) {
-					var rslt = JSON.parse(data);
-					if(rslt.success){
-							$('#rslt_info').html(rslt.table_content);
-									$table = $('#detailer_report').DataTable({
-										 paging: false,
-										 ordering: false,
-										 scrollX:true,
-										 "scrollY": 400
-									});
-									var table_option = "<div class='dataTables_length' id='detailer_report_length'><table><tr><td id='export' style='padding:8px 2px;'></td></tr></table></div>";
-									$("#detailer_report_wrapper").prepend(table_option);
-									var buttons = new $.fn.dataTable.Buttons($table, {
-									 buttons: [{
-										extend: 'collection',
-										text: 'Export',
-										buttons: [
-											{
-												extend:'copy',
-												exportOptions:{modifier :{order:'index',page:'all',search:'none'},columns:':visible'}
-												,title: rslt.title
-											},
-											{extend:'csv',exportOptions:{modifier:{order:'index',page:'all',search:'none'},columns:':visible'}
-												,title: rslt.title
-											},
-											{extend:'excel',
-											exportOptions:{modifier:{order :'index',page: 'all',search:'none'},columns:':visible'}
-												,title: rslt.title},
-											{extend:'pdf',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible'}
-												,title: rslt.title},
-											{extend:'print',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible',}
-												,title: rslt.title}
-										]
-									}]
-								}).container().appendTo($('#export'));
-							$(".buttons-collection").addClass("btn btn-xs btn-edit");
-							$('input[type=search]').addClass('form-control input-sm');
-						}else{
-							toastr.error(rslt.message);
-						}
-					// empty_all();
-				}
-			});
+			var export_excel 	= "<?php echo $excel_export;?>";
+			var export_url   	= export_excel+'/'+employee_code+'/'+from_date+'/'+to_date;
+			$('#link').attr("href",export_url);
+			window.location = $('#link').attr('href');
+
+
+
+
+
+			// var send_url = '<?php echo site_url("$controller_name/get_single_detailer_report");?>'
+			// $.ajax({
+			// 	type: 'POST',
+			// 	url: send_url,
+			// 	data:{employee_code:employee_code,from_date:from_date,to_date:to_date},
+			// 	success: function(data) {
+			// 		var rslt = JSON.parse(data);
+			// 		// if(rslt.success){
+			// 		// 		$('#rslt_info').html(rslt.table_content);
+			// 		// 				$table = $('#detailer_report').DataTable({
+			// 		// 					 paging: false,
+			// 		// 					 ordering: false,
+			// 		// 					 scrollX:true,
+			// 		// 					 "scrollY": 400
+			// 		// 				});
+			// 		// 				var table_option = "<div class='dataTables_length' id='detailer_report_length'><table><tr><td id='export' style='padding:8px 2px;'></td></tr></table></div>";
+			// 		// 				$("#detailer_report_wrapper").prepend(table_option);
+			// 		// 				var buttons = new $.fn.dataTable.Buttons($table, {
+			// 		// 				 buttons: [{
+			// 		// 					extend: 'collection',
+			// 		// 					text: 'Export',
+			// 		// 					buttons: [
+			// 		// 						{
+			// 		// 							extend:'copy',
+			// 		// 							exportOptions:{modifier :{order:'index',page:'all',search:'none'},columns:':visible'}
+			// 		// 							,title: rslt.title
+			// 		// 						},
+			// 		// 						{extend:'csv',exportOptions:{modifier:{order:'index',page:'all',search:'none'},columns:':visible'}
+			// 		// 							,title: rslt.title
+			// 		// 						},
+			// 		// 						{extend:'excel',
+			// 		// 						exportOptions:{modifier:{order :'index',page: 'all',search:'none'},columns:':visible'}
+			// 		// 							,title: rslt.title},
+			// 		// 						{extend:'pdf',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible'}
+			// 		// 							,title: rslt.title},
+			// 		// 						{extend:'print',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible',}
+			// 		// 							,title: rslt.title}
+			// 		// 					]
+			// 		// 				}]
+			// 		// 			}).container().appendTo($('#export'));
+			// 		// 		$(".buttons-collection").addClass("btn btn-xs btn-edit");
+			// 		// 		$('input[type=search]').addClass('form-control input-sm');
+			// 		// 	}else{
+			// 		// 		toastr.error(rslt.message);
+			// 		// 	}
+			// 		// empty_all();
+			// 	}
+			// });
 		});
 	});
 	

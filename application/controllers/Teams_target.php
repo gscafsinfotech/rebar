@@ -445,6 +445,7 @@ class Teams_target  extends Action_controller{
 		$emp_info          = $this->db->query("CALL sp_a_run ('SELECT','$emp_qry')");
 		$emp_result    	   = $emp_info->result();
 		$emp_info->next_result();
+		$emp_result_count = count($emp_result);
 
 		$table_head        = "<tr>
 								<td>Employee Name</td>
@@ -452,6 +453,7 @@ class Teams_target  extends Action_controller{
 								<td>Unit</td>
 							  </tr>";
 		$table_body        = "";
+		$table_body        = "<input type='text' value='$emp_result_count' id='total_count'>";
 		foreach($emp_result as $rslt){
 			$employee_code = $rslt->employee_code;
 			$emp_name      = $rslt->emp_name;
@@ -480,51 +482,69 @@ class Teams_target  extends Action_controller{
 		echo json_encode(array('success' => TRUE, 'message' => "Team Target",'table_content'=>$table_content));
 	}
 	public function team_target_save(){
-		// print_r($_POST['target_form']);
-		// $team_target = $this->input->post("target_form");
-		// print_r($team_target);
+		$total_count  = $this->input->post("total_count");
 		$target_month    = $this->input->post("target_month");
 		$team    		 = $this->input->post("team");
 		$test[]['subs']    = $this->input->post("sub_emp_code");
 		$test[]['vals']    = $this->input->post("target_value");
 		$test[]['units']     = $this->input->post("target_unit");
-		// echo "target_month :: $target_month";
-		// echo "team :: $team";
-		
-		// for ($i=0; $i <=3; $i++) { 
-			echo "<pre>";
-			print_r($test);
-		// // }
-		// echo count($test);die;
-		// for ($x = 0; $x <= $test; $x++) {
-		//   echo $test[$x][$x];
-		// }
-		$testing = "";
-		$i = 0;
-		foreach ($test as $key => $value) {
-			// echo $value[0];
-			// echo "key :: $key";
-			// echo "check :: $i";
-		// 	// if($key ===$i){
-			echo "key :: $i";
-				// echo "<pre>";
-			$subs =$value['subs'][$i];
-			$vals =$value['vals'][$i];
-			$units =$value['units'][$i];
-			echo "<pre>";
-			echo "subs :: $subs";
-			echo "vals :: $vals";
-			echo "units :: $units";
-			// print_r($value['vals'][$key]);
-			// print_r($value['units'][$key]);
+		$total_count   = $total_count -1;
+		$insert_value  = "";
+		for ($x = 0; $x <= $total_count; $x++) {
+		  $sub_id  = $test[0]['subs'][$x];
+		  $target_value  = $test[1]['vals'][$x];
+		  $target_unit  = $test[2]['units'][$x];
 
-				// $testing .= $value[$key];
-				// echo "test :: $testing";
-		// 	// }else{
-		// 	// 	echo "hh";
-		// 	// }
-			$i++;
+		  $insert_value  .= "('".$sub_id."','".$target_value."','".$target_unit."'),";
+		  // echo "insert_value :: $insert_value";
+		  // echo "<pre>";
+		  // echo "target_value :: $target_value";
+		  // echo "<br>";
+		  // echo "target_unit :: $target_unit";
 		}
+		$remove_comma = rtrim($insert_value,',');
+		$insert_qry    = "INSERT INTO cw_team_target_details (employee_code, target_value, target_unit) VALUES $remove_comma";
+// echo $insert_qry;die;
+		$insert_info        = $this->db->query("CALL sp_a_run ('INSERT','$insert_qry')");
+		echo "insert_info :: $insert_info";die;
+				$insert_result      = $insert_info->result();
+				$insert_info->next_result();
+		// $insert_info->next_result();
+		// echo $remove_comma;
+
+		// $testing = "";
+		// $i = 0;
+		// foreach ($test as $key => $value) {
+		// 	// if($key === 0){
+		// 	// 	$subs =$value['subs'][$i];
+		// 	// 	// print_r($subs);
+		// 	// 	// echo "subs :: $subs";
+		// 	// }
+		// 	// echo $sub_id  = $test[0]['subs'][$i];
+		// 	// $vals  = $test[0]['subs'][$key];
+		// 	// $sub_id  = $test[0]['subs'][$key];
+		// 	// echo "key :: $key";
+		// 	// echo "check :: $i";
+		// // 	// if($key ===$i){
+		// 	// echo "key :: $i";
+		// 	// 	// echo "<pre>";
+		// 	// $subs =$value['subs'][$i];
+		// 	// $vals =$value['vals'][$i];
+		// 	// $units =$value['units'][$i];
+		// 	// echo "<pre>";
+		// 	// echo "subs :: $subs";
+		// 	// echo "vals :: $vals";
+		// 	// echo "units :: $units";
+		// 	// print_r($value['vals'][$key]);
+		// 	// print_r($value['units'][$key]);
+
+		// 		// $testing .= $value[$key];
+		// 		// echo "test :: $testing";
+		// // 	// }else{
+		// // 	// 	echo "hh";
+		// // 	// }
+		// 	$i++;
+		// }
 		// echo "sub_emp_code :: $sub_emp_code";
 		// echo "target_month :: $target_month";
 		// echo "target_month :: $target_month";

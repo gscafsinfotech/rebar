@@ -17,7 +17,7 @@ class Detailer_report  extends Action_controller{
 	}
 	public function emp_suggest(){
 		$search_term  = $this->input->post_get('term');
-		$final_qry = 'select employee_code,emp_name from cw_employees where trans_status = 1 and employee_code like "'.$search_term.'%"';
+		$final_qry = 'select employee_code,emp_name from cw_employees where role = 5 and trans_status = 1 and employee_code like "'.$search_term.'%"';
 		$final_data   = $this->db->query("CALL sp_a_run ('SELECT','$final_qry')");
 		$final_result = $final_data->result();
 		$final_data->next_result();
@@ -165,11 +165,11 @@ class Detailer_report  extends Action_controller{
 		$control_name		= $this->control_name;
 		$from_date 			= date('Y-m-d',strtotime($from_date));
 		$to_date 			= date('Y-m-d',strtotime($to_date));
-		$time_sheet_qry 	= 'select other_works,cw_time_sheet.trans_created_date,project,cw_project_and_drawing_master_drawings.drawing_no,detailing_time,study,discussion,checking,correction_time,rfi,aec,billable_hours,non_billable_hours,change_order_time,bar_listing_time,bar_list_quantity,project_name,cw_client.client_name,cw_zct_5.cw_zct_5_value,work_type,cw_branch.branch,cw_work_status.work_status from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id=cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id=cw_time_sheet.project inner join cw_client on cw_client.prime_client_id=cw_time_sheet.client_name inner join cw_work_status on cw_work_status.prime_work_status_id=cw_time_sheet.work_status inner join cw_zct_5 on cw_zct_5.cw_zct_5_id=cw_time_sheet.work_type inner join cw_branch on cw_branch.prime_branch_id=cw_time_sheet.branch inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id=cw_time_sheet.diagram_no where employee_code = "'.$employee_code.'" and cw_time_sheet.trans_created_date >= "'.$from_date.'" and cw_time_sheet.trans_created_date <= "'.$to_date.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 order by cw_time_sheet.trans_created_date';
+		$time_sheet_qry 	= 'select other_works,cw_time_sheet_time_line.trans_created_date,project,cw_project_and_drawing_master_drawings.drawing_no,detailing_time,study,discussion,checking,correction_time,rfi,aec,billable_hours,non_billable_hours,change_order_time,bar_listing_time,bar_list_quantity,project_name,cw_client.client_name,cw_zct_5.cw_zct_5_value,work_type,cw_branch.branch,cw_work_status.work_status,cw_employees.emp_name from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id=cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id=cw_time_sheet.project inner join cw_client on cw_client.prime_client_id=cw_time_sheet.client_name inner join cw_work_status on cw_work_status.prime_work_status_id=cw_time_sheet.work_status inner join cw_zct_5 on cw_zct_5.cw_zct_5_id=cw_time_sheet.work_type inner join cw_branch on cw_branch.prime_branch_id=cw_time_sheet.branch inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id=cw_time_sheet.diagram_no inner join cw_employees on cw_employees.employee_code=cw_time_sheet_time_line.emp_code where cw_time_sheet_time_line.emp_code = "'.$employee_code.'" and emp_role = 5 and cw_time_sheet_time_line.trans_created_date >= "'.$from_date.'" and cw_time_sheet_time_line.trans_created_date <= "'.$to_date.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 order by cw_time_sheet_time_line.trans_created_date';
 		$time_sheet_info   	= $this->db->query("CALL sp_a_run ('SELECT','$time_sheet_qry')");
 		$time_sheet_result  = $time_sheet_info->result();
 		$time_sheet_info->next_result();
-
+		$employee_name = $time_sheet_result[0]->emp_name;
 		$punched_qry    = 'select in_hour,out_hour,entry_date,employee_code from cw_punched_data_details where employee_code ="'.$employee_code.'" and trans_status = 1';
 		$punched_info   = $this->db->query("CALL sp_a_run ('SELECT','$punched_qry')");
 		$punched_result = $punched_info->result();
@@ -194,33 +194,54 @@ class Detailer_report  extends Action_controller{
 			$test[]['excel_value']= array('Date','Project Name','Drawing No','Drawing Revisin Status','Work Status','STY','DET','DIS','CHK','COR','RFI','STY','AEC','CHK','COR','NBH','BH','DIS','PCO','QTY','HOURS','OTHER WORK','BOOKING HOURS','IN','OUT','TOTAL','SHIFT');
 
 			$styleArray = array(
-		        // 'font' => array(
-		        //     'bold' => true,
-		        //     'color' => array('rgb' => '2F4F4F')
-		        // ),
+		        'font' => array(
+		            'bold' => true,
+		            'color' => array('rgb' => '#ffffff'),
+		        ),
+		        'fill' => array(
+		            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+		            'color' => array('rgb' => '46b10a')
+		        ),
 		        'alignment' => array(
 		            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+		        )
+		    );
+		    $verticalStyle  = array(
+		    	'alignment' => array(
+		            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
 		        )
 		    );
 			for ($x = 0; $x <= 26; $x++) {
 				$excel_column  = $test[0]['excel_column'][$x];
 				$excel_value   = $test[1]['excel_value'][$x];
-				$first_col = "TESTING";
-				$obj->getActiveSheet()->setCellValue('A'."1", "Detailer Name: Vishal Jaganathan.A")->mergeCells('A1:B1')->getStyle('A1:B1')->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('A'."1", "Detailer Name:".$employee_name)->mergeCells('A1:B1')->getStyle('A1:B1')->applyFromArray($styleArray);
 				$obj->getActiveSheet()->setCellValue('C'."1", "Designation & Experience: Cad Designer & 3 Year 7 Months")->mergeCells('C1:D1')->getStyle('C1:D1')->applyFromArray($styleArray);
-				$obj->getActiveSheet()->setCellValue('D'."1", "")->getStyle('D')->applyFromArray($styleArray);
-				$obj->getActiveSheet()->setCellValue('E'."1", "Target Tons")->mergeCells('C1:D1')->getStyle('C1:D1')->applyFromArray($styleArray);
+				// $obj->getActiveSheet()->setCellValue('D'."1", "")->getStyle('D')->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('E'."1", "Target Tons")->getStyle('E1')->applyFromArray($styleArray);
 				$obj->getActiveSheet()->setCellValue('F'."1", "Detailing Work")->mergeCells('F1:K1')->getStyle('F1:K1')->applyFromArray($styleArray);
 				$obj->getActiveSheet()->setCellValue('L'."1", "Revision Work")->mergeCells('L1:S1')->getStyle('L1:S1')->applyFromArray($styleArray);
 				$obj->getActiveSheet()->setCellValue('T'."1", "BAR LIST")->mergeCells('T1:U1')->getStyle('T1:U1')->applyFromArray($styleArray);
-				$obj->getActiveSheet()->setCellValue('V'."1", "OTHER WORKS")->getStyle('V')->applyFromArray($styleArray);
-				$obj->getActiveSheet()->setCellValue('W'."1", "Booking Hours")->getStyle('W')->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('V'."1", "OTHER WORKS")->getStyle('V1')->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('W'."1", "Booking Hours")->getStyle('W1')->applyFromArray($styleArray);
 				$obj->getActiveSheet()->setCellValue('X'."1", "OFFICE HOURS")->mergeCells('X1:Z1')->getStyle('X1:Z1')->applyFromArray($styleArray);
-				$obj->getActiveSheet()->setCellValue($excel_column."2", $excel_value);
+				$obj->getActiveSheet()->setCellValue('AA'."1", " ")->getStyle('AA1')->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($styleArray);
 			}
+		$previous_date = "";
+		$j = 0;
+		$k = 0;
 		foreach($time_sheet_result as $key => $time_sheet){
 			$booking_hours 			= array();
 			$trans_date      		= $time_sheet->trans_created_date;
+			$date_only = date('Y-m-d',strtotime($trans_date));
+			if($previous_date === $date_only){
+				$j ++;
+			}else{
+				$k = $i;
+				$j = 0;
+			}
+			$range_start 			= $k;
+			$range_end 				= $i;
 			$trans_date_only 		= date('Y-m-d',strtotime($trans_date));
 			$trans_created_date   	= $time_sheet->trans_created_date;
 			$check_entry_date		= $map_result[$employee_code]['entry_date'][$trans_date_only]['entry_date'];
@@ -286,15 +307,22 @@ class Detailer_report  extends Action_controller{
 			$time_sheet_value['Z'] 		 = $differenceinhours;
 			$time_sheet_value['AA'] 	 = "shift";
 			
-			for ($x = 0; $x <= 25; $x++) {
+			for ($x = 0; $x <= 26; $x++) {
 				$excel_column  = $test[0]['excel_column'][$x];
 				$value_of_excel  = $time_sheet_value[$excel_column];
+				$start_cell 		= $excel_column.$range_start;
+				$end_cell 			= $excel_column.$range_end;
+				if($excel_column === 'A' || $excel_column === 'X' || $excel_column === 'Y' || $excel_column === 'Z' || $excel_column === 'AA'){
+					
+					$obj->getActiveSheet()->setCellValue($excel_column.$i, $value_of_excel)->mergeCells($start_cell.':'.$end_cell)->getStyle($start_cell.':'.$end_cell)->applyFromArray($verticalStyle);
+				}
 				$obj->getActiveSheet()->setCellValue($excel_column.$i, $value_of_excel);
 			}
 			$i++;
+			$previous_date = $date_only;
 		}	
 		// Rename worksheet name
-		 $filename= $control_name.".xls"; //save our workbook as this file name
+		 $filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name
 		 header('Content-Type: application/vnd.ms-excel'); //mime type
 		 header('Content-Disposition: attachment;filename="'.$filename.'"'); //tell browser what's the file name
 		 header('Cache-Control: max-age=0'); //no cache

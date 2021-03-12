@@ -112,9 +112,9 @@
 			var target_value = $('input[name^=target_value]').map(function(idx, elem) {
 			    return $(elem).val();
 			  }).get();
-			var target_unit = $('input[name^=target_unit]').map(function(idx, elem) {
-			    return $(elem).val();
-			  }).get();
+			var target_unit = $('select[name="target_unit[]"]').map(function(idx, elem) {
+				return $(elem).val();
+			 }).get();
 			var send_url     = '<?php echo site_url("$controller_name/team_target_save");?>'
 			$.ajax({
 				type: 'POST',

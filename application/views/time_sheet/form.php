@@ -28,6 +28,7 @@ foreach($view_info as $view){
 	$row_prime_id 		  = "prime_".$controller_name."_".$form_view_label_name."_id";
 	$row_send_data        = "view_id:'$prime_form_view_id',module_id:'$prime_view_module_id',row_label_name:'$form_view_label_name',row_prime_id:$('#$row_prime_id').val(),prime_id:$('#$prime_id').val(),";
 	$row_clear_data       = "$('#$row_prime_id').val(0);\n";
+	$current_date 		  = date("Y-m-d");
 	foreach($form_info as $setting){
 		$prime_form_id   = (int)$setting->prime_form_id;
 		$field_type      = $setting->field_type;
@@ -78,6 +79,9 @@ foreach($view_info as $view){
 				if($text_type === 2){
 					$valid_class = "alpha";
 				}
+				if($label_id === "entry_date"){
+					$input_value  = $current_date;
+				}
 				$input_value = str_replace('^',"'",$input_value);
 				$form_input = form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$input_value,"placeholder"=>$label_name, $read=>true,"class"=>"form-control input-sm $valid_class"));
 				$input_box .= "<div class='form-group'>$form_label $form_input</div>";
@@ -117,8 +121,17 @@ foreach($view_info as $view){
 				if($label_id === "employee_code"){
 					$input_value  = $logged_emp_code;
 				}else
+				if($label_id === "reporting_code"){
+					$input_value  = $logged_reporting;
+				}else
+				if($label_id === "emp_code"){
+					$input_value  = $logged_emp_code;
+				}else
 				if($label_id === "team"){
 					$input_value  = $logged_team;
+				}else
+				if($label_id === "emp_role"){
+					$input_value  = $logged_role;
 				}
 				$drop_exist = true;
 				$drop_down_array = array("name" => $label_id,"id" => $label_id,"class" =>'form-control input-sm select2');
@@ -786,8 +799,8 @@ $(document).ready(function(){
 });
 // DEFAULT HIDE
 function default_hide(){
-	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking,#team,#branch,#reporting,#employee_code').parent().hide();
-	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking,#team,#branch,#reporting,#employee_code').addClass('ignore');
+	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking,#team,#branch,#reporting,#employee_code,#emp_code,#reporting_code,#entry_date').parent().hide();
+	$('#detailing_time,#non_detailing_time,#study,#discussion,#rfi,#checking,#other_works,#correction_time,#work_status,#work_description,#co_number,#revision_time,#non_revision_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#non_billable_hours,#qa_minor,#tonnage,#change_order_time,#bar_listing_time,#bar_list_quantity,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_billable_time,#co_checking,#qa_checking,#monitoring,#tonnage_change,#actual_tonnage,#aec,#bar_listing_checking,#team,#branch,#reporting,#employee_code,#emp_code,#reporting_code,#entry_date').addClass('ignore');
 }
 //DETAILER SHOW
 function show_detailer_worktype(work_type){

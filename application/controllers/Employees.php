@@ -220,7 +220,7 @@ class Employees  extends Action_controller{
 		}		
 		$data['emp_details'] = $emp_details;
 
-		$role_based_query  = 'SELECT * FROM cw_role_base_condition WHERE  role_module_id = "'.$this->control_name.'" and FIND_IN_SET("'.$this->logged_role.'",role_condition_for) and trans_status = 1';
+		$role_based_query  = 'SELECT * FROM cw_role_base_condition WHERE  role_module_id = "'.$this->control_name.'" and FIND_IN_SET("'.$this->logged_user_role.'",role_condition_for) and trans_status = 1';
 		$role_based_info   = $this->db->query("CALL sp_a_run ('SELECT','$role_based_query')");
 		$role_based_result = $role_based_info->result();
 		$role_based_info->next_result();

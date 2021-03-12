@@ -13,7 +13,7 @@
 		<div class="col-md-9">
 			<div class="form-group">
 				<?php
-					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise");
+					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise",'2'=>"Project wise");
 					echo form_label("Process By", 'process_by', array('class' => 'required'));
 					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
 				?>
@@ -79,10 +79,11 @@
 		
 		$('#process_by').change(function(){
 			var process_by = $('#process_by').val();
-			if(parseInt(process_by) === 1){
+			if(parseInt(process_by) === 1 || parseInt(process_by) === 2){
 				$('#employee_name').parent().show();
 				$("#rslt_info").html('');
-			}else{
+			}
+			else{
 				$('#employee_name').parent().hide();
 				$("#rslt_info").html('');
 			}
@@ -102,11 +103,12 @@
 			}
 		});
 		$('#detailer_export').click(function(){
+			var process_by 		= $("#process_by").val();
 			var employee_code 	= $("#employee_name").val();
 			var from_date 		= $("#from_date").val();
 			var to_date		 	= $("#to_date").val();
 			var export_excel 	= "<?php echo $excel_export;?>";
-			var export_url   	= export_excel+'/'+employee_code+'/'+from_date+'/'+to_date;
+			var export_url   	= export_excel+'/'+employee_code+'/'+from_date+'/'+to_date+'/'+process_by;
 			$('#link').attr("href",export_url);
 			window.location = $('#link').attr('href');
 

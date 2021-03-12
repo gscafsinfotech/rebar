@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script is allowed');
 require_once("Action_controller.php");
-class Project_and_drawing_master  extends Action_controller{	
+class General_contractor  extends Action_controller{	
 	public function __construct(){
-		parent::__construct('project_and_drawing_master');
+		parent::__construct('general_contractor');
 		$this->collect_base_info();
 	}
 	

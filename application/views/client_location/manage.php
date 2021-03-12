@@ -45,8 +45,8 @@
 							</ul>
 						</li>";
 	}
-	$breadcrumb  .="<li><a href='$site_url#Home'>Home</a></li>
-					<li><a href='$site_url/$controller_name#$controller_name'>$page_name</a></li>
+	$breadcrumb  .="<li><a href='".site_url('home')."'>Home</a></li>
+					<li><a href='".site_url($controller_name)."#$controller_name'>$page_name</a></li>
 					<li class='active'>List</li>";
 					
 	

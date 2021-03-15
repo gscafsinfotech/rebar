@@ -725,7 +725,6 @@ $(document).ready(function(){
 	if(parseInt(logged_role) !== 1){
 		$('#permission_list li:nth-child(6)').css( "display", "none" );		
 	}
-	
 
 	$("#employee_status").change(function(){
 		var employee_status  = $(this).val();
@@ -867,31 +866,93 @@ $(document).ready(function(){
 		},
 		submitHandler: function (form){
 			// $("#submit").html("<i class='fa fa-spinner fa-spin'></i> Processing...");
-			// $('#submit').attr('disabled','disabled');			
-			$(form).ajaxSubmit({
-				success: function (response){
-					$('#submit').attr('disabled',false);
-					$("#submit").html("Submit");
-					if(response.success){
-						$(prime_id).val(response.insert_id);
-						if(response.code_exist === 1){
-							toastr.success('This Employee code is Already Exist... Your Employee Code is  '+response.emp_code);
+			// $('#submit').attr('disabled','disabled');	
+			var role   = $("#role").val();
+			if(parseInt(role) === 3){
+				$(form).ajaxSubmit({
+					success: function (response){
+						$('#submit').attr('disabled',false);
+						$("#submit").html("Submit");
+						if(response.success){
+							$(prime_id).val(response.insert_id);
+							if(response.code_exist === 1){
+								toastr.success('This Employee code is Already Exist... Your Employee Code is  '+response.emp_code);
+							}else{
+								toastr.success(response.message);
+							}	
+							$('.modal').modal('hide');
+							$('.row_btn').show();
+							$('#table').DataTable().ajax.reload();
 						}else{
-							toastr.success(response.message);
+							if(response.category_status){
+								$('#role,#employee_code').val('');
+								select_option();
+							}
+							toastr.error(response.message);
 						}	
-						$('.modal').modal('hide');
-						$('.row_btn').show();
-						$('#table').DataTable().ajax.reload();
-					}else{
-						if(response.category_status){
-							$('#role,#employee_code').val('');
-							select_option();
-						}
-						toastr.error(response.message);
-					}	
-				},
-				dataType: 'json'
-			});			
+					},
+					dataType: 'json'
+				});
+			}else{
+				var multi_pick_count = $("#team :selected").map(function(i, el) {
+			    return $(el).val();
+				}).get();
+				var multi_pick_count = multi_pick_count.length;
+				if(parseInt(multi_pick_count) === 1){
+					$(form).ajaxSubmit({
+						success: function (response){
+							$('#submit').attr('disabled',false);
+							$("#submit").html("Submit");
+							if(response.success){
+								$(prime_id).val(response.insert_id);
+								if(response.code_exist === 1){
+									toastr.success('This Employee code is Already Exist... Your Employee Code is  '+response.emp_code);
+								}else{
+									toastr.success(response.message);
+								}	
+								$('.modal').modal('hide');
+								$('.row_btn').show();
+								$('#table').DataTable().ajax.reload();
+							}else{
+								if(response.category_status){
+									$('#role,#employee_code').val('');
+									select_option();
+								}
+								toastr.error(response.message);
+							}	
+						},
+						dataType: 'json'
+					});
+				}else{
+					toastr.error("Please Select One Team");
+				}
+			}
+
+
+			// $(form).ajaxSubmit({
+			// 	success: function (response){
+			// 		$('#submit').attr('disabled',false);
+			// 		$("#submit").html("Submit");
+			// 		if(response.success){
+			// 			$(prime_id).val(response.insert_id);
+			// 			if(response.code_exist === 1){
+			// 				toastr.success('This Employee code is Already Exist... Your Employee Code is  '+response.emp_code);
+			// 			}else{
+			// 				toastr.success(response.message);
+			// 			}	
+			// 			$('.modal').modal('hide');
+			// 			$('.row_btn').show();
+			// 			$('#table').DataTable().ajax.reload();
+			// 		}else{
+			// 			if(response.category_status){
+			// 				$('#role,#employee_code').val('');
+			// 				select_option();
+			// 			}
+			// 			toastr.error(response.message);
+			// 		}	
+			// 	},
+			// 	dataType: 'json'
+			// });			
 		}
 
 	});

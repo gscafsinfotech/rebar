@@ -189,8 +189,8 @@ class Detailer_report  extends Action_controller{
 		//Set the first row as the header row
 		if((int)$process_by === 1){
 			$i =3;
-				$test[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA');
-				$test[]['excel_value']= array('Date','Project Name','Drawing No','Drawing Revisin Status','Work Status','STY','DET','DIS','CHK','COR','RFI','STY','AEC','CHK','COR','NBH','BH','DIS','PCO','QTY','HOURS','OTHER WORK','BOOKING HOURS','IN','OUT','TOTAL','SHIFT');
+				$test[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB');
+				$test[]['excel_value']= array('Date','Project Name','Drawing No','Drawing Revisin Status','Work Status','Credit','STY','DET','DIS','CHK','COR','RFI','STY','AEC','CHK','COR','NBH','BH','DIS','PCO','QTY','HOURS','OTHER WORK','BOOKING HOURS','IN','OUT','TOTAL','SHIFT');
 
 				$styleArray = array(
 			        'font' => array(
@@ -210,26 +210,29 @@ class Detailer_report  extends Action_controller{
 			            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
 			        )
 			    );
-				for ($x = 0; $x <= 26; $x++) {
+				for ($x = 0; $x <= 27; $x++) {
 					$excel_column  = $test[0]['excel_column'][$x];
 					$excel_value   = $test[1]['excel_value'][$x];
 					$obj->getActiveSheet()->setCellValue('A'."1", "Detailer Name:".$employee_name)->mergeCells('A1:B1')->getStyle('A1:B1')->applyFromArray($styleArray);
 					$obj->getActiveSheet()->setCellValue('C'."1", "Designation & Experience: Cad Designer & 3 Year 7 Months")->mergeCells('C1:D1')->getStyle('C1:D1')->applyFromArray($styleArray);
 					// $obj->getActiveSheet()->setCellValue('D'."1", "")->getStyle('D')->applyFromArray($styleArray);
 					$obj->getActiveSheet()->setCellValue('E'."1", "Target Tons")->getStyle('E1')->applyFromArray($styleArray);
-					$obj->getActiveSheet()->setCellValue('F'."1", "Detailing Work")->mergeCells('F1:K1')->getStyle('F1:K1')->applyFromArray($styleArray);
-					$obj->getActiveSheet()->setCellValue('L'."1", "Revision Work")->mergeCells('L1:S1')->getStyle('L1:S1')->applyFromArray($styleArray);
-					$obj->getActiveSheet()->setCellValue('T'."1", "BAR LIST")->mergeCells('T1:U1')->getStyle('T1:U1')->applyFromArray($styleArray);
-					$obj->getActiveSheet()->setCellValue('V'."1", "OTHER WORKS")->getStyle('V1')->applyFromArray($styleArray);
-					$obj->getActiveSheet()->setCellValue('W'."1", "Booking Hours")->getStyle('W1')->applyFromArray($styleArray);
-					$obj->getActiveSheet()->setCellValue('X'."1", "OFFICE HOURS")->mergeCells('X1:Z1')->getStyle('X1:Z1')->applyFromArray($styleArray);
-					$obj->getActiveSheet()->setCellValue('AA'."1", " ")->getStyle('AA1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('F'."1", "Credit")->getStyle('F1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('G'."1", "Detailing Work")->mergeCells('G1:L1')->getStyle('G1:L1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('M'."1", "Revision Work")->mergeCells('M1:T1')->getStyle('M1:T1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('U'."1", "BAR LIST")->mergeCells('U1:V1')->getStyle('U1:V1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('W'."1", "OTHER WORKS")->getStyle('W1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('X'."1", "Booking Hours")->getStyle('X1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('Y'."1", "OFFICE HOURS")->mergeCells('Y1:AA1')->getStyle('Y1:AA1')->applyFromArray($styleArray);
+					$obj->getActiveSheet()->setCellValue('AB'."1", " ")->getStyle('AB1')->applyFromArray($styleArray);
 					$obj->getActiveSheet()->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($styleArray);
 				}
 			$previous_date = "";
 			$j = 0;
 			$k = 0;
+			
 			foreach($time_sheet_result as $key => $time_sheet){
+				$sum_total_hours = array();
 				$booking_hours 			= array();
 				$trans_date      		= $time_sheet->trans_created_date;
 				$date_only = date('Y-m-d',strtotime($trans_date));
@@ -257,7 +260,6 @@ class Detailer_report  extends Action_controller{
 					$out_hour 			= "";
 				}
 
-
 				$booking_hours 	 = array();
 				$booking_hours[] = $time_sheet->study;
 				$booking_hours[] = $time_sheet->detailing_time;
@@ -277,49 +279,96 @@ class Detailer_report  extends Action_controller{
 				$booking_hours[] = $time_sheet->other_works;
 				$total_hours 	 = $this->AddPlayTime($booking_hours);
 
-
 				$time_sheet_value['A']       = date('d-m-Y',strtotime($time_sheet->trans_created_date));
 				$time_sheet_value['B']       = $time_sheet->project_name;
 				$time_sheet_value['C']       = $time_sheet->drawing_no;
 				$time_sheet_value['D']       = $time_sheet->cw_zct_5_value;
 				$time_sheet_value['E']       = $time_sheet->work_status;
-				$time_sheet_value['F'] 		 = $time_sheet->study;
-				$time_sheet_value['G'] 		 = $time_sheet->detailing_time;
-				$time_sheet_value['H'] 		 = $time_sheet->discussion;
-				$time_sheet_value['I']		 = $time_sheet->checking;
-				$time_sheet_value['J'] 		 = $time_sheet->correction_time;
-				$time_sheet_value['K'] 		 = $time_sheet->rfi;
-				$time_sheet_value['L']		 = $time_sheet->study;
-				$time_sheet_value['M']		 = $time_sheet->aec;
-				$time_sheet_value['N']		 = $time_sheet->checking;
-				$time_sheet_value['O'] 		 = $time_sheet->correction_time;
-				$time_sheet_value['P'] 		 = $time_sheet->non_billable_hours;
-				$time_sheet_value['Q'] 		 = $time_sheet->billable_hours;
-				$time_sheet_value['R'] 		 = $time_sheet->discussion;
-				$time_sheet_value['S'] 		 = $time_sheet->change_order_time;
-				$time_sheet_value['T']       = $time_sheet->bar_list_quantity;
-				$time_sheet_value['U'] 		 = $time_sheet->bar_listing_time;
-				$time_sheet_value['V'] 		 = $time_sheet->other_works;
-				$time_sheet_value['W'] 		 = $total_hours;
-				$time_sheet_value['X'] 		 = $in_hour;
-				$time_sheet_value['Y'] 		 = $out_hour;
-				$time_sheet_value['Z'] 		 = $differenceinhours;
-				$time_sheet_value['AA'] 	 = "shift";
-				
-				for ($x = 0; $x <= 26; $x++) {
-					$excel_column  = $test[0]['excel_column'][$x];
-					$value_of_excel  = $time_sheet_value[$excel_column];
+				$time_sheet_value['F'] 		 = 'Credit';
+				$time_sheet_value['G'] 		 = $time_sheet->study;
+				$time_sheet_value['H'] 		 = $time_sheet->detailing_time;
+				$time_sheet_value['I'] 		 = $time_sheet->discussion;
+				$time_sheet_value['J']		 = $time_sheet->checking;
+				$time_sheet_value['K'] 		 = $time_sheet->correction_time;
+				$time_sheet_value['L'] 		 = $time_sheet->rfi;
+				$time_sheet_value['M']		 = $time_sheet->study;
+				$time_sheet_value['N']		 = $time_sheet->aec;
+				$time_sheet_value['O']		 = $time_sheet->checking;
+				$time_sheet_value['P'] 		 = $time_sheet->correction_time;
+				$time_sheet_value['Q'] 		 = $time_sheet->non_billable_hours;
+				$time_sheet_value['R'] 		 = $time_sheet->billable_hours;
+				$time_sheet_value['S'] 		 = $time_sheet->discussion;
+				$time_sheet_value['T'] 		 = $time_sheet->change_order_time;
+				$time_sheet_value['U']       = $time_sheet->bar_list_quantity;
+				$time_sheet_value['V'] 		 = $time_sheet->bar_listing_time;
+				$time_sheet_value['W'] 		 = $time_sheet->other_works;
+				$time_sheet_value['X'] 		 = $total_hours;
+				$time_sheet_value['Y'] 		 = $in_hour;
+				$time_sheet_value['Z'] 		 = $out_hour;
+				$time_sheet_value['AA'] 	 = $differenceinhours;
+				$time_sheet_value['AB'] 	 = "shift";
+				$sum_study[]  				 = $time_sheet->study;
+				$sum_detailing_time[]  		 = $time_sheet->detailing_time;
+				$sum_discussion[] 			 = $time_sheet->discussion;
+				$sum_checking[] 			 = $time_sheet->checking;
+				$sum_correction_time[] 		 = $time_sheet->correction_time;
+				$sum_rfi[] 					 = $time_sheet->rfi;
+				$sum_aec[] 					 = $time_sheet->aec;
+				$sum_non_billable_hours[] 	 = $time_sheet->non_billable_hours;
+				$sum_billable_hours[] 		 = $time_sheet->billable_hours;
+				$sum_change_order_time[]  	 = $time_sheet->change_order_time;
+				$sum_bar_list_quantity[] 	 = $time_sheet->bar_list_quantity;
+				$sum_bar_listing_time[] 	 = $time_sheet->bar_listing_time;
+				$sum_other_works[] 			 = $time_sheet->other_works;
+				$sum_total_hours[] 			 = $total_hours;
+				$sum_value_study			 = $this->AddPlayTime($sum_study);
+				$sum_value_detailing_time	 = $this->AddPlayTime($sum_detailing_time);
+				$sum_value_discussion		 = $this->AddPlayTime($sum_discussion);
+				$sum_value_checking			 = $this->AddPlayTime($sum_checking);
+				$sum_value_correction_time	 = $this->AddPlayTime($sum_correction_time);
+				$sum_value_rfi				 = $this->AddPlayTime($sum_rfi);
+				$sum_value_aec				 = $this->AddPlayTime($sum_aec);
+				$sum_value_non_billable_hours= $this->AddPlayTime($sum_non_billable_hours);
+				$sum_value_billable_hours 	 = $this->AddPlayTime($sum_billable_hours);
+				$sum_value_change_order_time = $this->AddPlayTime($sum_change_order_time);
+				$sum_value_bar_list_quantity = $this->AddPlayTime($sum_bar_list_quantity);
+				$sum_value_bar_listing_time  = $this->AddPlayTime($sum_bar_listing_time);
+				$sum_value_other_works		 = $this->AddPlayTime($sum_other_works);
+				$sum_value_total_hours 		 = $this->AddPlayTime($sum_total_hours);
+				for ($x = 0; $x <= 27; $x++) {
+					$excel_column  		= $test[0]['excel_column'][$x];
+					$value_of_excel  	= $time_sheet_value[$excel_column];
 					$start_cell 		= $excel_column.$range_start;
 					$end_cell 			= $excel_column.$range_end;
 					if($excel_column === 'A' || $excel_column === 'X' || $excel_column === 'Y' || $excel_column === 'Z' || $excel_column === 'AA'){
-						
 						$obj->getActiveSheet()->setCellValue($excel_column.$i, $value_of_excel)->mergeCells($start_cell.':'.$end_cell)->getStyle($start_cell.':'.$end_cell)->applyFromArray($verticalStyle);
 					}
 					$obj->getActiveSheet()->setCellValue($excel_column.$i, $value_of_excel);
+
+					$counter = $i;
 				}
 				$i++;
 				$previous_date = $date_only;
 			}	
+			$counter = $counter+1;
+				$obj->getActiveSheet()->setCellValue('G'.$counter,$sum_value_study)->getStyle('G'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('H'.$counter,$sum_value_detailing_time)->getStyle('H'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('I'.$counter,$sum_value_discussion)->getStyle('I'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('J'.$counter,$sum_value_checking)->getStyle('J'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('k'.$counter,$sum_value_correction_time)->getStyle('K'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('L'.$counter,$sum_value_rfi)->getStyle('L'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('M'.$counter,$sum_value_study)->getStyle('M'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('N'.$counter,$sum_value_aec)->getStyle('N'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('O'.$counter,$sum_value_checking)->getStyle('O'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('P'.$counter,$sum_value_correction_time)->getStyle('P'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('Q'.$counter,$sum_value_non_billable_hours)->getStyle('Q'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('R'.$counter,$sum_value_billable_hours)->getStyle('R'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('S'.$counter,$sum_value_discussion)->getStyle('S'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('T'.$counter,$sum_value_change_order_time)->getStyle('T'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('U'.$counter,$sum_value_bar_list_quantity)->getStyle('U'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('V'.$counter,$sum_value_bar_listing_time)->getStyle('V'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('W'.$counter,$sum_value_other_works)->getStyle('W'.$counter)->applyFromArray($styleArray);
+				$obj->getActiveSheet()->setCellValue('X'.$counter,$sum_value_total_hours)->getStyle('X'.$counter)->applyFromArray($styleArray);
 			// Rename worksheet name
 			 $filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name
 			 header('Content-Type: application/vnd.ms-excel'); //mime type
@@ -344,18 +393,14 @@ class Detailer_report  extends Action_controller{
 				$project_name      		= $time_sheet->project_name;
 				$study                  = $time_sheet->study;
 				$project_id 			= $time_sheet->prime_project_and_drawing_master_id;
-				// echo "project_name :: $project_name, study :: $study <br>";
 
 				if($previous_project_name === $project_name){
 					$sum_study[]     		= $time_sheet->study;
 					$hours_difference   = $this->AddPlayTime($sum_study);
-					// echo "test :: $time_sheet->study <br>";
-					// echo " project_name :: $project_name, study :: $study ,hours_difference :: $hours_difference <br>";
 					$j ++;
 				}else{
 					$sum_study[]     		= $time_sheet->study;
 					$hours_difference   = $this->AddPlayTime($sum_study);
-					echo " project_name :: $project_name, study :: $study ,hours_difference :: $hours_difference <br>";
 					$k = $i;
 					$j = 0;
 				}

@@ -1501,5 +1501,46 @@ class Employees  extends Action_controller{
 			echo json_encode(array('success'=>false,'message'=>'Cannot process'));
 		}
 	}
+	public function team_already_exist(){
+		$team 					= ltrim(implode(",",$this->input->post('multi_pick_value')),",");
+		$role 					= $this->input->post("role");
+		$pick_count 			= $this->input->post("pick_count");
+		$get_employee_code 		= $this->input->post("employee_code");
+		if((int)$role === 4 && (int)$pick_count === 1){
+			$team_qry      		= "select role,team,employee_code from cw_employees where FIND_IN_SET($team,team) and role = $role and trans_status=1";
+			$team_info          = $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
+			$team_result        = $team_info->result();
+			$team_info->next_result();
+			$employee_code 		= $team_result[0]->employee_code;
+			$team_count			= count($team_result);
+			if($team_count === 0){
+				echo json_encode(array('success'=>true,'message'=>'Team Already Exists'));
+			}else{
+				if($employee_code === $get_employee_code){
+					echo json_encode(array('success'=>true,'message'=>'Team Added Success'));
+				}else{
+					echo json_encode(array('success'=>false,'message'=>'Team Added Success'));
+				}
+			}
+		}else
+		if((int)$role === 3){
+			$team_qry      		= 'select role,team,employee_code from cw_employees where role ="'.$role.'" and FIND_IN_SET(team,"'.$team.'") and trans_status=1';
+			$team_info          = $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
+			$team_result        = $team_info->result();
+			$team_info->next_result();
+			$employee_code 		= $team_result[0]->employee_code;
+			$team_count			= count($team_result);
+			// echo "<pre>";
+			// print_r($team_result);
+			if($team_count === 0){
+				echo json_encode(array('success'=>true,'message'=>'Team Added Successfully'));
+			}else
+			if($team_count === 1){
+				echo json_encode(array('success'=>true,'message'=>'Team Added Successfully'));
+			}else{
+				echo json_encode(array('success'=>false,'message'=>'Team Already Exists'));
+			}
+		}
+	}
 }
 ?>

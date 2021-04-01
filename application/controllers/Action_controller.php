@@ -759,8 +759,13 @@ abstract class Action_controller extends Secure_Controller{
 			$label_id        = strtolower(str_replace(" ","_",$setting->label_name));
 			$field_isdefault = $setting->field_isdefault;
 			if((int)$field_type === 7){
-				$multi_name = $label_id."[]";
-				$value = implode(",",$this->input->post($multi_name));
+				$logged_team	      = $this->session->userdata('logged_team');
+				if($label_id === "team_log"){
+					$value  = $logged_team;
+				}else{
+					$multi_name = $label_id."[]";
+					$value = implode(",",$this->input->post($multi_name));
+				}
 			}else{
 				$value = $this->input->post($label_id);
 			}			

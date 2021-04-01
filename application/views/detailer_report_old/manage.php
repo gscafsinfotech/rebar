@@ -82,7 +82,8 @@
 			if(parseInt(process_by) === 1 || parseInt(process_by) === 2){
 				$('#employee_name').parent().show();
 				$("#rslt_info").html('');
-			}else{
+			}
+			else{
 				$('#employee_name').parent().hide();
 				$("#rslt_info").html('');
 			}

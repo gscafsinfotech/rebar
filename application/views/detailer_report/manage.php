@@ -27,16 +27,16 @@
 			</div>
 			<div class="form-group">
 				<?php
-					echo form_label("From Date", 'from_date', array('class' => 'required'));
-					echo form_input(array( 'name' => 'from_date', 'id' => 'from_date', 'class' => 'form-control input-sm datepicker'));
+					echo form_label("From Date", 'process_month', array('class' => 'required'));
+					echo form_input(array( 'name' => 'process_month', 'id' => 'process_month', 'class' => 'form-control input-sm datepicker'));
 				?>
 			</div>
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<?php
 					echo form_label("To Date", 'to_date', array('class' => 'required'));
 					echo form_input(array( 'name' => 'to_date', 'id' => 'to_date', 'class' => 'form-control input-sm datepicker'));
 				?>
-			</div>
+			</div> -->
 			<a id="link" style="display: none;" href="#" title='Export All Data'><span class="fa fa-user-exit">&nbsp</span></a>
 			<div class="form-group">
 				<button class='btn btn-primary btn-sm' id="detailer_export">Search</button>
@@ -55,7 +55,7 @@
 	$(document).ready(function (){
 		$(function(){
 			$(".datepicker").datetimepicker({
-				format: 'DD-MM-YYYY',
+				format: 'MM-YYYY',
 			});
 		});
 		hide_all();
@@ -105,70 +105,17 @@
 		$('#detailer_export').click(function(){
 			var process_by 		= $("#process_by").val();
 			var employee_code 	= $("#employee_name").val();
-			var from_date 		= $("#from_date").val();
+			var process_month 	= $("#process_month").val();
 			var to_date		 	= $("#to_date").val();
 			var export_excel 	= "<?php echo $excel_export;?>";
-			var export_url   	= export_excel+'/'+employee_code+'/'+from_date+'/'+to_date+'/'+process_by;
+			var export_url   	= export_excel+'/'+employee_code+'/'+process_month+'/'+process_by;
 			$('#link').attr("href",export_url);
 			window.location = $('#link').attr('href');
-
-
-
-
-
-			// var send_url = '<?php echo site_url("$controller_name/get_single_detailer_report");?>'
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: send_url,
-			// 	data:{employee_code:employee_code,from_date:from_date,to_date:to_date},
-			// 	success: function(data) {
-			// 		var rslt = JSON.parse(data);
-			// 		// if(rslt.success){
-			// 		// 		$('#rslt_info').html(rslt.table_content);
-			// 		// 				$table = $('#detailer_report').DataTable({
-			// 		// 					 paging: false,
-			// 		// 					 ordering: false,
-			// 		// 					 scrollX:true,
-			// 		// 					 "scrollY": 400
-			// 		// 				});
-			// 		// 				var table_option = "<div class='dataTables_length' id='detailer_report_length'><table><tr><td id='export' style='padding:8px 2px;'></td></tr></table></div>";
-			// 		// 				$("#detailer_report_wrapper").prepend(table_option);
-			// 		// 				var buttons = new $.fn.dataTable.Buttons($table, {
-			// 		// 				 buttons: [{
-			// 		// 					extend: 'collection',
-			// 		// 					text: 'Export',
-			// 		// 					buttons: [
-			// 		// 						{
-			// 		// 							extend:'copy',
-			// 		// 							exportOptions:{modifier :{order:'index',page:'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title
-			// 		// 						},
-			// 		// 						{extend:'csv',exportOptions:{modifier:{order:'index',page:'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title
-			// 		// 						},
-			// 		// 						{extend:'excel',
-			// 		// 						exportOptions:{modifier:{order :'index',page: 'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title},
-			// 		// 						{extend:'pdf',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title},
-			// 		// 						{extend:'print',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible',}
-			// 		// 							,title: rslt.title}
-			// 		// 					]
-			// 		// 				}]
-			// 		// 			}).container().appendTo($('#export'));
-			// 		// 		$(".buttons-collection").addClass("btn btn-xs btn-edit");
-			// 		// 		$('input[type=search]').addClass('form-control input-sm');
-			// 		// 	}else{
-			// 		// 		toastr.error(rslt.message);
-			// 		// 	}
-			// 		// empty_all();
-			// 	}
-			// });
 		});
 	});
 	
 	function hide_all(){
-		$('#employee_name').parent().hide();
+		// $('#employee_name').parent().hide();
 	}
 	function empty_all(){
 		$('#employee_name').val('');

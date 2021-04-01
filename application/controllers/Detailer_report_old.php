@@ -31,12 +31,59 @@ class Detailer_report  extends Action_controller{
 		}
 		echo json_encode($suggestions);
 	}
-	public function excel_export($employee_code,$process_month,$process_by){
+	function AddPlayTime($times) {
+	    $minutes = 0; //declare minutes either it gives Notice: Undefined variable
+	    // loop throught all the times
+	    foreach ($times as $time) {
+	        list($hour, $minute) = explode(':', $time);
+	        $minutes += $hour * 60;
+	        $minutes += $minute;
+	    }
+
+	    $hours = floor($minutes / 60);
+	    $minutes -= $hours * 60;
+
+	    // returns the time already formatted
+	    return sprintf('%02d:%02d', $hours, $minutes);
+	}
+	function differenceInHours($startdate,$enddate){
+		$starttimestamp = strtotime($startdate);
+		$endtimestamp = strtotime($enddate);
+		$difference = abs($endtimestamp - $starttimestamp)/3600;
+		return $difference;
+	}
+	public function excel_export($employee_code,$from_date,$to_date,$process_by){
 		$control_name		= $this->control_name;
+		$from_date 			= date('Y-m-d',strtotime($from_date));
+		$to_date 			= date('Y-m-d',strtotime($to_date));
+		if((int)$process_by === 1){
+			$time_sheet_qry 	= 'select other_works,cw_time_sheet_time_line.trans_created_date,project,cw_project_and_drawing_master_drawings.drawing_no,detailing_time,study,discussion,checking,correction_time,rfi,aec,billable_hours,non_billable_hours,change_order_time,bar_listing_time,bar_list_quantity,project_name,cw_client.client_name,cw_zct_5.cw_zct_5_value,work_type,cw_branch.branch,cw_work_status.work_status,cw_employees.emp_name,cw_project_and_drawing_master.prime_project_and_drawing_master_id from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id=cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id=cw_time_sheet.project inner join cw_client on cw_client.prime_client_id=cw_time_sheet.client_name inner join cw_work_status on cw_work_status.prime_work_status_id=cw_time_sheet.work_status inner join cw_zct_5 on cw_zct_5.cw_zct_5_id=cw_time_sheet.work_type inner join cw_branch on cw_branch.prime_branch_id=cw_time_sheet.branch inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id=cw_time_sheet.diagram_no inner join cw_employees on cw_employees.employee_code=cw_time_sheet_time_line.emp_code where cw_time_sheet_time_line.emp_code = "'.$employee_code.'" and emp_role = 5 and cw_time_sheet_time_line.trans_created_date >= "'.$from_date.'" and cw_time_sheet_time_line.trans_created_date <= "'.$to_date.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 order by cw_time_sheet_time_line.trans_created_date';
+		}else{
+			$time_sheet_qry 	= 'select  GROUP_CONCAT(work_description) AS work_description,emp_name,COUNT(revision_time) AS revision_time_count,COUNT(detailing_time) AS detailing_time_count, SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))) AS detailing_time,SEC_TO_TIME(SUM(TIME_TO_SEC(other_works))) AS other_works,SEC_TO_TIME(SUM(TIME_TO_SEC(study))) AS study,SEC_TO_TIME(SUM(TIME_TO_SEC(discussion))) AS discussion,SEC_TO_TIME(SUM(TIME_TO_SEC(checking))) AS checking,SEC_TO_TIME(SUM(TIME_TO_SEC(correction_time))) AS correction_time,SEC_TO_TIME(SUM(TIME_TO_SEC(rfi))) AS rfi,SEC_TO_TIME(SUM(TIME_TO_SEC(aec))) AS aec,SEC_TO_TIME(SUM(TIME_TO_SEC(billable_hours))) AS billable_hours,SEC_TO_TIME(SUM(TIME_TO_SEC(non_billable_hours))) AS non_billable_hours,SEC_TO_TIME(SUM(TIME_TO_SEC(change_order_time))) AS change_order_time,SEC_TO_TIME(SUM(TIME_TO_SEC(bar_listing_time))) AS bar_listing_time,SEC_TO_TIME(SUM(TIME_TO_SEC(bar_list_quantity))) AS bar_list_quantity,project_name AS project_name,cw_time_sheet.project from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id=cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id=cw_time_sheet.project inner join cw_client on cw_client.prime_client_id=cw_time_sheet.client_name inner join cw_work_status on cw_work_status.prime_work_status_id=cw_time_sheet.work_status inner join cw_zct_5 on cw_zct_5.cw_zct_5_id=cw_time_sheet.work_type inner join cw_branch on cw_branch.prime_branch_id=cw_time_sheet.branch inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id=cw_time_sheet.diagram_no inner join cw_employees on cw_employees.employee_code=cw_time_sheet_time_line.emp_code where cw_time_sheet_time_line.emp_code = "'.$employee_code.'" and emp_role = 5 and cw_time_sheet_time_line.trans_created_date >= "'.$from_date.'" and cw_time_sheet_time_line.trans_created_date <= "'.$to_date.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet.project order by cw_time_sheet.project';
 
 
-		
-		
+			$detail_count_query  = 'select count(detailing_time) as detailing_count,work_type,detailing_time,project from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id=cw_time_sheet.prime_time_sheet_id where cw_time_sheet.work_type=1 and cw_time_sheet_time_line.emp_code = "'.$employee_code.'" and emp_role = 5 and cw_time_sheet_time_line.trans_created_date >= "'.$from_date.'" and cw_time_sheet_time_line.trans_created_date <= "'.$to_date.'" and cw_time_sheet.trans_status = 1 GROUP BY cw_time_sheet.project order by cw_time_sheet.project';
+			$detail_count_info   	= $this->db->query("CALL sp_a_run ('SELECT','$detail_count_query')");
+			$detail_count_result  = $detail_count_info->result();
+			$detail_count_info->next_result();
+			$detailing_count =array();
+			foreach ($detail_count_result as $key => $detail_count) {
+				$project = $detail_count->project;
+				$detailing_count['detail_count'][$project] = $detail_count->detailing_count;
+			}
+
+
+			$revision_count_query  = 'select count(detailing_time) as revision_count,work_type,detailing_time,project from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id=cw_time_sheet.prime_time_sheet_id where cw_time_sheet.work_type=2 and cw_time_sheet_time_line.emp_code = "'.$employee_code.'" and emp_role = 5 and cw_time_sheet_time_line.trans_created_date >= "'.$from_date.'" and cw_time_sheet_time_line.trans_created_date <= "'.$to_date.'" and cw_time_sheet.trans_status = 1 GROUP BY cw_time_sheet.project order by cw_time_sheet.project';
+			$revision_count_info   	= $this->db->query("CALL sp_a_run ('SELECT','$revision_count_query')");
+			$revision_count_result  = $revision_count_info->result();
+			$revision_count_info->next_result();
+			$count_revision_time =array();
+			foreach ($revision_count_result as $key => $rev_count) {
+				$project = $rev_count->project;
+				$count_revision_time['revision_count'][$project] = $rev_count->revision_count;
+			}
+			
+		}
 		$time_sheet_info   	= $this->db->query("CALL sp_a_run ('SELECT','$time_sheet_qry')");
 		$time_sheet_result  = $time_sheet_info->result();
 		$time_sheet_info->next_result();

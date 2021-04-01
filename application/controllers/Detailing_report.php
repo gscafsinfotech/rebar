@@ -56,7 +56,7 @@ class Detailing_report  extends Action_controller{
 		$from_date 			= date('Y-m-d',strtotime($from_date));
 		$to_date 			= date('Y-m-d',strtotime($to_date));
 		// $detailing_qry 	= 'select client_no,rdd_no,purchase_order,project_name,cw_client.client_name,cw_general_contractor.general_contractor,cw_branch.branch,cw_team.team_name,cw_employees.emp_name,received_date,estimated_tons from cw_project_and_drawing_master inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id=cw_project_and_drawing_master.prime_project_and_drawing_master_id inner join cw_client on cw_client.prime_client_id=cw_project_and_drawing_master.client_name inner join cw_branch on cw_branch.prime_branch_id=cw_project_and_drawing_master.branch inner join cw_general_contractor on cw_general_contractor.prime_general_contractor_id=cw_project_and_drawing_master.general_contractor inner join cw_team on cw_team.prime_team_id=cw_project_and_drawing_master.team inner join cw_employees on cw_employees.employee_code=cw_project_and_drawing_master.project_manager where cw_project_and_drawing_master.trans_created_date >= "'.$from_date.'" and cw_project_and_drawing_master.trans_created_date <= "'.$to_date.'" and cw_project_and_drawing_master.trans_status = 1';
-		$detailing_qry 	= 'select client_no,rdd_no,purchase_order,project_name,cw_client.client_name,cw_general_contractor.general_contractor,cw_branch.branch,cw_team.team_name,cw_employees.emp_name,received_date,estimated_tons from cw_project_and_drawing_master inner join cw_client on cw_client.prime_client_id=cw_project_and_drawing_master.client_name inner join cw_branch on cw_branch.prime_branch_id=cw_project_and_drawing_master.branch inner join cw_general_contractor on cw_general_contractor.prime_general_contractor_id=cw_project_and_drawing_master.general_contractor inner join cw_team on cw_team.prime_team_id=cw_project_and_drawing_master.team inner join cw_employees on cw_employees.employee_code=cw_project_and_drawing_master.project_manager where cw_project_and_drawing_master.trans_created_date >= "'.$from_date.'" and cw_project_and_drawing_master.trans_created_date <= "'.$to_date.'" and cw_project_and_drawing_master.trans_status = 1';
+		$detailing_qry 	= 'select client_no,rdd_no,purchase_order,project_name,cw_client.client_name,cw_general_contractor.general_contractor,cw_branch.branch,cw_team.team_name,received_date,estimated_tons,cw_uspm.uspm from cw_project_and_drawing_master inner join cw_client on cw_client.prime_client_id=cw_project_and_drawing_master.client_name inner join cw_branch on cw_branch.prime_branch_id=cw_project_and_drawing_master.branch inner join cw_general_contractor on cw_general_contractor.prime_general_contractor_id=cw_project_and_drawing_master.general_contractor inner join cw_team on cw_team.prime_team_id=cw_project_and_drawing_master.team join cw_uspm on cw_uspm.prime_uspm_id=cw_project_and_drawing_master.project_manager where cw_project_and_drawing_master.trans_created_date >= "'.$from_date.'" and cw_project_and_drawing_master.trans_created_date <= "'.$to_date.'" and cw_project_and_drawing_master.trans_status = 1';
 		$detailing_info   	= $this->db->query("CALL sp_a_run ('SELECT','$detailing_qry')");
 		$detailing_result  = $detailing_info->result();
 		$detailing_info->next_result();
@@ -71,19 +71,47 @@ class Detailing_report  extends Action_controller{
 		$excel_types[]['excel_value']= array('Client No','RDD No','PO#',' Project Name','Client','General Contractor','Office','Team','US PM','Received Date','Estimated Tons');
 // echo "latha";
 		$styleArray = array(
+			'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
 	        'font' => array(
 	            'bold' => true,
-	            'color' => array('rgb' => '#01060b'),
+	            'color' => array('rgb' => '#ffffff'),
 	        ),
 	        'fill' => array(
 	            'type' => PHPExcel_Style_Fill::FILL_SOLID,
-	            'color' => array('rgb' => '#168cf3')
+	            'color' => array('rgb' => '46b10a')
 	        ),
 	        'alignment' => array(
 	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 	        )
 	    );
 	    $verticalStyle  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
 	    	'alignment' => array(
 	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
 	        )
@@ -103,7 +131,7 @@ class Detailing_report  extends Action_controller{
 			$detailing_value['F'] 		= $detailing_sheet->general_contractor;
 			$detailing_value['G'] 		= $detailing_sheet->branch;
 			$detailing_value['H'] 		= $detailing_sheet->team_name;
-			$detailing_value['I']		= $detailing_sheet->emp_name;
+			$detailing_value['I']		= $detailing_sheet->uspm;
 			$detailing_value['J'] 		= $detailing_sheet->received_date;
 			$detailing_value['K'] 		= $detailing_sheet->estimated_tons;
 			
@@ -112,7 +140,7 @@ class Detailing_report  extends Action_controller{
 				$value_of_excel  	= $detailing_value[$excel_column];
 				$start_cell 		= $excel_column.$range_start;
 				$end_cell 			= $excel_column.$range_end;
-				$obj->getActiveSheet()->setCellValue($excel_column.$i, $value_of_excel);
+				$obj->getActiveSheet()->setCellValue($excel_column.$i, $value_of_excel)->getStyle($excel_column.$i)->applyFromArray($verticalStyle);
 			}
 			$i++;
 		}	

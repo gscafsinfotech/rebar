@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script is allowed');
 require_once("Action_controller.php");
-class Team_target  extends Action_controller{	
+class Uspm  extends Action_controller{	
 	public function __construct(){
-		parent::__construct('team_target');
+		parent::__construct('uspm');
 		$this->collect_base_info();
 	}
 	
@@ -428,20 +428,6 @@ class Team_target  extends Action_controller{
 		$data['excel_format_drop'] = $excel_format_drop;
 		
 		$this->load->view("$this->control_name/import",$data);
-	}
-	public function detailer_team(){
-		$team_id = $this->input->post("team_id");
-		$team_qry = 'select employee_code,emp_name from cw_employees inner join cw_team on cw_team.prime_team_id = cw_employees.team where team = "'.$team_id.'" and role = 5 and cw_employees.trans_status = 1 and cw_team.trans_status = 1';
-		$team_info   = $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
-		$team_result    = $team_info->result();
-		$team_info->next_result();
-		$team_drop 	= "";
-		foreach($team_result as $team){
-			$employee_code 		  	   = $team->employee_code;
-			$emp_name            	   = $team->emp_name;
-			$team_drop  .= "<option value='$employee_code'> $emp_name </option>";
-		}
-		echo json_encode(array('success' => success, 'team_drop' => $team_drop));
 	}
 }
 ?>

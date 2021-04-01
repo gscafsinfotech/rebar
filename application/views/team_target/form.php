@@ -643,6 +643,12 @@ $(document).ready(function(){
 			});
 		});
 	}
+	var team 	= $("#team").val();
+	$("#team").change(function(){
+		var team = $(this).val();
+		detailer_team(team);
+	});
+	detailer_team(team);
 	/*
 	$('input').keypress(function(e){ 
 		e = e || event;
@@ -829,5 +835,17 @@ function row_set_remove(row_id,table_name,view_id,prime_id){
 			});
 		}		
 	}
+}
+function detailer_team(team_id){
+	var send_url = '<?php echo site_url("$controller_name/detailer_team"); ?>'; 
+	$.ajax({
+		type: "POST",
+		url: send_url,
+		data:{team_id:team_id},
+		success: function(data) {
+			var rslt = JSON.parse(data);
+			$("#detailer_name").html(rslt.team_drop);
+		}
+	});
 }
 </script>

@@ -13,14 +13,14 @@
 		<div class="col-md-9">
 			<div class="form-group">
 				<?php
-					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise",'2'=>"Project wise");
+					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise");
 					echo form_label("Process By", 'process_by', array('class' => 'required'));
 					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
 				?>
 			</div>
 			<div class="form-group">
 				<?php
-					echo form_label("Employee Name", 'employee_name', array('class' => 'required'));
+					echo form_label("Employee Code/Name", 'employee_name', array('class' => 'required'));
 					echo form_input(array( 'name' => 'employee_name', 'id' => 'employee_name', 'class' => 'form-control input-sm'));
 				?>
 				<div id='append_div'></div>
@@ -106,11 +106,24 @@
 			var process_by 		= $("#process_by").val();
 			var employee_code 	= $("#employee_name").val();
 			var process_month 	= $("#process_month").val();
-			var to_date		 	= $("#to_date").val();
-			var export_excel 	= "<?php echo $excel_export;?>";
-			var export_url   	= export_excel+'/'+employee_code+'/'+process_month+'/'+process_by;
-			$('#link').attr("href",export_url);
-			window.location = $('#link').attr('href');
+			$.ajax({
+				type: "POST",
+				url: '<?php echo site_url("$controller_name/datacount_check"); ?>',
+				data:{employee_code:employee_code,process_month:process_month},
+				success: function(data) {
+					var rslt = JSON.parse(data);
+					console.log(rslt.success);
+					if(rslt.success){
+						var export_excel 	= "<?php echo $excel_export;?>";
+						var export_url   	= export_excel+'/'+employee_code+'/'+process_month+'/'+process_by;
+						$('#link').attr("href",export_url);
+						window.location = $('#link').attr('href');
+					}else{
+						toastr.error(rslt.message);							
+					}
+				}
+			
+			});
 		});
 	});
 	

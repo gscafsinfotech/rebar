@@ -511,9 +511,14 @@ foreach($view_info as $view){
 										data:$row_send_data,
 										success: function(data) {
 											var rslt = JSON.parse(data);
-											toastr.success(rslt.message);
-											$('#'+rslt.row_set_data.div_id).html(rslt.row_set_data.row_set_view);
+											if(rslt.success){
+												$('#'+rslt.row_set_data.div_id).html(rslt.row_set_data.row_set_view);
 											$row_clear_data
+												toastr.success(rslt.message);
+											}else{
+												toastr.error(rslt.message);
+											}
+											
 											$(function(){
 												$('.select2').select2({
 													placeholder: '---- Select ----',
@@ -649,6 +654,27 @@ $(document).ready(function(){
 		detailer_team(team);
 	});
 	detailer_team(team);
+
+	// $("#target_value").keyup(function(){
+	// 	var target_value  = $(this).val();
+	// 	var detailer_name = $("#detailer_name").val();
+	// 	$.ajax({
+	// 		type: "POST",
+	// 		url: '<?php echo site_url("$controller_name/target_value_exist"); ?>',
+	// 		data:{target_value:target_value,detailer_name:detailer_name},
+	// 		success: function(data) {
+	// 			var rslt = JSON.parse(data);
+	// 			console.log(rslt.success);
+	// 			if(rslt.success){
+	// 				toastr.error(rslt.message);		
+	// 			}
+	// 		}
+	// 	});
+	// });
+
+
+
+
 	/*
 	$('input').keypress(function(e){ 
 		e = e || event;

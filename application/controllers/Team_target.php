@@ -443,5 +443,19 @@ class Team_target  extends Action_controller{
 		}
 		echo json_encode(array('success' => success, 'team_drop' => $team_drop));
 	}
+	public function target_value_exist(){
+		$target_value 	= $this->input->post("target_value");
+		$detailer_name  = $this->input->post("detailer_name");
+		$target_qry     = 'select count(*) as rlst_count from cw_team_target_detailer_wise_target where detailer_name = "'.$detailer_name.'" and target_value = "'.$target_value.'" and trans_status = 1';
+		$target_info    = $this->db->query("CALL sp_a_run ('SELECT','$target_qry')");
+		$target_result  = $target_info->result();
+		$target_info->next_result();
+		$rlst_count 	= $target_result[0]->rlst_count;
+		if((int)$rlst_count === 0){
+			echo json_encode(array('success' => success, 'message' => "Target Value Already Exist"));
+		}else{
+			echo json_encode(array('success' => false, 'message' => "Success"));
+		}
+	}
 }
 ?>

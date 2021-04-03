@@ -13,17 +13,12 @@
 	$view_url       = site_url($controller_name ."/view/");
 	$import_url     = site_url($controller_name ."/import/");
 	$logged_role    = $this->session->userdata('logged_role');
-	
-	// $process_status_result  = json_decode(json_encode($process_status_result),true);
 	$process_status_result = array_reduce($process_status_result, function ($result, $arr) {
 		    $result[$arr['prime_time_sheet_id']] = $arr;
 		    return $result;
 		}, array());
-//$process_status_result  = json_encode($process_status_result);
-	// echo "<pre>";
-	// print_r($process_status_result); die;
 	/* PAGE TITLE AND BUTTONS- START */
-	$breadcrumb = "";
+	/*$breadcrumb = "";
 	if($access_add === 1){
 		$breadcrumb .= "<li>
 							<a class='btn btn-xs btn-primary add' data-btn-submit='Submit' title='Add $page_name' href='$view_url' data_form='$controller_name'> <span class='fa fa-user-plus'>&nbsp</span>Add $page_name</a>
@@ -34,7 +29,7 @@
 							<a class='btn btn-xs btn-primary import' data-btn-submit= 'Submit' title='Import $page_name' href='$import_url' data_form='$controller_name' > <span class='fa fa-cloud-upload'>&nbsp</span> Import $page_name
 							</a>
 						</li>";
-	}
+	}*/
 	$quick_link   = explode(",",$quick_link->quicklink);
 	$link_li_line = "";
 	foreach($quick_link as $link){
@@ -134,7 +129,7 @@
 		</ol>
 	</div>
 </div>
-<div id="search_filter_div" class='search_filter' style="display:none;">
+<!-- <div id="search_filter_div" class='search_filter' style="display:none;">
 	<div style="max-height:250px;overflow: auto;">
 		<?php echo $filter_table;?>				
 	</div>
@@ -146,7 +141,7 @@
 			<a class="btn btn-xs btn-primary" id="search_close"> Close </a>
 		</div>
 	</div>
-</div>
+</div> -->
 <div class="row" style='margin:0px;overflow:auto;'>	
 	<div class='col-md-12' style='padding:8px;min-height: 400px;'>
 		<table id="table" class='table table-striped table-hover' style='width:100% !important;'></table>
@@ -353,7 +348,7 @@ $(document).ready(function (){
 		$table.draw();
 	});
 				
-	var table_option = "<table><tr><td id='filters' style='padding:8px 2px;'></td><td id='export' style='padding:8px 2px;'></td></tr></table>";
+	var table_option = "";
 	$("#table_filter").append(table_option);		
 	var buttons = new $.fn.dataTable.Buttons(table, {
 		 buttons: [{
@@ -517,16 +512,19 @@ $(document).ready(function (){
 		}
 	});
 	/* DELETE PROCESS - END*/
-	// $table.on('click','tr td:not(:first-child,:nth-child(7))',function() {
- //        var closest_row = $(this).closest('tr');
- //        var data        = $table.row(closest_row).data();
- //        var prime_id    = data['<?php echo $prime_id; ?>'];
- //       	var action      = $("td > a").attr('data-btn-submit');
-	// 	var title       = $("td > a").attr('title');
-	// 	var control     = '<?php echo $view_url; ?>'+prime_id;
-	// 	var form_id     = $("td > a").attr('data_form')+"_form";
-	// 	view_form_data(action,title,control,form_id);	
- //    });
+
+	// $(‘tr:nth-child(even)’) 
+	$table.on('click','tbody tr:not(:has(th)):nth-child(3)',function() {
+		$("td > a").attr("disabled", "disabled");
+  //       var closest_row = $(this).closest('tr');
+  //       var data        = $table.row(closest_row).data();
+  //       var prime_id    = data['<?php echo $prime_id; ?>'];
+  //      	var action      = $("td > a").attr('data-btn-submit');
+		// var title       = $("td > a").attr('title');
+		// var control     = '<?php echo $view_url; ?>'+prime_id;
+		// var form_id     = $("td > a").attr('data_form')+"_form";
+		// view_form_data(action,title,control,form_id);	
+    });
 	$("#search_filter_div").hide();
 	$("#search_filter").click(function(){
 		$("#search_filter_div").toggle();

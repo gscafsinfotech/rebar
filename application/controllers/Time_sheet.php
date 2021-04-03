@@ -129,7 +129,8 @@ class Time_sheet  extends Action_controller{
 		$filtered_count     = $search_info[0]->allcount;
 		
 		$search_query      .= " where $this->prime_table.trans_status = 1 $role_condition $fliter_query $common_search";
-		$search_query      .= " ORDER BY  $order_col $order_sor";
+		// $search_query      .= " ORDER BY  $order_col $order_sor";
+		$search_query	   .= "ORDER BY entry_date ASC";
 		if((int)$per_page !== -1){
 			$search_query  .= " LIMIT  $start,$per_page";
 		}		

@@ -758,6 +758,7 @@ abstract class Action_controller extends Secure_Controller{
 			$input_view_type = (int)$setting->input_view_type;
 			$label_id        = strtolower(str_replace(" ","_",$setting->label_name));
 			$field_isdefault = $setting->field_isdefault;
+			$prime_module_id = $setting->prime_module_id;
 			if((int)$field_type === 7){
 				$logged_team	      = $this->session->userdata('logged_team');
 				if($label_id === "team_log"){
@@ -767,6 +768,14 @@ abstract class Action_controller extends Secure_Controller{
 					$value = implode(",",$this->input->post($multi_name));
 				}
 			}else{
+				if($prime_module_id === "team_target"){
+					if($label_id === "detailer_name"){
+						$detailer_name = $this->input->post($label_id);
+					}else
+					if($label_id === "target_value"){
+						$target_value = $this->input->post($label_id);
+					}
+				}
 				$value = $this->input->post($label_id);
 			}			
 			if((int)$field_type === 4){
@@ -788,16 +797,39 @@ abstract class Action_controller extends Secure_Controller{
 		if($module_id === 'employees' && $row_prime_id > 0){
 			$this->update_row_set_log($row_prime_id,$prime_id,$view_id,$module_id."_".$row_label_name,$row_set_log);
 		}
+		if($prime_module_id === "team_target"){
+			$target_qry     = 'select count(*) as rlst_count from cw_team_target_detailer_wise_target where detailer_name = "'.$detailer_name.'" and target_value = "'.$target_value.'" and trans_status = 1';
+			$target_info    = $this->db->query("CALL sp_a_run ('SELECT','$target_qry')");
+			$target_result  = $target_info->result();
+			$target_info->next_result();
+			$rlst_count 	= $target_result[0]->rlst_count;
+		}
 		if((int)$row_prime_id === 0){
-			$prime_qry_key     .= "trans_created_by,trans_created_date";
-			$prime_qry_value   .= '"'.$this->logged_id.'",'.'"'.$created_on.'"';
-			$prime_insert_query = "insert into $table_name ($prime_qry_key) values ($prime_qry_value)";
-			$insert_info        = $this->db->query("CALL sp_a_run ('INSERT','$prime_insert_query')");
-			$insert_result      = $insert_info->result();
-			$insert_info->next_result();
-			$insert_id = $insert_result[0]->ins_id;
-			$row_set_data = $this->get_row_set_data($view_id,$prime_id);
-			echo json_encode(array('success' => TRUE, 'message' => "Successfully added", 'insert_id' => $insert_id, 'row_set_data' => $row_set_data));
+			if($prime_module_id === "team_target"){
+				if((int)$rlst_count === 0){
+					$prime_qry_key     .= "trans_created_by,trans_created_date";
+					$prime_qry_value   .= '"'.$this->logged_id.'",'.'"'.$created_on.'"';
+					$prime_insert_query = "insert into $table_name ($prime_qry_key) values ($prime_qry_value)";
+					$insert_info        = $this->db->query("CALL sp_a_run ('INSERT','$prime_insert_query')");
+					$insert_result      = $insert_info->result();
+					$insert_info->next_result();
+					$insert_id = $insert_result[0]->ins_id;
+					$row_set_data = $this->get_row_set_data($view_id,$prime_id);
+					echo json_encode(array('success' => TRUE, 'message' => "Successfully added", 'insert_id' => $insert_id, 'row_set_data' => $row_set_data));
+				}else{
+					echo json_encode(array('success' => false, 'message' => "Target Value Already Exist"));
+				}
+			}else{
+				$prime_qry_key     .= "trans_created_by,trans_created_date";
+				$prime_qry_value   .= '"'.$this->logged_id.'",'.'"'.$created_on.'"';
+				$prime_insert_query = "insert into $table_name ($prime_qry_key) values ($prime_qry_value)";
+				$insert_info        = $this->db->query("CALL sp_a_run ('INSERT','$prime_insert_query')");
+				$insert_result      = $insert_info->result();
+				$insert_info->next_result();
+				$insert_id = $insert_result[0]->ins_id;
+				$row_set_data = $this->get_row_set_data($view_id,$prime_id);
+				echo json_encode(array('success' => TRUE, 'message' => "Successfully added", 'insert_id' => $insert_id, 'row_set_data' => $row_set_data));
+			}
 		}else{
 			$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
 			$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';

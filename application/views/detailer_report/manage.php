@@ -27,7 +27,7 @@
 			</div>
 			<div class="form-group">
 				<?php
-					echo form_label("From Date", 'process_month', array('class' => 'required'));
+					echo form_label("Process Month", 'process_month', array('class' => 'required'));
 					echo form_input(array( 'name' => 'process_month', 'id' => 'process_month', 'class' => 'form-control input-sm datepicker'));
 				?>
 			</div>

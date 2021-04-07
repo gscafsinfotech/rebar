@@ -325,10 +325,10 @@ $(document).ready(function (){
 							if(parseInt(logged_role) === 5){
 								return "";
 							}else{
-								return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Edit</a>';
+								return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Add</a>';
 							}
 						}else{
-							return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Edit</a>';
+							return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Add</a>';
 						}
 					<?php 
 						}else{
@@ -514,16 +514,22 @@ $(document).ready(function (){
 	/* DELETE PROCESS - END*/
 
 	// $(‘tr:nth-child(even)’) 
-	$table.on('click','tbody tr:not(:has(th)):nth-child(3)',function() {
-		$("td > a").attr("disabled", "disabled");
-  //       var closest_row = $(this).closest('tr');
-  //       var data        = $table.row(closest_row).data();
-  //       var prime_id    = data['<?php echo $prime_id; ?>'];
-  //      	var action      = $("td > a").attr('data-btn-submit');
-		// var title       = $("td > a").attr('title');
-		// var control     = '<?php echo $view_url; ?>'+prime_id;
-		// var form_id     = $("td > a").attr('data_form')+"_form";
-		// view_form_data(action,title,control,form_id);	
+	$table.on('click','tbody tr:not(:has(th)):nth-child(1)',function() {
+
+		// var table = $('#table').DataTable();
+		// $('#table tbody').on( 'click', 'tr', function () {
+		//     console.log( 'Row index: '+table.row( this ).index() );
+		// } );
+
+		// $("td > a").attr("disabled", "disabled");
+        var closest_row = $(this).closest('tr');
+        var data        = $table.row(closest_row).data();
+        var prime_id    = data['<?php echo $prime_id; ?>'];
+       	var action      = $("td > a").attr('data-btn-submit');
+		var title       = $("td > a").attr('title');
+		var control     = '<?php echo $view_url; ?>'+prime_id;
+		var form_id     = $("td > a").attr('data_form')+"_form";
+		view_form_data(action,title,control,form_id);	
     });
 	$("#search_filter_div").hide();
 	$("#search_filter").click(function(){

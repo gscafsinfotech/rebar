@@ -522,14 +522,14 @@ $(document).ready(function (){
 		// } );
 
 		// $("td > a").attr("disabled", "disabled");
-        var closest_row = $(this).closest('tr');
-        var data        = $table.row(closest_row).data();
-        var prime_id    = data['<?php echo $prime_id; ?>'];
-       	var action      = $("td > a").attr('data-btn-submit');
-		var title       = $("td > a").attr('title');
-		var control     = '<?php echo $view_url; ?>'+prime_id;
-		var form_id     = $("td > a").attr('data_form')+"_form";
-		view_form_data(action,title,control,form_id);	
+  //       var closest_row = $(this).closest('tr');
+  //       var data        = $table.row(closest_row).data();
+  //       var prime_id    = data['<?php echo $prime_id; ?>'];
+  //      	var action      = $("td > a").attr('data-btn-submit');
+		// var title       = $("td > a").attr('title');
+		// var control     = '<?php echo $view_url; ?>'+prime_id;
+		// var form_id     = $("td > a").attr('data_form')+"_form";
+		// view_form_data(action,title,control,form_id);	
     });
 	$("#search_filter_div").hide();
 	$("#search_filter").click(function(){
@@ -552,7 +552,43 @@ $(document).ready(function (){
 function processStatus(process_status,row_id){
 	var process_status = process_status.value; 
 	var send_url = '<?php echo site_url("$controller_name/process_status"); ?>'; 
-	$.confirm({
+	var logged_role = "<?php echo $logged_role;?>";
+
+	if(parseInt(logged_role) === 1){
+		if(parseInt(process_status) === 1){
+			$.confirm({
+				title: 'Confirm!',
+				content: 'Are you sure. you want change select records?',
+				type: 'red',
+				typeAnimated: true,
+				buttons: {
+					tryAgain: {
+						text: 'Ok',
+						btnClass: 'btn-red',
+						action: function(){
+							$.ajax({
+								type: "POST",
+								url: send_url,
+								data:{row_id:row_id,process_status:process_status},
+								success: function(data) {
+									var rslt = JSON.parse(data);
+									toastr.success(rslt.message);
+									$table.draw();
+									location.reload();
+								}
+							});
+						}
+					},
+					close: function () {
+						$('#submit').attr('disabled',false);
+						$("#submit").html("Submit");
+						$table.draw();
+					}
+				}
+			});
+		}
+	}else{
+		$.confirm({
 		title: 'Confirm!',
 		content: 'Are you sure. you want change select records?',
 		type: 'red',
@@ -582,6 +618,13 @@ function processStatus(process_status,row_id){
 			}
 		}
 	});
+	}
+
+
+
+
+
+	
 }
 function view_form_data(action,title,control,form_id){
 	$('.modal').modal({backdrop: 'static', keyboard: false});

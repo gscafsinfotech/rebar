@@ -798,11 +798,19 @@ abstract class Action_controller extends Secure_Controller{
 			$this->update_row_set_log($row_prime_id,$prime_id,$view_id,$module_id."_".$row_label_name,$row_set_log);
 		}
 		if($prime_module_id === "team_target"){
-			$target_qry     = 'select count(*) as rlst_count from cw_team_target_detailer_wise_target where detailer_name = "'.$detailer_name.'" and target_value = "'.$target_value.'" and trans_status = 1';
+			$target_date_qry     = 'select from_date,to_date from cw_team_target where prime_team_target_id = "'.$prime_id.'" and trans_status = 1';
+			$target_date_info    = $this->db->query("CALL sp_a_run ('SELECT','$target_date_qry')");
+			$target_date_result  = $target_date_info->result();
+			$target_date_info->next_result();
+			$from_date 		= $target_date_result[0]->from_date;
+			$to_date   		= $target_date_result[0]->to_date;
+			$to_date 		= date('Y-m-d', strtotime($to_date .' +1 day'));
+			$target_qry     = 'select count(*) as rlst_count,prime_team_target_detailer_wise_target_id from cw_team_target_detailer_wise_target inner join cw_team_target on cw_team_target.prime_team_target_id = cw_team_target_detailer_wise_target.prime_team_target_id where cw_team_target_detailer_wise_target.detailer_name = "'.$detailer_name.'" and cw_team_target_detailer_wise_target.target_value = "'.$target_value.'" and cw_team_target.trans_created_date >= "'.$from_date.'" and cw_team_target.trans_created_date <= "'.$to_date.'" and cw_team_target_detailer_wise_target.trans_status = 1';
 			$target_info    = $this->db->query("CALL sp_a_run ('SELECT','$target_qry')");
 			$target_result  = $target_info->result();
 			$target_info->next_result();
 			$rlst_count 	= $target_result[0]->rlst_count;
+			$row_get_id 	= $target_result[0]->prime_team_target_detailer_wise_target_id;
 		}
 		if((int)$row_prime_id === 0){
 			if($prime_module_id === "team_target"){
@@ -831,11 +839,31 @@ abstract class Action_controller extends Secure_Controller{
 				echo json_encode(array('success' => TRUE, 'message' => "Successfully added", 'insert_id' => $insert_id, 'row_set_data' => $row_set_data));
 			}
 		}else{
-			$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
-			$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
-			$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
-			$row_set_data = $this->get_row_set_data($view_id,$prime_id);
-			echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
+			if($prime_module_id === "team_target"){
+				if((int)$rlst_count === 0){
+					$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
+					$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
+					$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
+					$row_set_data = $this->get_row_set_data($view_id,$prime_id);
+					echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
+				}else{
+					if((int)$row_get_id === (int)$row_prime_id){
+						$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
+					$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
+					$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
+					$row_set_data = $this->get_row_set_data($view_id,$prime_id);
+					echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
+					}else{
+						echo json_encode(array('success' => false, 'message' => "Target Value Already Exist"));
+					}
+				}
+			}else{
+				$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
+				$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
+				$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
+				$row_set_data = $this->get_row_set_data($view_id,$prime_id);
+				echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
+			}
 		}
 	}	
 	//ROW SET EDIT DATA

@@ -1530,8 +1530,6 @@ class Employees  extends Action_controller{
 			$team_info->next_result();
 			$employee_code 		= $team_result[0]->employee_code;
 			$team_count			= count($team_result);
-			// echo "<pre>";
-			// print_r($team_result);
 			if($team_count === 0){
 				echo json_encode(array('success'=>true,'message'=>'Team Added Successfully'));
 			}else
@@ -1541,6 +1539,38 @@ class Employees  extends Action_controller{
 				echo json_encode(array('success'=>false,'message'=>'Team Already Exists'));
 			}
 		}
+	}
+	public function role_wise_reporting(){
+		$role 		= $this->input->post("role");
+		$reporting  = $this->input->post("reporting");
+		if((int)$role === 5){
+			$role_qry      	= 'select employee_code,emp_name,role from cw_employees where role = 4 and trans_status=1';
+		}else
+		if((int)$role === 4){
+			$role_qry      	= 'select employee_code,emp_name,role from cw_employees where role = 3 and trans_status=1';
+		}else
+		if((int)$role === 3){
+			$role_qry      	= 'select employee_code,emp_name,role from cw_employees where role = 2 and trans_status=1';
+		}else{
+			$role_qry      	= 'select employee_code,emp_name,role from cw_employees where role = 2 and trans_status=1';
+		}
+		
+		$role_info          = $this->db->query("CALL sp_a_run ('SELECT','$role_qry')");
+		$role_result        = $role_info->result();
+		$role_info->next_result();
+		$role_format_drop 	= "Reporting";
+		foreach($role_result as $rolewise){
+			$role_id 		  	   = $rolewise->role;
+			$employee_code 		  	   = $rolewise->employee_code;
+			$emp_name            	   = $rolewise->emp_name;
+			if((int)$reporting === (int)$employee_code){
+				$selected = "selected";
+			}else{
+				$selected = "";
+			}
+			$role_format_drop  .= "<option value='$employee_code' $selected> $emp_name </option>";
+		}
+		echo json_encode(array('success'=>true,'message'=>'Role wise data','role_format_drop'=>$role_format_drop));
 	}
 }
 ?>

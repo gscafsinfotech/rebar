@@ -753,6 +753,9 @@ abstract class Action_controller extends Secure_Controller{
 		if($module_id === 'employees' && $row_prime_id > 0){
 			$row_set_log = array();
 		}
+		$labelid_for_approval = "";
+		$value_for_approval   = "";
+		$approval_update 	  = "";
 		foreach($form_result as $setting){
 			$field_type      = $setting->field_type;
 			$input_view_type = (int)$setting->input_view_type;
@@ -775,6 +778,20 @@ abstract class Action_controller extends Secure_Controller{
 					if($label_id === "target_value"){
 						$target_value = $this->input->post($label_id);
 					}
+				}
+				if($label_id === 'client_name' || $label_id === 'project' || $label_id === 'drawing_no' || $label_id === 'tonnage' || $label_id === 'actual_tonnage' || $label_id === 'billable_hours' || $label_id === 'non_billable_hours' || $label_id === 'actual_billable_time'){
+					$labelid_for_approval  .= $label_id.",";
+					$value_for_approval    .= '"'.$this->input->post($label_id).'",';
+					$approval_update       .= $label_id.' = "'.$this->input->post($label_id).'",';
+				}else
+				if($label_id === 'work_status'){
+					$work_status = $this->input->post($label_id);
+				}else
+				if($label_id === 'entry_type'){
+					$entry_type  = $this->input->post($label_id);
+				}
+				if($label_id === 'work_type'){
+					$work_type   = $this->input->post($label_id);
 				}
 				$value = $this->input->post($label_id);
 			}			
@@ -805,13 +822,14 @@ abstract class Action_controller extends Secure_Controller{
 			$from_date 		= $target_date_result[0]->from_date;
 			$to_date   		= $target_date_result[0]->to_date;
 			$to_date 		= date('Y-m-d', strtotime($to_date .' +1 day'));
-			$target_qry     = 'select count(*) as rlst_count,prime_team_target_detailer_wise_target_id from cw_team_target_detailer_wise_target inner join cw_team_target on cw_team_target.prime_team_target_id = cw_team_target_detailer_wise_target.prime_team_target_id where cw_team_target_detailer_wise_target.detailer_name = "'.$detailer_name.'" and cw_team_target_detailer_wise_target.target_value = "'.$target_value.'" and cw_team_target.trans_created_date >= "'.$from_date.'" and cw_team_target.trans_created_date <= "'.$to_date.'" and cw_team_target_detailer_wise_target.trans_status = 1';
+			$target_qry     = 'select count(*) as rlst_count,prime_team_target_detailer_wise_target_id from cw_team_target_detailer_wise_target inner join cw_team_target on cw_team_target.prime_team_target_id = cw_team_target_detailer_wise_target.prime_team_target_id where cw_team_target_detailer_wise_target.detailer_name = "'.$detailer_name.'" and cw_team_target.from_date >= "'.$from_date.'" and cw_team_target.to_date <= "'.$to_date.'" and cw_team_target_detailer_wise_target.trans_status = 1';
 			$target_info    = $this->db->query("CALL sp_a_run ('SELECT','$target_qry')");
 			$target_result  = $target_info->result();
 			$target_info->next_result();
 			$rlst_count 	= $target_result[0]->rlst_count;
 			$row_get_id 	= $target_result[0]->prime_team_target_detailer_wise_target_id;
 		}
+		// die;
 		if((int)$row_prime_id === 0){
 			if($prime_module_id === "team_target"){
 				if((int)$rlst_count === 0){
@@ -825,9 +843,34 @@ abstract class Action_controller extends Secure_Controller{
 					$row_set_data = $this->get_row_set_data($view_id,$prime_id);
 					echo json_encode(array('success' => TRUE, 'message' => "Successfully added", 'insert_id' => $insert_id, 'row_set_data' => $row_set_data));
 				}else{
-					echo json_encode(array('success' => false, 'message' => "Target Value Already Exist"));
+					echo json_encode(array('success' => false, 'message' => "Detailer Already Exist"));
 				}
-			}else{
+			}else
+			if($prime_module_id === "time_sheet"){
+				$prime_qry_key     .= "trans_created_by,trans_created_date";
+				$prime_qry_value   .= '"'.$this->logged_id.'",'.'"'.$created_on.'"';
+				$prime_insert_query = "insert into $table_name ($prime_qry_key) values ($prime_qry_value)";
+				$insert_info        = $this->db->query("CALL sp_a_run ('INSERT','$prime_insert_query')");
+				$insert_result      = $insert_info->result();
+				$insert_info->next_result();
+				$insert_id 			= $insert_result[0]->ins_id;
+				$row_set_data 		= $this->get_row_set_data($view_id,$prime_id);
+				$logged_role 	    = $this->session->userdata('logged_role');
+				if((int)$logged_role === 5){
+					if((int)$work_type === 1 || (int)$work_type === 2){ 
+						if((int)$work_status === 3 && (int)$entry_type === 2){
+							$labelid_for_approval .= "work_type,detailer_name,team_leader_name,prime_time_sheet_time_line_id,trans_created_by,trans_created_date";
+							$value_for_approval   .= '"'.$work_type.'","'.$this->session->userdata('logged_emp_code').'","'.$this->session->userdata('logged_reporting').'","'.$insert_id.'",'.'"'.$this->logged_id.'",'.'"'.$created_on.'"';
+							$approval_query 	   = "insert into cw_tonnage_approval ($labelid_for_approval) values ($value_for_approval)";
+							$approval_info         = $this->db->query("CALL sp_a_run ('INSERT','$approval_query')");
+							$approval_result       = $approval_info->result();
+							$approval_info->next_result();
+						}
+					}
+				}
+				echo json_encode(array('success' => TRUE, 'message' => "Successfully added", 'insert_id' => $insert_id, 'row_set_data' => $row_set_data));
+			}
+			else{
 				$prime_qry_key     .= "trans_created_by,trans_created_date";
 				$prime_qry_value   .= '"'.$this->logged_id.'",'.'"'.$created_on.'"';
 				$prime_insert_query = "insert into $table_name ($prime_qry_key) values ($prime_qry_value)";
@@ -854,10 +897,21 @@ abstract class Action_controller extends Secure_Controller{
 					$row_set_data = $this->get_row_set_data($view_id,$prime_id);
 					echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
 					}else{
-						echo json_encode(array('success' => false, 'message' => "Target Value Already Exist"));
+						echo json_encode(array('success' => false, 'message' => "Detailer Already Exist"));
 					}
 				}
-			}else{
+			}else
+			if($prime_module_id === "time_sheet"){
+				$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
+				// $approval_update    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
+				$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
+				$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
+				$row_set_data = $this->get_row_set_data($view_id,$prime_id);
+				// $update_query  = "UPDATE cw_tonnage_approval SET ". $approval_update .' WHERE prime_time_sheet_time_line_id = "'. $row_prime_id .'"';
+				// $this->db->query("CALL sp_a_run ('UPDATE','$update_query')");
+				echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
+			}
+			else{
 				$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
 				$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
 				$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");

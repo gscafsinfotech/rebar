@@ -1,5 +1,6 @@
 <?php 
 $logged_user_role     = $this->session->userdata('logged_user_role');
+$logged_reporting     = $this->session->userdata('logged_reporting');
 $prime_id             = "prime_".$controller_name."_id";
 $form_id              = $controller_name."_form";
 $count                = 0;
@@ -105,6 +106,9 @@ foreach($view_info as $view){
 			}else
 			//PICKLIST
 			if((int)$field_type === 5){
+				if($label_id === 'project_manager_name'){
+					$input_value =$logged_reporting;
+				}
 				$drop_exist = true;
 				$drop_down_array = array("name" => $label_id,"id" => $label_id,"class" =>'form-control input-sm select2');
 				if($read){
@@ -610,6 +614,7 @@ $(document).ready(function(){
 	var date_exist       = "<?php echo $date_exist;?>";
 	var date_time_exist  = "<?php echo $date_time_exist;?>";
 	<?php echo $user_read_only; ?>
+	default_hide();
 	if(date_exist === "1"){
 		$(function () {
 			$(".datepicker").datetimepicker({
@@ -724,8 +729,26 @@ $(document).ready(function(){
 		}
 	?>
 	/* LOAD SCRIPT AND CONDITION LOAD */
+
+	var work_type = $("#work_type").val();
+	if(parseInt(work_type) === 1){
+		$("#tonnage,#actual_tonnage").parent().show();
+		$("#tonnage,#actual_tonnage").removeClass('ignore');
+		$("#billable_hours,#non_billable_hours,#actual_billable_time").parent().hide();
+		$("#billable_hours,#non_billable_hours,#actual_billable_time").addClass('ignore');
+	}else 
+	if(parseInt(work_type) === 2){
+		$("#tonnage,#actual_tonnage").parent().hide();
+		$("#tonnage,#actual_tonnage").addClass('ignore');
+		$("#billable_hours,#non_billable_hours,#actual_billable_time").parent().show();
+		$("#billable_hours,#non_billable_hours,#actual_billable_time").removeClass('ignore');
+	}
 });
 
+function default_hide(){
+	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type").parent().hide();
+	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type").addClass('ignore');
+}
 // FILE UPLOAD REMOVE
 function remove_file(prime_id,is_defult,input_name){
 	var prime_id_val = $("#"+prime_id).val();

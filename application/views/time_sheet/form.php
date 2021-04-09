@@ -643,6 +643,18 @@ $(document).ready(function(){
 		work_status_wise(work_status);
 	});
 	work_status_wise(work_status);
+	// var client_name 	 = $("#client_name").val();
+	$("#client_name").change(function(){
+		var client_name  = $(this).val();
+		select_clientname(client_name);
+	});
+	//select_clientname(client_name);
+	// var project_name 	 = $("#project").val();
+	$("#project").change(function(){
+		var project_name = $(this).val();
+		select_project(project_name);
+	});
+	//select_project(project_name);
 
 
 	if(date_exist === "1"){
@@ -827,12 +839,51 @@ function row_set_edit(row_id,table_name,view_id){
 						var selectedOptions = value.input_value.split(",");
 						for(var i in selectedOptions) {
 							var optionVal = selectedOptions[i];
+							// console.log("key "+key);
 							if(key === "work_type"){
 								var work_type = optionVal;
+							}else 
+							if(key === "work_status"){
+								var work_status = optionVal;
+								work_status_wise(work_status);
+							}else 
+							if(key === "entry_type"){
+								var entry_type = optionVal;
+								entry_type_wise(entry_type);
+							}else 
+							if(key === "billable"){
+								var billable = optionVal;
+								billable_wise(billable);
+							}else 
+							if(key === "billable"){
+								var billable = optionVal;
+								billable_wise(billable);
 							}
+							else 
+							if(key === "client_name"){
+								var client_name = optionVal;
+								console.log("client_name "+client_name);
+								select_clientname(client_name);
+							}
+							// else 
+							// if(key === "project"){
+							// 	var project_name = optionVal;
+							// 	// var client_name 	 = $("#client_name").val();
+							// // select_clientname(project_name);
+								
+							// }
+							// select_clientname(client_name);
+							// select_clientname(project_name);
+							// console.log("project_name "+project_name);
+							// var test_project = $("#project").val();
+							// console.log("test_project"+test_project);
 							var logged_role = "<?php echo $logged_role;?>";
 							$("#"+key).find("option[value='"+optionVal+"']").prop("selected", "selected");
-							inputs_hide_show(logged_role,work_type)
+							inputs_hide_show(logged_role,work_type);
+							// var client_name 	 = $("#client_name").val();
+							// select_clientname(client_name);
+							// var project_name 	 = $("#project").val();
+							// select_project(project_name);
 						}
 						$(function(){
 							$('.select2').select2({
@@ -888,14 +939,14 @@ function default_hide(){
 function inputs_hide_show(logged_role,work_type){
 	if(parseInt(logged_role) === 5){
 		if(parseInt(work_type) === 1){
-			$("#entry_type,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#work_description,#tonnage,#credit").parent().show();
-			$("#entry_type,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#work_description,#tonnage,#credit").removeClass('ignore');
+			$("#entry_type,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#work_description,#credit").parent().show();
+			$("#entry_type,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#work_description,#credit").removeClass('ignore');
 			$("#revision_time,#co_number,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec").parent().hide();
 			$("#revision_time,#co_number,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec").addClass('ignore');	
 		}else
 		if(parseInt(work_type) === 2){
-			$("#entry_type,#co_number,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit").parent().show();
-			$("#entry_type,#co_number,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit").removeClass('ignore');
+			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit").parent().show();
+			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit").removeClass('ignore');
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking").parent().hide();
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking").addClass('ignore');
 		}else 
@@ -966,17 +1017,47 @@ function inputs_hide_show(logged_role,work_type){
 	}
 }
 function entry_type_wise(entry_type){
+	var work_status  = $("#work_status").val();
+	var work_type = $("#work_type").val();
 	if(parseInt(entry_type) === 1){
 		$("#client_name,#project").parent().show();
 		$("#client_name,#project").removeClass('ignore');
-		$("#drawing_no").parent().hide();
-		$("#drawing_no").addClass('ignore');
+		if(parseInt(work_type) === 1){
+			$("#drawing_no,#tonnage").parent().hide();
+			$("#drawing_no,#tonnage").addClass('ignore');
+		}else 
+		if(parseInt(work_type) === 2){
+			$("#drawing_no,#co_number").parent().hide();
+			$("#drawing_no,#co_number").addClass('ignore');
+		}
 	}else 
+	if(parseInt(entry_type) === 2 && parseInt(work_status) === 3){
+		$("#drawing_no,#client_name,#project,#tonnage").parent().show();
+		$("#drawing_no,#client_name,#project,#tonnage").removeClass('ignore');
+	}else
 	if(parseInt(entry_type) === 2){
 		$("#drawing_no,#client_name,#project").parent().show();
 		$("#drawing_no,#client_name,#project").removeClass('ignore');
-		// $("#client_name,#project").parent().hide();
-		// $("#client_name,#project").addClass('ignore');
+		if(parseInt(work_type) === 1){
+			$("#tonnage").parent().hide();
+			$("#tonnage").addClass('ignore');
+		}else 
+		if(parseInt(work_type) === 2){
+			var logged_role = "<?php echo $logged_role;?>";
+			if(parseInt(logged_role) === 5){
+				$("#co_number").parent().show();
+				$("#co_number").removeClass('ignore');
+				$("#tonnage").parent().hide();
+				$("#tonnage").addClass('ignore');
+			}else
+			if(parseInt(logged_role) === 4){
+				$("#tonnage").parent().hide();
+				$("#tonnage").addClass('ignore');
+			}else{
+				$("#co_number,#tonnage").parent().hide();
+				$("#co_number,#tonnage").addClass('ignore');
+			}
+		}
 	}
 }
 function billable_wise(billable){
@@ -989,12 +1070,46 @@ function billable_wise(billable){
 	}
 }
 function work_status_wise(work_status){
-	if(parseInt(work_status) === 3){
-		$("#tonnage").parent().show();
-		$("#tonnage").removeClass('ignore');
-	}else{
-		$("#tonnage").parent().hide();
-		$("#tonnage").addClass('ignore');
+	var entry_type 	= $("#entry_type").val();
+	var work_status = $("#work_status").val();
+	var work_type 	= $("#work_type").val();
+	if(parseInt(work_type) === 1){
+		if(parseInt(entry_type) === 2 && parseInt(work_status) === 3){
+			$("#tonnage").parent().show();
+			$("#tonnage").removeClass('ignore');
+		}else{
+			$("#tonnage").parent().hide();
+			$("#tonnage").addClass('ignore');
+		}
 	}
+}
+function select_clientname(client_name){
+	var project_name 	 = $("#project").val();
+	console.log("client_namefun"+client_name);
+	// console.log("project_name"+project_name);
+	var send_url 	     = '<?php echo site_url("$controller_name/select_clientname"); ?>';
+	$.ajax({
+		type: "POST",
+		url: send_url,
+		data:{client_name:client_name,project_name:project_name},
+		success: function(data){
+			console.log(data);
+			$('#project').html(data);
+		}
+	});
+}
+function select_project(project_name){	
+	var drawing_no   = $("#drawing_no").val();
+	// console.log("project_name "+project_name);
+	// console.log("drawing_no "+drawing_no);
+	var send_url 	 = '<?php echo site_url("$controller_name/select_project"); ?>';
+	$.ajax({
+		type: "POST",
+		url: send_url,
+		data:{project_name:project_name,drawing_no:drawing_no},
+		success: function(data){
+			$('#drawing_no').html(data);
+		}
+	});
 }
 </script>

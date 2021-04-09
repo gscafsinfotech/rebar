@@ -665,14 +665,14 @@ $(document).ready(function(){
 	$(".number").bind('keyup', function(e) {
 		this.value = this.value.replace(/[^0-9_.]/g,'');
 	});
-	$('.alpha').bind('keypress', function (event) {
-		var regex = new RegExp("^[a-zA-Z0-9\-_.@\/\\s]+$");
-		var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
-		if (!regex.test(key)) {
-		   event.preventDefault();
-		   return false;
-		}
-	});
+	// $('.alpha').bind('keypress', function (event) {
+	// 	var regex = new RegExp("^[a-zA-Z0-9\-_.@\/\\s]+$");
+	// 	var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+	// 	if (!regex.test(key)) {
+	// 	   event.preventDefault();
+	// 	   return false;
+	// 	}
+	// });
 	$(".alpha_text").keypress(function(event){
 	     var inputValue = event.charCode;
 	     if(!(inputValue >= 65 && inputValue <= 122) && (inputValue != 32 && inputValue != 0)){

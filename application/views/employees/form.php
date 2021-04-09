@@ -1221,11 +1221,34 @@ $(document).ready(function(){
 	
 	$('#date_of_birth').on("dp.hide",function (e) {
 		prime_id = '<?php echo $form_view->$prime_id; ?>';
-		var dob = $('#date_of_birth').val();
-		var doj = $('#date_of_joining').val();
+		var dob  = $('#date_of_birth').val();
+		var doj  = $('#date_of_joining').val();
 		date_diff_cal(prime_id,doj,dob);
 	});
+
+	var role      = $("#role").val();
+	var reporting = $("#reporting").val();
+	$("#role").change(function(){
+		var role  = $(this).val();
+		role_wise_reporting(role,reporting);
+	});
+	role_wise_reporting(role,reporting);
 });
+function role_wise_reporting(role,reporting){
+	var send_url = '<?php echo site_url("$controller_name/role_wise_reporting"); ?>';
+	$.ajax({
+		type: "POST",
+		url: send_url,
+		data:{role:role,reporting:reporting},
+		success: function(data) {
+			var rslt = JSON.parse(data);
+			console.log(rslt.role_format_drop);
+			if(rslt.success){
+				$("#reporting").html(rslt.role_format_drop);
+			}
+		}
+	});
+}
 
 // FILE UPLOAD REMOVE
 function remove_file(prime_id,is_defult,input_name){

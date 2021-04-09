@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script is allowed');
 require_once("Action_controller.php");
-class Rebar_test  extends Action_controller{	
+class Co_register  extends Action_controller{	
 	public function __construct(){
-		parent::__construct('rebar_test');
+		parent::__construct('co_register');
 		$this->collect_base_info();
 	}
 	

@@ -1,7 +1,9 @@
 <?php 
 	$this->load->view("partial/header");
 	$page_name      = ucwords(str_replace("_"," ",$controller_name));
-	$excel_export       = site_url().'/'.$controller_name.'/excel_export';
+	$excel_export   = site_url().'/'.$controller_name.'/excel_export';
+	$logged_role 	= $this->session->userdata('logged_role');
+	$logged_emp_code = $this->session->userdata('logged_emp_code');
 ?>
 <div class='row title_content'>
 	<div class='col-md-2 col-xs-4'>
@@ -15,9 +17,22 @@
 				<?php
 					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise");
 					echo form_label("Process By", 'process_by', array('class' => 'required'));
-					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
+					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2' ), $process_by_list);
 				?>
 			</div>
+			<?php
+				if((int)$logged_role === 5){
+			?>
+			<div class="form-group">
+				<?php
+					echo form_label("Employee Code/Name", 'employee_name', array('class' => 'required'));
+					echo form_input(array( 'name' => 'employee_name', 'id' => 'employee_name', 'value'=>$logged_emp_code, 'class' => 'form-control input-sm','readonly'=>'readonly'));
+				?>
+				<div id='append_div'></div>
+			</div>
+			<?php
+				}else{
+			?>
 			<div class="form-group">
 				<?php
 					echo form_label("Employee Code/Name", 'employee_name', array('class' => 'required'));
@@ -25,18 +40,13 @@
 				?>
 				<div id='append_div'></div>
 			</div>
+		<?php } ?>
 			<div class="form-group">
 				<?php
 					echo form_label("Process Month", 'process_month', array('class' => 'required'));
 					echo form_input(array( 'name' => 'process_month', 'id' => 'process_month', 'class' => 'form-control input-sm datepicker'));
 				?>
 			</div>
-			<!-- <div class="form-group">
-				<?php
-					echo form_label("To Date", 'to_date', array('class' => 'required'));
-					echo form_input(array( 'name' => 'to_date', 'id' => 'to_date', 'class' => 'form-control input-sm datepicker'));
-				?>
-			</div> -->
 			<a id="link" style="display: none;" href="#" title='Export All Data'><span class="fa fa-user-exit">&nbsp</span></a>
 			<div class="form-group">
 				<button class='btn btn-primary btn-sm' id="detailer_export">Search</button>

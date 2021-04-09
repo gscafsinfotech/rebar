@@ -12,24 +12,20 @@
 	$search_url     = site_url($controller_name ."/search");
 	$view_url       = site_url($controller_name ."/view/");
 	$import_url     = site_url($controller_name ."/import/");
-	$logged_role    = $this->session->userdata('logged_role');
-	$process_status_result = array_reduce($process_status_result, function ($result, $arr) {
-		    $result[$arr['prime_time_sheet_id']] = $arr;
-		    return $result;
-		}, array());
+	
 	/* PAGE TITLE AND BUTTONS- START */
-	/*$breadcrumb = "";
-	if($access_add === 1){
-		$breadcrumb .= "<li>
-							<a class='btn btn-xs btn-primary add' data-btn-submit='Submit' title='Add $page_name' href='$view_url' data_form='$controller_name'> <span class='fa fa-user-plus'>&nbsp</span>Add $page_name</a>
-						</li>";
-	}
-	if($access_import === 1){
-		$breadcrumb .= "<li>
-							<a class='btn btn-xs btn-primary import' data-btn-submit= 'Submit' title='Import $page_name' href='$import_url' data_form='$controller_name' > <span class='fa fa-cloud-upload'>&nbsp</span> Import $page_name
-							</a>
-						</li>";
-	}*/
+	$breadcrumb = "";
+	// if($access_add === 1){
+	// 	$breadcrumb .= "<li>
+	// 						<a class='btn btn-xs btn-primary add' data-btn-submit='Submit' title='Add $page_name' href='$view_url' data_form='$controller_name'> <span class='fa fa-user-plus'>&nbsp</span>Add $page_name</a>
+	// 					</li>";
+	// }
+	// if($access_import === 1){
+	// 	$breadcrumb .= "<li>
+	// 						<a class='btn btn-xs btn-primary import' data-btn-submit= 'Submit' title='Import $page_name' href='$import_url' data_form='$controller_name' > <span class='fa fa-cloud-upload'>&nbsp</span> Import $page_name
+	// 						</a>
+	// 					</li>";
+	// }
 	$quick_link   = explode(",",$quick_link->quicklink);
 	$link_li_line = "";
 	foreach($quick_link as $link){
@@ -129,7 +125,7 @@
 		</ol>
 	</div>
 </div>
-<!-- <div id="search_filter_div" class='search_filter' style="display:none;">
+<div id="search_filter_div" class='search_filter' style="display:none;">
 	<div style="max-height:250px;overflow: auto;">
 		<?php echo $filter_table;?>				
 	</div>
@@ -141,7 +137,7 @@
 			<a class="btn btn-xs btn-primary" id="search_close"> Close </a>
 		</div>
 	</div>
-</div> -->
+</div>
 <div class="row" style='margin:0px;overflow:auto;'>	
 	<div class='col-md-12' style='padding:8px;min-height: 400px;'>
 		<table id="table" class='table table-striped table-hover' style='width:100% !important;'></table>
@@ -171,7 +167,7 @@ $(document).ready(function (){
 			'url': '<?php echo $search_url; ?>',
 			'data': function(data){
 				<?php echo $table_map_list;?>
-				console.log(data);
+				//console.log(data);
 			},
 			 beforeSend: function(){
 			  $('.dataTables_processing').html('<span style="color:#CC3366;"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><br/>Loading...</span>');
@@ -270,45 +266,6 @@ $(document).ready(function (){
 					}
 				}
 			?>
-			{title:'Status',
-				data: '<?php echo $prime_id; ?>',
-				type: 'html',
-				render:function (value) {
-					// alert(value + '<?php echo $prime_id; ?>');
-					if (value === null) return '';
-					<?php 
-						if($access_update === 1){
-							$inp_status = "";
-							$com_status = "";
-					?>	
-						var completed_status  = <?php echo json_encode($process_status_result); ?>;
-						if(value){
-							console.log(completed_status);
-							var completed_status  = completed_status[value]['completed_status'];
-						}
-							if(parseInt(completed_status) === 1){
-								return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1" selected>Inprogress</option><option value="2">Completed</option></select>';
-							}else 
-							if(parseInt(completed_status) === 2){
-								var logged_role = "<?php echo $logged_role;?>";
-								if(parseInt(logged_role) === 5){
-									$('#process_status'+value).attr("disabled", true); 
-									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
-								}else{
-									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
-								}
-							}else{
-								return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2">Completed</option></select>';
-							}
-				<?php 
-					}else{
-				?>
-						return '<select name="process_status" id="process_status" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus("'+value+'")><option value="">---- Status ----</option><option value="1">Inprogress</option><option value="2">Completed</option></select>';
-					<?php 
-						}
-					?>
-				}
-			},
 			{title:'View',
 				data: '<?php echo $prime_id; ?>',
 				type: 'html',
@@ -318,18 +275,7 @@ $(document).ready(function (){
 					<?php 
 						if($access_update === 1){
 					?>
-						var completed_status  = <?php echo json_encode($process_status_result); ?>;
-						var completed_status  = completed_status[value]['completed_status'];
-						if(parseInt(completed_status) === 2){
-							var logged_role = "<?php echo $logged_role;?>";
-							if(parseInt(logged_role) === 5){
-								return "";
-							}else{
-								return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Add</a>';
-							}
-						}else{
-							return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Add</a>';
-						}
+						return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Edit</a>';
 					<?php 
 						}else{
 					?>
@@ -348,7 +294,7 @@ $(document).ready(function (){
 		$table.draw();
 	});
 				
-	var table_option = "";
+	var table_option = "<table><tr><td id='filters' style='padding:8px 2px;'></td><td id='export' style='padding:8px 2px;'></td></tr></table>";
 	$("#table_filter").append(table_option);		
 	var buttons = new $.fn.dataTable.Buttons(table, {
 		 buttons: [{
@@ -439,10 +385,8 @@ $(document).ready(function (){
 				}
 				btn_info = '<div class="col-md-12" style="background-color:#FFFFFF;padding: 10px 20px; text-align: right; border-top: 1px solid #e5e5e5;">'+btn_info+'</div>';
 				$('#'+form_id).append(btn_info);
-				$table.draw();
 			}
 		});
-
 	});
 	$table.on('click','a.view',function(event){
 		event.preventDefault();		
@@ -512,24 +456,15 @@ $(document).ready(function (){
 		}
 	});
 	/* DELETE PROCESS - END*/
-
-	// $(‘tr:nth-child(even)’) 
-	$table.on('click','tbody tr:not(:has(th)):nth-child(1)',function() {
-
-		// var table = $('#table').DataTable();
-		// $('#table tbody').on( 'click', 'tr', function () {
-		//     console.log( 'Row index: '+table.row( this ).index() );
-		// } );
-
-		// $("td > a").attr("disabled", "disabled");
-  //       var closest_row = $(this).closest('tr');
-  //       var data        = $table.row(closest_row).data();
-  //       var prime_id    = data['<?php echo $prime_id; ?>'];
-  //      	var action      = $("td > a").attr('data-btn-submit');
-		// var title       = $("td > a").attr('title');
-		// var control     = '<?php echo $view_url; ?>'+prime_id;
-		// var form_id     = $("td > a").attr('data_form')+"_form";
-		// view_form_data(action,title,control,form_id);	
+	$table.on('click','tr td:not(:first-child)',function() {
+        var closest_row = $(this).closest('tr');
+        var data        = $table.row(closest_row).data();
+        var prime_id    = data['<?php echo $prime_id; ?>'];
+       	var action      = $("td > a").attr('data-btn-submit');
+		var title       = $("td > a").attr('title');
+		var control     = '<?php echo $view_url; ?>'+prime_id;
+		var form_id     = $("td > a").attr('data_form')+"_form";
+		view_form_data(action,title,control,form_id);	
     });
 	$("#search_filter_div").hide();
 	$("#search_filter").click(function(){
@@ -549,83 +484,6 @@ $(document).ready(function (){
 	$(".datepicker_time").datetimepicker({format: 'DD-MM-YYYY HH:mm:ss',});
 	$('.select2').select2({placeholder: '---- Select ----',});
 });
-function processStatus(process_status,row_id){
-	var process_status = process_status.value; 
-	var send_url = '<?php echo site_url("$controller_name/process_status"); ?>'; 
-	var logged_role = "<?php echo $logged_role;?>";
-
-	if(parseInt(logged_role) === 2){
-		if(parseInt(process_status) === 1){
-			$.confirm({
-				title: 'Confirm!',
-				content: 'Are you sure. you want change select records?',
-				type: 'red',
-				typeAnimated: true,
-				buttons: {
-					tryAgain: {
-						text: 'Ok',
-						btnClass: 'btn-red',
-						action: function(){
-							$.ajax({
-								type: "POST",
-								url: send_url,
-								data:{row_id:row_id,process_status:process_status},
-								success: function(data) {
-									var rslt = JSON.parse(data);
-									toastr.success(rslt.message);
-									$table.draw();
-									location.reload();
-								}
-							});
-						}
-					},
-					close: function () {
-						$('#submit').attr('disabled',false);
-						$("#submit").html("Submit");
-						$table.draw();
-					}
-				}
-			});
-		}
-	}else{
-		$.confirm({
-		title: 'Confirm!',
-		content: 'Are you sure. you want change select records?',
-		type: 'red',
-		typeAnimated: true,
-		buttons: {
-			tryAgain: {
-				text: 'Ok',
-				btnClass: 'btn-red',
-				action: function(){
-					$.ajax({
-						type: "POST",
-						url: send_url,
-						data:{row_id:row_id,process_status:process_status},
-						success: function(data) {
-							var rslt = JSON.parse(data);
-							toastr.success(rslt.message);
-							$table.draw();
-							location.reload();
-						}
-					});
-				}
-			},
-			close: function () {
-				$('#submit').attr('disabled',false);
-				$("#submit").html("Submit");
-				$table.draw();
-			}
-		}
-	});
-	}
-
-
-
-
-
-	
-}
 function view_form_data(action,title,control,form_id){
 	$('.modal').modal({backdrop: 'static', keyboard: false});
 	$('.modal-body').html('<div style="text-align: center;padding:50px;color:#4b6fa2;"><i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><br/>Please wait processing....</div>');

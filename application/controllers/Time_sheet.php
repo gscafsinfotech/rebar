@@ -483,5 +483,26 @@ class Time_sheet  extends Action_controller{
 		}
 		echo $project_list;
 	}
+	public function get_co_number_list(){
+		$drawing_no   = (int)$this->input->post("drawing_no");
+		$co_number     = (int)$this->input->post("co_number");
+		$co_number_qry    = 'select prime_co_register_id,cw_co_register.co_number,drawing_description from cw_co_register where FIND_IN_SET("'.$drawing_no.'",cw_co_register.drawing_no) and cw_co_register.trans_status = 1';
+		$co_number_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_number_qry')");
+		$co_number_result = $co_number_info->result();
+		$co_number_info->next_result();
+		$co_number_list   = "<option value=''>--- Select Diagram No ---</option>";
+		foreach($co_number_result as $result){
+			$id        	    = $result->prime_co_register_id;
+			$drawing_description        	    = $result->drawing_description;
+			$co_number     = $result->co_number;
+			if((int)$co_number === (int)$id){
+				$selected = "selected";
+			}else{
+				$selected = "";
+			}
+			$co_number_list  .= "<option value='$id' $selected> $co_number - $drawing_description </option>";
+		}
+		echo $co_number_list;
+	}
 }
 ?>

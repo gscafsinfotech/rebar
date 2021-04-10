@@ -651,6 +651,10 @@ $(document).ready(function(){
 		var project_name = $(this).val();
 		get_drawing_list(project_name);
 	});
+	$("#drawing_no").change(function(){
+		var drawing_no = $(this).val();
+		get_co_number_list(drawing_no);
+	});
 
 
 	if(date_exist === "1"){
@@ -1080,6 +1084,19 @@ function get_drawing_list(project_name){
 		data:{project_name:project_name,drawing_no:drawing_no},
 		success: function(data){
 			$('#drawing_no').html(data);
+		}
+	});
+}
+function get_co_number_list(drawing_no){
+	var co_number   = $("#co_number").val();
+	console.log("co_number "+co_number);
+	var send_url 	 = '<?php echo site_url("$controller_name/get_co_number_list"); ?>';
+	$.ajax({
+		type: "POST",
+		url: send_url,
+		data:{drawing_no:drawing_no,co_number:co_number},
+		success: function(data){
+			$('#co_number').html(data);
 		}
 	});
 }

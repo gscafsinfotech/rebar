@@ -903,12 +903,12 @@ abstract class Action_controller extends Secure_Controller{
 			}else
 			if($prime_module_id === "time_sheet"){
 				$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
-				// $approval_update    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
+				$approval_update    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
 				$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
 				$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
 				$row_set_data = $this->get_row_set_data($view_id,$prime_id);
-				// $update_query  = "UPDATE cw_tonnage_approval SET ". $approval_update .' WHERE prime_time_sheet_time_line_id = "'. $row_prime_id .'"';
-				// $this->db->query("CALL sp_a_run ('UPDATE','$update_query')");
+				$update_query  = "UPDATE cw_tonnage_approval SET ". $approval_update .' WHERE prime_time_sheet_time_line_id = "'. $row_prime_id .'"';
+				$this->db->query("CALL sp_a_run ('UPDATE','$update_query')");
 				echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
 			}
 			else{

@@ -643,18 +643,14 @@ $(document).ready(function(){
 		work_status_wise(work_status);
 	});
 	work_status_wise(work_status);
-	// var client_name 	 = $("#client_name").val();
 	$("#client_name").change(function(){
 		var client_name  = $(this).val();
-		select_clientname(client_name);
+		get_project_list(client_name);
 	});
-	//select_clientname(client_name);
-	// var project_name 	 = $("#project").val();
 	$("#project").change(function(){
 		var project_name = $(this).val();
-		select_project(project_name);
+		get_drawing_list(project_name);
 	});
-	//select_project(project_name);
 
 
 	if(date_exist === "1"){
@@ -839,7 +835,6 @@ function row_set_edit(row_id,table_name,view_id){
 						var selectedOptions = value.input_value.split(",");
 						for(var i in selectedOptions) {
 							var optionVal = selectedOptions[i];
-							// console.log("key "+key);
 							if(key === "work_type"){
 								var work_type = optionVal;
 							}else 
@@ -854,36 +849,11 @@ function row_set_edit(row_id,table_name,view_id){
 							if(key === "billable"){
 								var billable = optionVal;
 								billable_wise(billable);
-							}else 
-							if(key === "billable"){
-								var billable = optionVal;
-								billable_wise(billable);
 							}
-							else 
-							if(key === "client_name"){
-								var client_name = optionVal;
-								console.log("client_name "+client_name);
-								select_clientname(client_name);
-							}
-							// else 
-							// if(key === "project"){
-							// 	var project_name = optionVal;
-							// 	// var client_name 	 = $("#client_name").val();
-							// // select_clientname(project_name);
-								
-							// }
-							// select_clientname(client_name);
-							// select_clientname(project_name);
-							// console.log("project_name "+project_name);
-							// var test_project = $("#project").val();
-							// console.log("test_project"+test_project);
 							var logged_role = "<?php echo $logged_role;?>";
 							$("#"+key).find("option[value='"+optionVal+"']").prop("selected", "selected");
 							inputs_hide_show(logged_role,work_type);
-							// var client_name 	 = $("#client_name").val();
-							// select_clientname(client_name);
-							// var project_name 	 = $("#project").val();
-							// select_project(project_name);
+							$('#work_type,#entry_type,#client_name,#project,#drawing_no,#work_status').attr('readonly', true);
 						}
 						$(function(){
 							$('.select2').select2({
@@ -900,7 +870,7 @@ function row_set_edit(row_id,table_name,view_id){
 					if(value.field_type === "15"){
 						var now 	= value.input_value;
 						if(now){
-							timeGet 	= now.split(':');
+							timeGet = now.split(':');
 						}
 						hourGet 	= timeGet[0];
 						minsGet 	= timeGet[1];
@@ -1062,11 +1032,16 @@ function entry_type_wise(entry_type){
 }
 function billable_wise(billable){
 	if(parseInt(billable) === 1){
-		$("#billable_hours,#non_billable_hours").parent().show();
-		$("#billable_hours,#non_billable_hours").removeClass('ignore');
-	}else{
-		$("#billable_hours,#non_billable_hours").parent().hide();
-		$("#billable_hours,#non_billable_hours").addClass('ignore');
+		$("#billable_hours").parent().show();
+		$("#billable_hours").removeClass('ignore');
+		$("#non_billable_hours").parent().hide();
+		$("#non_billable_hours").addClass('ignore');
+	}else
+	if(parseInt(billable) === 2){
+		$("#non_billable_hours").parent().show();
+		$("#non_billable_hours").removeClass('ignore');
+		$("#billable_hours").parent().hide();
+		$("#billable_hours").addClass('ignore');
 	}
 }
 function work_status_wise(work_status){
@@ -1083,11 +1058,9 @@ function work_status_wise(work_status){
 		}
 	}
 }
-function select_clientname(client_name){
+function get_project_list(client_name){
 	var project_name 	 = $("#project").val();
-	console.log("client_namefun"+client_name);
-	// console.log("project_name"+project_name);
-	var send_url 	     = '<?php echo site_url("$controller_name/select_clientname"); ?>';
+	var send_url 	     = '<?php echo site_url("$controller_name/get_project_list"); ?>';
 	$.ajax({
 		type: "POST",
 		url: send_url,
@@ -1098,11 +1071,9 @@ function select_clientname(client_name){
 		}
 	});
 }
-function select_project(project_name){	
+function get_drawing_list(project_name){	
 	var drawing_no   = $("#drawing_no").val();
-	// console.log("project_name "+project_name);
-	// console.log("drawing_no "+drawing_no);
-	var send_url 	 = '<?php echo site_url("$controller_name/select_project"); ?>';
+	var send_url 	 = '<?php echo site_url("$controller_name/get_drawing_list"); ?>';
 	$.ajax({
 		type: "POST",
 		url: send_url,

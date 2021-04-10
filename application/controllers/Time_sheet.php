@@ -443,11 +443,10 @@ class Time_sheet  extends Action_controller{
 		$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
 		echo json_encode(array('success' => TRUE, 'message' => "Process Success"));
 	}
-	public function select_clientname(){
+	public function get_project_list(){
 		$client_name    = (int)$this->input->post("client_name");
 		$project_id     = (int)$this->input->post("project_name");
 		$client_qry     = 'select prime_project_and_drawing_master_id,project_name from cw_project_and_drawing_master where client_name ="'.$client_name.'" and trans_status = 1';
-		// echo $client_qry;die;
 		$client_info    = $this->db->query("CALL sp_a_run ('SELECT','$client_qry')");
 		$client_result  = $client_info->result();
 		$client_info->next_result();
@@ -464,10 +463,9 @@ class Time_sheet  extends Action_controller{
 		}
 		echo $client_list;
 	}
-	public function select_project(){
+	public function get_drawing_list(){
 		$project_name   = (int)$this->input->post("project_name");
 		$drawing_no     = (int)$this->input->post("drawing_no");
-		// echo "drawing_no :: $drawing_no";die;
 		$project_qry    = 'select prime_project_and_drawing_master_drawings_id,drawing_no from cw_project_and_drawing_master_drawings where prime_project_and_drawing_master_id ="'.$project_name.'" and trans_status = 1';
 		$project_info   = $this->db->query("CALL sp_a_run ('SELECT','$project_qry')");
 		$project_result = $project_info->result();

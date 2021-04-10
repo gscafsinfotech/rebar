@@ -13,25 +13,32 @@ class Detailer_report  extends Action_controller{
 		$data['table_head']    = $this->table_head;
 		$data['master_pick']   = $this->master_pick;
 		$data['fliter_list']   = $this->fliter_list;
+
+		$logged_role 		   = $this->session->userdata('logged_role');
+		$logged_emp_code 	   = $this->session->userdata('logged_emp_code');
+		if((int)$logged_role === 4){
+			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 5 and reporting = "'.$logged_emp_code.'" and employee_status = 1 and trans_status = 1';
+		}else
+		if((int)$logged_role === 5){
+			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 5 and employee_code = "'.$logged_emp_code.'" and employee_status = 1 and trans_status = 1';
+		}else{
+			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 5 and employee_status = 1 and trans_status = 1';
+		}
+		$emp_info   		= $this->db->query("CALL sp_a_run ('SELECT','$emp_qry')");
+		$emp_result 		= $emp_info->result();
+		$emp_info->next_result();
+		$employee_code_list[""] = "---- Select ----";
+		foreach($emp_result as $emp_rlst){
+			$employee_code  = $emp_rlst->employee_code;
+			$emp_name       = $emp_rlst->emp_name;
+			$employee_code_list[$employee_code] = $employee_code." - ".$emp_name;
+		}
+		$data['employee_code_list']  = $employee_code_list;
+
+
 		$this->load->view("$this->control_name/manage",$data);
 	}
-	public function emp_suggest(){
-		$search_term  = $this->input->post_get('term');
-		$final_qry = 'select employee_code,emp_name from cw_employees where role = 5 and trans_status = 1 and employee_code like "'.$search_term.'%"';
-		$final_data   = $this->db->query("CALL sp_a_run ('SELECT','$final_qry')");
-		$final_result = $final_data->result();
-		$final_data->next_result();
-		foreach($final_result as $rslt){
-			$employee_code = $rslt->employee_code;
-			$emp_name      = $rslt->emp_name;
-			$suggestions[] = array('value' => $employee_code, 'label' => "$employee_code - $emp_name");
-		}
-		if(empty($suggestions)){
-			$suggestions[] = array('value' => "0", 'label' => "No data found for this search");
-		}
-		echo json_encode($suggestions);
-	}
-	public function excel_export($employee_code,$process_month,$process_by){
+	public function excel_export($employee_code,$process_month){
 		$control_name		= $this->control_name;
 		$process_month 		= $process_month;
 		$get_month 			= explode('-', $process_month);

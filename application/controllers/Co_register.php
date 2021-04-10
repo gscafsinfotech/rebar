@@ -429,5 +429,71 @@ class Co_register  extends Action_controller{
 		
 		$this->load->view("$this->control_name/import",$data);
 	}
+	public function get_client_list(){
+		$rdd_no         = (int)$this->input->post("rdd_no");
+		$client_id    = (int)$this->input->post("client_name");
+		$project    = (int)$this->input->post("project");
+		// echo "project :: $project";die;
+		$client_qry     = 'select prime_project_and_drawing_master_id,cw_client.client_name,cw_project_and_drawing_master.client_name as client_name_id,project_name from cw_project_and_drawing_master inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name where prime_project_and_drawing_master_id ="'.$rdd_no.'" and cw_project_and_drawing_master.trans_status = 1';
+		$client_info    = $this->db->query("CALL sp_a_run ('SELECT','$client_qry')");
+		$client_result  = $client_info->result();
+		$client_info->next_result();
+		$client_list = "<option value=''>--- Select ---</option>";
+		foreach($client_result as $result){
+			$id        	   = $result->prime_project_and_drawing_master_id;
+			$client_name   = $result->client_name;
+			$project_name  = $result->project_name;
+			$client_name_id = $result->client_name_id;
+			if((int)$client_id === (int)$id){
+				$selected  = 'selected';
+			}else{
+				$selected  = '';
+			}
+			$client_list  .= "<option value='$id' $selected> $client_name </option>";
+		}
+
+		$project_qry     = 'select prime_project_and_drawing_master_id,project_name,client_name from cw_project_and_drawing_master where client_name ="'.$client_name_id.'" and trans_status = 1';
+		$project_info    = $this->db->query("CALL sp_a_run ('SELECT','$project_qry')");
+		$project_result  = $project_info->result();
+		$project_info->next_result();
+		$project_list = "<option value=''>--- Select ---</option>";
+		foreach($project_result as $result){
+			$id        	   = $result->prime_project_and_drawing_master_id;
+			$project_name   = $result->project_name;
+			if((int)$project === (int)$id){
+				$selected  = 'selected';
+			}else{
+				$selected  = '';
+			}
+			$project_list  .= "<option value='$id' $selected> $project_name </option>";
+		}
+		echo json_encode(array('success' => FALSE, 'message' => "Unable to process your request", 'client_list' => $client_list, 'project_list' => $project_list));
+	}
+	public function get_drawing_list(){
+		$drawing_no      = $this->input->post("drawing_no");
+		$drawing_array   = explode(",",$drawing_no);
+		$project    	 = (int)$this->input->post("project");
+		$drawing_array = array_reduce($drawing_array, function($result, $arr){			
+		    $result[$arr['drawing_array']] = $arr;
+		    return $result;
+		}, array());
+		$drawing_qry     = 'select prime_project_and_drawing_master_drawings_id,drawing_no from cw_project_and_drawing_master_drawings where prime_project_and_drawing_master_id ="'.$project.'" and trans_status = 1';
+		$drawing_info    = $this->db->query("CALL sp_a_run ('SELECT','$drawing_qry')");
+		$drawing_result  = $drawing_info->result();
+		$drawing_info->next_result();
+		$drawing_list = "<option value=''>--- Select ---</option>";
+		foreach($drawing_result as $result){
+			$id        	    = $result->prime_project_and_drawing_master_drawings_id;
+			$drawing_number = $result->drawing_no;
+			$test = $drawing_array[$id];
+				if($test === $id){
+					$selected = "selected";
+				}else{
+					$selected = "";
+				}
+				$drawing_list  .= "<option value='$id' $selected> $drawing_number </option>";
+		}
+		echo $drawing_list;
+	}
 }
 ?>

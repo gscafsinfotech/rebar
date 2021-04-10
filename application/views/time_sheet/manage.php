@@ -646,4 +646,17 @@ function view_form_data(action,title,control,form_id){
 	});
 }
 </script>
+<?php if((int)$logged_role !== 1 || (int)$logged_role !== 2){ ?>
+<style type="text/css">
+	/*tbody > tr:not(:first-child) > td > a{
+		pointer-events: none;
+  		touch-action: none;
+  		display: none;
+	}*/
+	#table tbody > tr:not(:first-child){
+		pointer-events: none;
+  		touch-action: none;
+	}
+</style>
+<?php } ?>
 <?php $this->load->view("partial/footer"); ?>

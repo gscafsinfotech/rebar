@@ -105,6 +105,10 @@ foreach($view_info as $view){
 			}else
 			//PICKLIST
 			if((int)$field_type === 5){
+				if($label_id === 'client_name'){
+					$client_name = $input_value;
+				}
+				// echo "client_name :: $client_name";
 				$drop_exist = true;
 				$drop_down_array = array("name" => $label_id,"id" => $label_id,"class" =>'form-control input-sm select2');
 				if($read){
@@ -124,6 +128,9 @@ foreach($view_info as $view){
 			}else
 			//MULTI PICKLIST
 			if((int)$field_type === 7){
+				if($label_id === 'drawing_no'){
+					$drawing_no  = $input_value;
+				}
 				$drop_exist = true;
 				$multi_name   = $label_id."[]";
 				$multi_select = explode(',',$input_value);
@@ -724,6 +731,20 @@ $(document).ready(function(){
 		}
 	?>
 	/* LOAD SCRIPT AND CONDITION LOAD */
+	var rdd_no = $("#rdd_no").val();
+	$("#rdd_no").change(function(){
+		var rdd_no  = $(this).val();
+		get_client_list(rdd_no);
+	});
+	get_client_list(rdd_no);
+	var project = $("#project").val();
+	$("#project").change(function(){
+		var project  = $(this).val();
+		get_drawing_list(project);
+	});
+	get_drawing_list(project);
+
+
 });
 
 // FILE UPLOAD REMOVE
@@ -828,6 +849,37 @@ function row_set_remove(row_id,table_name,view_id,prime_id){
 				}
 			});
 		}		
+	}
+}
+function get_client_list(rdd_no){
+	var client_name = "<?php echo $client_name;?>";
+	var project = $("#project").val();
+	if(rdd_no){
+		var send_url = '<?php echo site_url("$controller_name/get_client_list"); ?>'; 
+		$.ajax({
+			type: "POST",
+			url: send_url,
+			data:{rdd_no:rdd_no,client_name:client_name,project:project},
+			success: function(data) {
+				var rslt = JSON.parse(data);
+				$('#client_name').html(rslt.client_list);
+				$('#project').html(rslt.project_list);
+			}
+		});
+	}
+}
+function get_drawing_list(project){
+	var drawing_no 	 = "<?php echo $drawing_no;?>";
+	if(rdd_no){
+		var send_url = '<?php echo site_url("$controller_name/get_drawing_list"); ?>'; 
+		$.ajax({
+			type: "POST",
+			url: send_url,
+			data:{project:project,drawing_no:drawing_no},
+			success: function(data) {
+				$('#drawing_no').html(data);
+			}
+		});
 	}
 }
 </script>

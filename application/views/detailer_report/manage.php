@@ -15,32 +15,10 @@
 		<div class="col-md-9">
 			<div class="form-group">
 				<?php
-					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise");
-					echo form_label("Process By", 'process_by', array('class' => 'required'));
-					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2' ), $process_by_list);
-				?>
-			</div>
-			<?php
-				if((int)$logged_role === 5){
-			?>
-			<div class="form-group">
-				<?php
 					echo form_label("Employee Code/Name", 'employee_name', array('class' => 'required'));
-					echo form_input(array( 'name' => 'employee_name', 'id' => 'employee_name', 'value'=>$logged_emp_code, 'class' => 'form-control input-sm','readonly'=>'readonly'));
+					echo form_dropdown(array( 'name' => 'employee_name', 'id' => 'employee_name', 'class' => 'form-control input-sm select2' ), $employee_code_list);
 				?>
-				<div id='append_div'></div>
 			</div>
-			<?php
-				}else{
-			?>
-			<div class="form-group">
-				<?php
-					echo form_label("Employee Code/Name", 'employee_name', array('class' => 'required'));
-					echo form_input(array( 'name' => 'employee_name', 'id' => 'employee_name', 'class' => 'form-control input-sm'));
-				?>
-				<div id='append_div'></div>
-			</div>
-		<?php } ?>
 			<div class="form-group">
 				<?php
 					echo form_label("Process Month", 'process_month', array('class' => 'required'));
@@ -63,12 +41,17 @@
 <script src="dist/daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 	$(document).ready(function (){
+		var logged_role      = "<?php echo $logged_role;?>";
+		var logged_emp_code  = "<?php echo $logged_emp_code;?>";
+		if(parseInt(logged_role) === 5){
+			$("#employee_name").find("option[value='"+logged_emp_code+"']").prop("selected", "selected");
+			$("#employee_name").prop('readonly', true);
+		}
 		$(function(){
 			$(".datepicker").datetimepicker({
 				format: 'MM-YYYY',
 			});
 		});
-		hide_all();
 		$(function(){
 			$('.select2').select2({
 				placeholder: '---- Select ----',
@@ -86,21 +69,9 @@
 				end_date   = endDate.format('YYYY-MM-DD');
 			}
 		});
-		
-		$('#process_by').change(function(){
-			var process_by = $('#process_by').val();
-			if(parseInt(process_by) === 1 || parseInt(process_by) === 2){
-				$('#employee_name').parent().show();
-				$("#rslt_info").html('');
-			}
-			else{
-				$('#employee_name').parent().hide();
-				$("#rslt_info").html('');
-			}
-		});
 		$('#employee_name').autocomplete({
 			source: function(request, response) {
-				$.getJSON('<?php echo site_url("$controller_name/emp_suggest");?>',{term:request.term},response);
+				$.getJSON('<?php echo site_url("$controller_name/emp_suggest");?>',{term:request.term,role:logged_role,emp_code:logged_emp_code},response);
 			},
 				minChars:3,
 				autoFocus: true,
@@ -113,35 +84,38 @@
 			}
 		});
 		$('#detailer_export').click(function(){
-			var process_by 		= $("#process_by").val();
 			var employee_code 	= $("#employee_name").val();
 			var process_month 	= $("#process_month").val();
-			$.ajax({
-				type: "POST",
-				url: '<?php echo site_url("$controller_name/datacount_check"); ?>',
-				data:{employee_code:employee_code,process_month:process_month},
-				success: function(data) {
-					var rslt = JSON.parse(data);
-					console.log(rslt.success);
-					if(rslt.success){
-						var export_excel 	= "<?php echo $excel_export;?>";
-						var export_url   	= export_excel+'/'+employee_code+'/'+process_month+'/'+process_by;
-						$('#link').attr("href",export_url);
-						window.location = $('#link').attr('href');
-					}else{
-						toastr.error(rslt.message);							
+			if(employee_code === ''){
+				toastr.error("Employee Code Required");	
+			}
+			if(process_month === ''){
+				toastr.error("Process Month Required");	
+			}
+
+			if(employee_code !== '' && process_month !== ''){
+				$.ajax({
+					type: "POST",
+					url: '<?php echo site_url("$controller_name/datacount_check"); ?>',
+					data:{employee_code:employee_code,process_month:process_month,role:logged_role},
+					success: function(data) {
+						var rslt = JSON.parse(data);
+						console.log(rslt.success);
+						if(rslt.success){
+							var export_excel 	= "<?php echo $excel_export;?>";
+							var export_url   	= export_excel+'/'+employee_code+'/'+process_month;
+							$('#link').attr("href",export_url);
+							window.location = $('#link').attr('href');
+						}else{
+							toastr.error(rslt.message);							
+						}
 					}
-				}
-			
-			});
+				
+				});
+			}
 		});
 	});
-	
-	function hide_all(){
-		// $('#employee_name').parent().hide();
-	}
 	function empty_all(){
-		$('#employee_name').val('');
 		$('.select2').select2({
 			placeholder: '---- Select ----',
 			allowClear: true,

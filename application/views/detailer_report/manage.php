@@ -69,20 +69,6 @@
 				end_date   = endDate.format('YYYY-MM-DD');
 			}
 		});
-		$('#employee_name').autocomplete({
-			source: function(request, response) {
-				$.getJSON('<?php echo site_url("$controller_name/emp_suggest");?>',{term:request.term,role:logged_role,emp_code:logged_emp_code},response);
-			},
-				minChars:3,
-				autoFocus: true,
-				delay:10,
-				scroll: true,
-				appendTo: '#append_div',
-				select: function(e, ui) {
-					$('#employee_name').val(ui.item.value);
-					return false;
-			}
-		});
 		$('#detailer_export').click(function(){
 			var employee_code 	= $("#employee_name").val();
 			var process_month 	= $("#process_month").val();

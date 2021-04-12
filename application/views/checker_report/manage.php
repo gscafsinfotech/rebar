@@ -1,7 +1,9 @@
 <?php 
 	$this->load->view("partial/header");
 	$page_name      = ucwords(str_replace("_"," ",$controller_name));
-	$excel_export       = site_url().'/'.$controller_name.'/excel_export';
+	$excel_export   = site_url().'/'.$controller_name.'/excel_export';
+	$logged_role 	= $this->session->userdata('logged_role');
+	$logged_emp_code = $this->session->userdata('logged_emp_code');
 ?>
 <div class='row title_content'>
 	<div class='col-md-2 col-xs-4'>
@@ -13,33 +15,19 @@
 		<div class="col-md-9">
 			<div class="form-group">
 				<?php
-					$process_by_list = array(''=>"---- Select ----",'1'=>"Employee wise",'2'=>"Project wise");
-					echo form_label("Process By", 'process_by', array('class' => 'required'));
-					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
+					echo form_label("Employee Code/Name", 'employee_name', array('class' => 'required'));
+					echo form_dropdown(array( 'name' => 'employee_name', 'id' => 'employee_name', 'class' => 'form-control input-sm select2' ), $employee_code_list);
 				?>
 			</div>
 			<div class="form-group">
 				<?php
-					echo form_label("Employee Name", 'employee_name', array('class' => 'required'));
-					echo form_input(array( 'name' => 'employee_name', 'id' => 'employee_name', 'class' => 'form-control input-sm'));
-				?>
-				<div id='append_div'></div>
-			</div>
-			<div class="form-group">
-				<?php
-					echo form_label("From Date", 'from_date', array('class' => 'required'));
-					echo form_input(array( 'name' => 'from_date', 'id' => 'from_date', 'class' => 'form-control input-sm datepicker'));
-				?>
-			</div>
-			<div class="form-group">
-				<?php
-					echo form_label("To Date", 'to_date', array('class' => 'required'));
-					echo form_input(array( 'name' => 'to_date', 'id' => 'to_date', 'class' => 'form-control input-sm datepicker'));
+					echo form_label("Process Month", 'process_month', array('class' => 'required'));
+					echo form_input(array( 'name' => 'process_month', 'id' => 'process_month', 'class' => 'form-control input-sm datepicker'));
 				?>
 			</div>
 			<a id="link" style="display: none;" href="#" title='Export All Data'><span class="fa fa-user-exit">&nbsp</span></a>
 			<div class="form-group">
-				<button class='btn btn-primary btn-sm' id="detailer_export">Search</button>
+				<button class='btn btn-primary btn-sm' id="checker_export">Search</button>
 			</div>
 		</div>
 	</div>
@@ -53,12 +41,17 @@
 <script src="dist/daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 	$(document).ready(function (){
+		var logged_role      = "<?php echo $logged_role;?>";
+		var logged_emp_code  = "<?php echo $logged_emp_code;?>";
+		if(parseInt(logged_role) === 4){
+			$("#employee_name").find("option[value='"+logged_emp_code+"']").prop("selected", "selected");
+			$("#employee_name").prop('readonly', true);
+		}
 		$(function(){
 			$(".datepicker").datetimepicker({
-				format: 'DD-MM-YYYY',
+				format: 'MM-YYYY',
 			});
 		});
-		hide_all();
 		$(function(){
 			$('.select2').select2({
 				placeholder: '---- Select ----',
@@ -76,101 +69,38 @@
 				end_date   = endDate.format('YYYY-MM-DD');
 			}
 		});
-		
-		$('#process_by').change(function(){
-			var process_by = $('#process_by').val();
-			if(parseInt(process_by) === 1 || parseInt(process_by) === 2){
-				$('#employee_name').parent().show();
-				$("#rslt_info").html('');
-			}else{
-				$('#employee_name').parent().hide();
-				$("#rslt_info").html('');
-			}
-		});
-		$('#employee_name').autocomplete({
-			source: function(request, response) {
-				$.getJSON('<?php echo site_url("$controller_name/emp_suggest");?>',{term:request.term},response);
-			},
-				minChars:3,
-				autoFocus: true,
-				delay:10,
-				scroll: true,
-				appendTo: '#append_div',
-				select: function(e, ui) {
-					$('#employee_name').val(ui.item.value);
-					return false;
-			}
-		});
-		$('#detailer_export').click(function(){
-			var process_by 		= $("#process_by").val();
+		$('#checker_export').click(function(){
 			var employee_code 	= $("#employee_name").val();
-			var from_date 		= $("#from_date").val();
-			var to_date		 	= $("#to_date").val();
-			var export_excel 	= "<?php echo $excel_export;?>";
-			var export_url   	= export_excel+'/'+employee_code+'/'+from_date+'/'+to_date+'/'+process_by;
-			$('#link').attr("href",export_url);
-			window.location = $('#link').attr('href');
+			var process_month 	= $("#process_month").val();
+			if(employee_code === ''){
+				toastr.error("Employee Code Required");	
+			}
+			if(process_month === ''){
+				toastr.error("Process Month Required");	
+			}
 
-
-
-
-
-			// var send_url = '<?php echo site_url("$controller_name/get_single_detailer_report");?>'
-			// $.ajax({
-			// 	type: 'POST',
-			// 	url: send_url,
-			// 	data:{employee_code:employee_code,from_date:from_date,to_date:to_date},
-			// 	success: function(data) {
-			// 		var rslt = JSON.parse(data);
-			// 		// if(rslt.success){
-			// 		// 		$('#rslt_info').html(rslt.table_content);
-			// 		// 				$table = $('#detailer_report').DataTable({
-			// 		// 					 paging: false,
-			// 		// 					 ordering: false,
-			// 		// 					 scrollX:true,
-			// 		// 					 "scrollY": 400
-			// 		// 				});
-			// 		// 				var table_option = "<div class='dataTables_length' id='detailer_report_length'><table><tr><td id='export' style='padding:8px 2px;'></td></tr></table></div>";
-			// 		// 				$("#detailer_report_wrapper").prepend(table_option);
-			// 		// 				var buttons = new $.fn.dataTable.Buttons($table, {
-			// 		// 				 buttons: [{
-			// 		// 					extend: 'collection',
-			// 		// 					text: 'Export',
-			// 		// 					buttons: [
-			// 		// 						{
-			// 		// 							extend:'copy',
-			// 		// 							exportOptions:{modifier :{order:'index',page:'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title
-			// 		// 						},
-			// 		// 						{extend:'csv',exportOptions:{modifier:{order:'index',page:'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title
-			// 		// 						},
-			// 		// 						{extend:'excel',
-			// 		// 						exportOptions:{modifier:{order :'index',page: 'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title},
-			// 		// 						{extend:'pdf',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible'}
-			// 		// 							,title: rslt.title},
-			// 		// 						{extend:'print',exportOptions:{modifier:{order :'index',page:'all',search:'none'},columns:':visible',}
-			// 		// 							,title: rslt.title}
-			// 		// 					]
-			// 		// 				}]
-			// 		// 			}).container().appendTo($('#export'));
-			// 		// 		$(".buttons-collection").addClass("btn btn-xs btn-edit");
-			// 		// 		$('input[type=search]').addClass('form-control input-sm');
-			// 		// 	}else{
-			// 		// 		toastr.error(rslt.message);
-			// 		// 	}
-			// 		// empty_all();
-			// 	}
-			// });
+			if(employee_code !== '' && process_month !== ''){
+				$.ajax({
+					type: "POST",
+					url: '<?php echo site_url("$controller_name/datacount_check"); ?>',
+					data:{employee_code:employee_code,process_month:process_month,role:logged_role},
+					success: function(data) {
+						var rslt = JSON.parse(data);
+						if(rslt.success){
+							var export_excel 	= "<?php echo $excel_export;?>";
+							var export_url   	= export_excel+'/'+employee_code+'/'+process_month;
+							$('#link').attr("href",export_url);
+							window.location = $('#link').attr('href');
+						}else{
+							toastr.error(rslt.message);							
+						}
+					}
+				
+				});
+			}
 		});
 	});
-	
-	function hide_all(){
-		$('#employee_name').parent().hide();
-	}
 	function empty_all(){
-		$('#employee_name').val('');
 		$('.select2').select2({
 			placeholder: '---- Select ----',
 			allowClear: true,

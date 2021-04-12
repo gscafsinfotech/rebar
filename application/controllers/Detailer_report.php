@@ -44,7 +44,13 @@ class Detailer_report  extends Action_controller{
 		$get_month 			= explode('-', $process_month);
 		$month_name			= $get_month[0];
 		$month_name 		= date("F", mktime(null, null, null, $month_name, 1));
-		$detailer_qry 		= 'select emp_name,cw_time_sheet.employee_code,entry_date,in_time,out_time,total_time,IF(credit>"00:00:00", credit, "") as credit,IF(detailing_time>"00:00:00", detailing_time, "") as detailing_time,IF(study>"00:00:00", study, "") as study,IF(discussion>"00:00:00", discussion, "") as discussion,IF(rfi>"00:00:00", rfi, "") as rfi,IF(checking>"00:00:00", checking, "") as checking,IF(correction_time>"00:00:00", correction_time, "") as correction_time,IF(first_check_minor>"00:00:00", first_check_minor, "") as first_check_minor,IF(first_check_major>"00:00:00", first_check_major, "") as first_check_major,IF(second_check_major>"00:00:00", second_check_major, "") as second_check_major,IF(second_check_minor>"00:00:00", second_check_minor, "") as second_check_minor,IF(qa_major>"00:00:00", qa_major, "") as qa_major,IF(qa_minor>"00:00:00", qa_minor, "") as qa_minor,work_description,tonnage,IF(other_works>"00:00:00", other_works, "") as other_works,bar_list_quantity,IF(bar_listing_time>"00:00:00", bar_listing_time, "") as bar_listing_time,IF(revision_time>"00:00:00", revision_time, "") as revision_time,IF(change_order_time>"00:00:00", change_order_time, "") as change_order_time,IF(billable>"00:00:00", billable, "") as billable,IF(billable_hours>"00:00:00", billable_hours, "") as billable_hours,IF(non_billable_hours>"00:00:00", non_billable_hours, "") as non_billable_hours,cw_work_type.work_type,entry_type,client_name,project,drawing_no,work_status,IF(aec>"00:00:00", aec, "") as aec from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_work_type on cw_work_type.prime_work_type_id = cw_time_sheet_time_line.work_type inner join cw_employees on cw_employees.employee_code = cw_time_sheet.employee_code where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 and DATE_FORMAT(`entry_date`, "%m-%Y") = "'.$process_month.'" order by entry_date';
+
+		$target_qry     = 'select cw_team_target_detailer_wise_target.target_value from cw_team_target inner join cw_team_target_detailer_wise_target on cw_team_target_detailer_wise_target.prime_team_target_id = cw_team_target.prime_team_target_id where cw_team_target.from_date <= "'.$process_month.'" and cw_team_target.to_date >= "'.$process_month.'" and cw_team_target_detailer_wise_target.detailer_name = "'.$employee_code.'" and cw_team_target.trans_status = 1';
+		$target_info    = $this->db->query("CALL sp_a_run ('SELECT','$target_qry')");
+		$target_result  = $target_info->result();
+		$target_info->next_result();
+		$credit_target  = $target_result[0]->target_value;
+		$detailer_qry 		= 'select emp_name,cw_time_sheet.employee_code,entry_date,in_time,out_time,total_time,IF(credit>"00:00:00", TIME_FORMAT(credit, "%H:%i"), "") as credit,IF(detailing_time>"00:00:00", TIME_FORMAT(detailing_time, "%H:%i"), "") as detailing_time,IF(study>"00:00:00",TIME_FORMAT(study, "%H:%i"),"") as study,IF(discussion>"00:00:00", TIME_FORMAT(discussion, "%H:%i"), "") as discussion,IF(rfi>"00:00:00", TIME_FORMAT(rfi, "%H:%i"), "") as rfi,IF(checking>"00:00:00", TIME_FORMAT(checking, "%H:%i"), "") as checking,IF(correction_time>"00:00:00", TIME_FORMAT(correction_time, "%H:%i"), "") as correction_time,IF(first_check_minor>"00:00:00", TIME_FORMAT(first_check_minor, "%H:%i"), "") as first_check_minor,IF(first_check_major>"00:00:00", TIME_FORMAT(first_check_major, "%H:%i"), "") as first_check_major,IF(second_check_major>"00:00:00", TIME_FORMAT(second_check_major, "%H:%i"), "") as second_check_major,IF(second_check_minor>"00:00:00", TIME_FORMAT(second_check_minor, "%H:%i"), "") as second_check_minor,IF(qa_major>"00:00:00", TIME_FORMAT(qa_major, "%H:%i"), "") as qa_major,IF(qa_minor>"00:00:00", TIME_FORMAT(qa_minor, "%H:%i"), "") as qa_minor,work_description,tonnage,IF(other_works>"00:00:00", TIME_FORMAT(other_works, "%H:%i"), "") as other_works,IF(bar_list_quantity>"0", bar_list_quantity, "") as bar_list_quantity,IF(bar_listing_time>"00:00:00", TIME_FORMAT(bar_listing_time, "%H:%i"), "") as bar_listing_time,IF(revision_time>"00:00:00", TIME_FORMAT(revision_time, "%H:%i"), "") as revision_time,IF(change_order_time>"00:00:00", TIME_FORMAT(change_order_time, "%H:%i"), "") as change_order_time,IF(billable>"00:00:00", TIME_FORMAT(billable, "%H:%i"), "") as billable,IF(billable_hours>"00:00:00", TIME_FORMAT(billable_hours, "%H:%i"), "") as billable_hours,IF(non_billable_hours>"00:00:00", TIME_FORMAT(non_billable_hours, "%H:%i"), "") as non_billable_hours,cw_work_type.work_type,entry_type,client_name,project,drawing_no,work_status,IF(aec>"00:00:00", TIME_FORMAT(aec, "%H:%i"), "") as aec,cw_time_sheet_time_line.work_type as work_type_time from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_work_type on cw_work_type.prime_work_type_id = cw_time_sheet_time_line.work_type inner join cw_employees on cw_employees.employee_code = cw_time_sheet.employee_code where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 and DATE_FORMAT(`entry_date`, "%m-%Y") = "'.$process_month.'" order by entry_date';
 		$detailer_info   	= $this->db->query("CALL sp_a_run ('SELECT','$detailer_qry')");
 		$detailer_result 	= $detailer_info->result();
 		$detailer_info->next_result();
@@ -94,7 +100,10 @@ class Detailer_report  extends Action_controller{
 			    'right' => array(
 			      'style' => PHPExcel_Style_Border::BORDER_THIN
 			    )
-			  )
+			  ),
+	    	'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
 	    );
 	    $RightBorder  = array(
 	    	'borders' => array(
@@ -110,7 +119,10 @@ class Detailer_report  extends Action_controller{
 			    'right' => array(
 			      'style' => PHPExcel_Style_Border::BORDER_THICK
 			    )
-			  )
+			  ),
+	    	'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
 	    );
 	    $LeftArray  = array(
 	    	'borders' => array(
@@ -237,6 +249,7 @@ class Detailer_report  extends Action_controller{
 			  ),
 	    	'alignment' => array(
 	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 	        )
 	    );
 	    $FooterStyle  = array(
@@ -328,7 +341,7 @@ class Detailer_report  extends Action_controller{
 			$obj->getActiveSheet()->setCellValue('A'."2", "Detailer Name:".$emp_name)->mergeCells('A2:B2')->getStyle('A2:B2')->applyFromArray($LeftArray);
 			$obj->getActiveSheet()->setCellValue('C'."2", "Designation & Experience: Cad Designer & 3 Year 7 Months")->mergeCells('C2:D2')->getStyle('C2:D2')->applyFromArray($styleArray);
 			$obj->getActiveSheet()->setCellValue('E'."2", "Target Tons")->getStyle('E2')->applyFromArray($styleArray);
-			$obj->getActiveSheet()->setCellValue('F'."2", "Credit")->getStyle('F2')->applyFromArray($styleArray);
+			$obj->getActiveSheet()->setCellValue('F'."2", $credit_target)->getStyle('F2')->applyFromArray($styleArray);
 			$obj->getActiveSheet()->setCellValue('G'."2", "Detailing Work")->mergeCells('G2:L2')->getStyle('G2:L2')->applyFromArray($styleArray);
 			$obj->getActiveSheet()->setCellValue('M'."2", "Revision Work")->mergeCells('M2:T2')->getStyle('M2:T2')->applyFromArray($styleArray);
 			$obj->getActiveSheet()->setCellValue('U'."2", "BAR LIST")->mergeCells('U2:V2')->getStyle('U2:V2')->applyFromArray($styleArray);
@@ -350,25 +363,57 @@ class Detailer_report  extends Action_controller{
 		$j = 0;
 		$k = 0;
 		$previous_date = "";
+		$sum_value_bar_list_quantity  = 0;
 		foreach($detailer_result as $key => $time_sheet){
 			$sum_value_total_hours  = array();
-			$booking_hours 	 = array();
-			$booking_hours[] = $time_sheet->study;
+			$booking_hours 	 		= array();
+			$work_type_time  		= $time_sheet->work_type_time;
+			$sum_value_bar_list_quantity  	+= $time_sheet->bar_list_quantity;
+			if((int)$work_type_time === 1){
+				$study1 			= $time_sheet->study;
+				$checking1 			= $time_sheet->checking;
+				$correction_time1 	= $time_sheet->correction_time;
+				$discussion1 	 	= $time_sheet->discussion;
+				$study2 			= "";
+				$checking2 			= "";
+				$correction_time2 	= "";
+				$discussion2  		= "";
+			}else
+			if((int)$work_type_time === 2){
+				$study2 			= $time_sheet->study;
+				$checking2 			= $time_sheet->checking;
+				$correction_time2 	= $time_sheet->correction_time;
+				$discussion2  		= $time_sheet->discussion;
+				$study1 			= "";
+				$checking1 			= "";
+				$correction_time1 	= "";
+				$discussion1 	 	= "";
+			}else{
+				$study1 			= $time_sheet->study;
+				$study2 			= $time_sheet->study;
+				$checking1 			= $time_sheet->checking;
+				$checking2 			= $time_sheet->checking;
+				$correction_time1 	= $time_sheet->correction_time;
+				$correction_time2 	= $time_sheet->correction_time;
+				$discussion1  		= $time_sheet->discussion;
+				$discussion2  		= $time_sheet->discussion;
+			}
+			$booking_hours[] = $study1;
 			$booking_hours[] = $time_sheet->detailing_time;
-			$booking_hours[] = $time_sheet->discussion;
-			$booking_hours[] = $time_sheet->checking;
-			$booking_hours[] = $time_sheet->correction_time;
-			$booking_hours[] = $time_sheet->rfi;
-			$booking_hours[] = $time_sheet->study;
+			$booking_hours[] = $discussion1;
+			$booking_hours[] = $checking1;
+			$booking_hours[] = $correction_time1;
+			$booking_hours[] = $study2;
 			$booking_hours[] = $time_sheet->aec;
-			$booking_hours[] = $time_sheet->checking;
-			$booking_hours[] = $time_sheet->correction_time;
+			$booking_hours[] = $checking2;
+			$booking_hours[] = $correction_time2;
 			$booking_hours[] = $time_sheet->non_billable_hours;
 			$booking_hours[] = $time_sheet->billable_hours;
-			$booking_hours[] = $time_sheet->discussion;
+			$booking_hours[] = $discussion2;
 			$booking_hours[] = $time_sheet->change_order_time;
 			$booking_hours[] = $time_sheet->bar_listing_time;
 			$booking_hours[] = $time_sheet->other_works;
+			$booking_hours[] = $time_sheet->credit;
 			$total_hours 	 = $this->AddPlayTime($booking_hours);
 			$sum_total_hours[] 			 = $total_hours;
 			$sum_value_total_hours 		 = $this->AddPlayTime($sum_total_hours);
@@ -389,25 +434,26 @@ class Detailer_report  extends Action_controller{
 			$drawing_no 	= $drawing_result[$drawing_no]['drawing_no'];
 			$work_status 	= $time_sheet->work_status;
 			$work_status 	= $work_status_result[$work_status]['work_status'];
+
 			$time_sheet_value['A']       = $time_sheet->entry_date;
 			$time_sheet_value['B']       = $project;
 			$time_sheet_value['C']       = $drawing_no;
 			$time_sheet_value['D']       = $work_status;
 			$time_sheet_value['E']       = $time_sheet->work_description;
 			$time_sheet_value['F'] 		 = $time_sheet->credit;
-			$time_sheet_value['G'] 		 = $time_sheet->study;
+			$time_sheet_value['G'] 		 = $study1;
 			$time_sheet_value['H'] 		 = $time_sheet->detailing_time;
-			$time_sheet_value['I'] 		 = $time_sheet->discussion;
-			$time_sheet_value['J']		 = $time_sheet->checking;
-			$time_sheet_value['K'] 		 = $time_sheet->correction_time;
+			$time_sheet_value['I'] 		 = $discussion1;
+			$time_sheet_value['J']		 = $checking1;
+			$time_sheet_value['K'] 		 = $correction_time1;
 			$time_sheet_value['L'] 		 = $time_sheet->rfi;
-			$time_sheet_value['M']		 = $time_sheet->study;
+			$time_sheet_value['M']		 = $study2;
 			$time_sheet_value['N']		 = $time_sheet->aec;
-			$time_sheet_value['O']		 = $time_sheet->checking;
-			$time_sheet_value['P'] 		 = $time_sheet->correction_time;
+			$time_sheet_value['O']		 = $checking2;
+			$time_sheet_value['P'] 		 = $correction_time2;
 			$time_sheet_value['Q'] 		 = $time_sheet->non_billable_hours;
 			$time_sheet_value['R'] 		 = $time_sheet->billable_hours;
-			$time_sheet_value['S'] 		 = $time_sheet->discussion;
+			$time_sheet_value['S'] 		 = $discussion2;
 			$time_sheet_value['T'] 		 = $time_sheet->change_order_time;
 			$time_sheet_value['U']       = $time_sheet->bar_list_quantity;
 			$time_sheet_value['V'] 		 = $time_sheet->bar_listing_time;
@@ -418,35 +464,42 @@ class Detailer_report  extends Action_controller{
 			$time_sheet_value['AA'] 	 = $time_sheet->total_time;
 			$time_sheet_value['AB'] 	 = "shift";
 
-			$sum_study[]  				 = $time_sheet->study;
+			$sum_study1[]  				 = $study1;
+			$sum_study2[]  				 = $study2;
 			$sum_detailing_time[]  		 = $time_sheet->detailing_time;
-			$sum_discussion[] 			 = $time_sheet->discussion;
-			$sum_checking[] 			 = $time_sheet->checking;
-			$sum_correction_time[] 		 = $time_sheet->correction_time;
+			$sum_discussion1[] 			 = $discussion1;
+			$sum_discussion2[] 			 = $discussion2;
+			$sum_checking1[] 			 = $checking1;
+			$sum_checking2[] 			 = $checking2;
+			$sum_correction_time1[] 	 = $correction_time1;
+			$sum_correction_time2[] 	 = $correction_time2;
 			$sum_rfi[] 					 = $time_sheet->rfi;
 			$sum_aec[] 					 = $time_sheet->aec;
 			$sum_non_billable_hours[] 	 = $time_sheet->non_billable_hours;
 			$sum_billable_hours[] 		 = $time_sheet->billable_hours;
 			$sum_change_order_time[]  	 = $time_sheet->change_order_time;
-			$sum_bar_list_quantity[] 	 = $time_sheet->bar_list_quantity;
 			$sum_bar_listing_time[] 	 = $time_sheet->bar_listing_time;
 			$sum_other_works[] 			 = $time_sheet->other_works;
 			$sum_credit[]  				 = $time_sheet->credit;
 			
-			$sum_value_study			 = $this->AddPlayTime($sum_study);
+			$sum_value_study1			 = $this->AddPlayTime($sum_study1);
+			$sum_value_study2			 = $this->AddPlayTime($sum_study2);
 			$sum_value_detailing_time	 = $this->AddPlayTime($sum_detailing_time);
-			$sum_value_discussion		 = $this->AddPlayTime($sum_discussion);
-			$sum_value_checking			 = $this->AddPlayTime($sum_checking);
-			$sum_value_correction_time	 = $this->AddPlayTime($sum_correction_time);
+			$sum_value_discussion1		 = $this->AddPlayTime($sum_discussion1);
+			$sum_value_discussion2		 = $this->AddPlayTime($sum_discussion2);
+			$sum_value_checking1		 = $this->AddPlayTime($sum_checking1);
+			$sum_value_checking2		 = $this->AddPlayTime($sum_checking2);
+			$sum_value_correction_time1	 = $this->AddPlayTime($sum_correction_time1);
+			$sum_value_correction_time2	 = $this->AddPlayTime($sum_correction_time2);
 			$sum_value_rfi				 = $this->AddPlayTime($sum_rfi);
 			$sum_value_aec				 = $this->AddPlayTime($sum_aec);
 			$sum_value_non_billable_hours= $this->AddPlayTime($sum_non_billable_hours);
 			$sum_value_billable_hours 	 = $this->AddPlayTime($sum_billable_hours);
 			$sum_value_change_order_time = $this->AddPlayTime($sum_change_order_time);
-			$sum_value_bar_list_quantity = $this->AddPlayTime($sum_bar_list_quantity);
 			$sum_value_bar_listing_time  = $this->AddPlayTime($sum_bar_listing_time);
 			$sum_value_other_works		 = $this->AddPlayTime($sum_other_works);
 			$sum_value_credit		 	 = $this->AddPlayTime($sum_credit);
+
 
 			for ($x = 0; $x <= 27; $x++) {
 				$excel_column  		= $excel[0]['excel_column'][$x];
@@ -473,22 +526,23 @@ class Detailer_report  extends Action_controller{
 			$i++;
 			$previous_date = $date_only;
 		}
+		// die;
 		$counter = $counter+1;
-		$obj->getActiveSheet()->setCellValue('A'.$counter, $total_sum_detail_work)->mergeCells('A'.$counter.':'.'F'.$counter)->getStyle('A'.$counter.':'.'E'.$counter)->applyFromArray($FooterLeftStyle);
+		$obj->getActiveSheet()->setCellValue('A'.$counter, $total_sum_detail_work)->mergeCells('A'.$counter.':'.'E'.$counter)->getStyle('A'.$counter.':'.'E'.$counter)->applyFromArray($FooterLeftStyle);
 		$obj->getActiveSheet()->setCellValue('F'.$counter,$sum_value_credit)->getStyle('F'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('G'.$counter,$sum_value_study)->getStyle('G'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('G'.$counter,$sum_value_study2)->getStyle('G'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('H'.$counter,$sum_value_detailing_time)->getStyle('H'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('I'.$counter,$sum_value_discussion)->getStyle('I'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('J'.$counter,$sum_value_checking)->getStyle('J'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('k'.$counter,$sum_value_correction_time)->getStyle('K'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('I'.$counter,$sum_value_discussion1)->getStyle('I'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('J'.$counter,$sum_value_checking1)->getStyle('J'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('k'.$counter,$sum_value_correction_time1)->getStyle('K'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('L'.$counter,$sum_value_rfi)->getStyle('L'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('M'.$counter,$sum_value_study)->getStyle('M'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('M'.$counter,$sum_value_study2)->getStyle('M'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('N'.$counter,$sum_value_aec)->getStyle('N'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('O'.$counter,$sum_value_checking)->getStyle('O'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('P'.$counter,$sum_value_correction_time)->getStyle('P'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('O'.$counter,$sum_value_checking2)->getStyle('O'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('P'.$counter,$sum_value_correction_time2)->getStyle('P'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('Q'.$counter,$sum_value_non_billable_hours)->getStyle('Q'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('R'.$counter,$sum_value_billable_hours)->getStyle('R'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('S'.$counter,$sum_value_discussion)->getStyle('S'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('S'.$counter,$sum_value_discussion2)->getStyle('S'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('T'.$counter,$sum_value_change_order_time)->getStyle('T'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('U'.$counter,$sum_value_bar_list_quantity)->getStyle('U'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('V'.$counter,$sum_value_bar_listing_time)->getStyle('V'.$counter)->applyFromArray($FooterStyle);

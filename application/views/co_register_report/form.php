@@ -70,31 +70,14 @@ foreach($view_info as $view){
 					$valid_class = "alpha_text";
 				}else
 				if($text_type === 2){
-					if($label_id === 'from_date' || $label_id === 'to_date'){
-						$valid_class = "datepicker";
-					}else{
-						$valid_class = "alpha";
-					}
+					$valid_class = "alpha";
 				}else
 				if($text_type === 3){
 					$valid_class = "number";
 				}
-				if($label_id === 'from_date' || $label_id === 'to_date'){
-					$date_exist = true;
-					$date = "";
-					if($input_value){
-						$date = $input_value;
-						if($date === "01-1970"){
-							$date = '';
-						}
-					}
-					$form_input =  form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$date,"placeholder"=>$label_name, $read=>true, "class"=>"form-control input-sm datepicker"));
-					$input_box .= "<div class='form-group'>$form_label $form_input</div>";
-				}else{
-					$input_value = str_replace('^',"'",$input_value);
+				$input_value = str_replace('^',"'",$input_value);
 				$form_input = form_input(array("name"=>$label_id, "id"=>$label_id,"value"=>$input_value,"placeholder"=>$label_name, $read=>true,"class"=>"form-control input-sm $valid_class"));
 				$input_box .= "<div class='form-group'>$form_label $form_input</div>";
-			}
 			}else
 			//DECIMALS
 			if((int)$field_type === 2){
@@ -528,14 +511,9 @@ foreach($view_info as $view){
 										data:$row_send_data,
 										success: function(data) {
 											var rslt = JSON.parse(data);
-											if(rslt.success){
-												$('#'+rslt.row_set_data.div_id).html(rslt.row_set_data.row_set_view);
+											toastr.success(rslt.message);
+											$('#'+rslt.row_set_data.div_id).html(rslt.row_set_data.row_set_view);
 											$row_clear_data
-												toastr.success(rslt.message);
-											}else{
-												toastr.error(rslt.message);
-											}
-											
 											$(function(){
 												$('.select2').select2({
 													placeholder: '---- Select ----',
@@ -635,7 +613,7 @@ $(document).ready(function(){
 	if(date_exist === "1"){
 		$(function () {
 			$(".datepicker").datetimepicker({
-				format: 'MM-YYYY',
+				format: 'DD-MM-YYYY',
 				//debug: true
 			});
 		});
@@ -665,33 +643,6 @@ $(document).ready(function(){
 			});
 		});
 	}
-	var team 	= $("#team").val();
-	$("#team").change(function(){
-		var team = $(this).val();
-		detailer_team(team);
-	});
-	detailer_team(team);
-
-	// $("#target_value").keyup(function(){
-	// 	var target_value  = $(this).val();
-	// 	var detailer_name = $("#detailer_name").val();
-	// 	$.ajax({
-	// 		type: "POST",
-	// 		url: '<?php echo site_url("$controller_name/target_value_exist"); ?>',
-	// 		data:{target_value:target_value,detailer_name:detailer_name},
-	// 		success: function(data) {
-	// 			var rslt = JSON.parse(data);
-	// 			console.log(rslt.success);
-	// 			if(rslt.success){
-	// 				toastr.error(rslt.message);		
-	// 			}
-	// 		}
-	// 	});
-	// });
-
-
-
-
 	/*
 	$('input').keypress(function(e){ 
 		e = e || event;
@@ -878,17 +829,5 @@ function row_set_remove(row_id,table_name,view_id,prime_id){
 			});
 		}		
 	}
-}
-function detailer_team(team_id){
-	var send_url = '<?php echo site_url("$controller_name/detailer_team"); ?>'; 
-	$.ajax({
-		type: "POST",
-		url: send_url,
-		data:{team_id:team_id},
-		success: function(data) {
-			var rslt = JSON.parse(data);
-			$("#detailer_name").html(rslt.team_drop);
-		}
-	});
 }
 </script>

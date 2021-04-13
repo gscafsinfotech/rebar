@@ -280,6 +280,10 @@ class Tonnage_approval  extends Action_controller{
 				$prime_upd_query    .= 'trans_updated_by = "'. $this->logged_id .'",trans_updated_date = "'.$created_on.'"';
 				$prime_update_query  = 'UPDATE '. $this->prime_table .' SET '. $prime_upd_query .' WHERE '. $this->prime_id .' = "'. $form_id .'"';
 				$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
+				$prime_time_sheet_time_line_id = $this->input->post("prime_time_sheet_time_line_id");
+				$approval_status 	= $this->input->post("approval_status");
+				$approval_qry       = 'UPDATE cw_time_sheet_time_line SET approval_status = "'.$approval_status.'" WHERE prime_time_sheet_time_line_id = "'. $prime_time_sheet_time_line_id .'"';
+				$this->db->query("CALL sp_a_run ('UPDATE','$approval_qry')");
 				echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $form_id));
 			}
 		}

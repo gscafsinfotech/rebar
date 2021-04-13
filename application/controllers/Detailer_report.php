@@ -84,8 +84,6 @@ class Detailer_report  extends Action_controller{
 
 		require_once APPPATH."/third_party/PHPExcel.php";
 		$obj = new PHPExcel();
-		$excel[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB');
-		$excel[]['excel_value']= array('Date','Project Name','Drawing No','Drawing Revisin Status','Work Status','Credit','STY','DET','DIS','CHK','COR','RFI','STY','AEC','CHK','COR','NBH','BH','DIS','PCO','QTY','HOURS','OTHER WORK','BOOKING HOURS','IN','OUT','TOTAL','SHIFT');
 		$LeftBorder  = array(
 	    	'borders' => array(
 			    'bottom' => array(
@@ -122,6 +120,25 @@ class Detailer_report  extends Action_controller{
 			  ),
 	    	'alignment' => array(
 	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
+	    );
+	    $RightBordertwo  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
+	    	'alignment' => array(
+	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 	        )
 	    );
 	    $LeftArray  = array(
@@ -306,6 +323,22 @@ class Detailer_report  extends Action_controller{
 	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 	        )
 	    );
+	    $FooterLeftStyletwo  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    )
+			  )
+	    );
 	    $FooterRightStyle  = array(
 	    	'borders' => array(
 			    'bottom' => array(
@@ -333,7 +366,27 @@ class Detailer_report  extends Action_controller{
 	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 	        )
 	    );
-
+	    $FooterRightStyletwo  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
+	    	'alignment' => array(
+	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+	        )
+	    );
+	    $excel[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB');
+		$excel[]['excel_value']= array('Date','Project Name','Drawing No','Drawing Revisin Status','Work Status','Credit','STY','DET','DIS','CHK','COR','RFI','STY','AEC','CHK','COR','NBH','BH','DIS','PCO','QTY','HOURS','OTHER WORK','BOOKING HOURS','IN','OUT','TOTAL','SHIFT');
 	    for ($x = 0; $x <= 27; $x++) {
 			$excel_column  = $excel[0]['excel_column'][$x];
 			$excel_value   = $excel[1]['excel_value'][$x];
@@ -530,8 +583,8 @@ class Detailer_report  extends Action_controller{
 		$counter = $counter+1;
 		$obj->getActiveSheet()->setCellValue('A'.$counter, $total_sum_detail_work)->mergeCells('A'.$counter.':'.'E'.$counter)->getStyle('A'.$counter.':'.'E'.$counter)->applyFromArray($FooterLeftStyle);
 		$obj->getActiveSheet()->setCellValue('F'.$counter,$sum_value_credit)->getStyle('F'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('G'.$counter,$sum_value_study2)->getStyle('G'.$counter)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('H'.$counter,$sum_value_detailing_time)->getStyle('H'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('G'.$counter,$sum_value_study1)->getStyle('G'.$counter)->applyFromArray($FooterStyle);
+		$obj->getActiveSheet()->setCellValue('H'.$counter,$sum_value_detailing_time1)->getStyle('H'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('I'.$counter,$sum_value_discussion1)->getStyle('I'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('J'.$counter,$sum_value_checking1)->getStyle('J'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('k'.$counter,$sum_value_correction_time1)->getStyle('K'.$counter)->applyFromArray($FooterStyle);
@@ -552,6 +605,209 @@ class Detailer_report  extends Action_controller{
 		$obj->getActiveSheet()->setCellValue('Z'.$counter,"")->getStyle('Z'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('AA'.$counter,"")->getStyle('AA'.$counter)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('AB'.$counter,"")->getStyle('AB'.$counter)->applyFromArray($FooterRightStyle);
+
+
+
+
+		// $cummulative_sheet2 = $counter+3;
+		// $cummulative_sheet3 = $counter+4;
+		// $cummulative_sheet4 = $counter+5;
+		// $cummulative_sheet5 = $counter+6;
+		// $cummulative_sheet6 = $counter+7;
+		// echo $cummulative_sheet6;die;
+
+		// $project_excel[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X');
+		// $project_excel[]['excel_value']= array('Job Category','Project Name','# New dwg','# Rev dwg','Remarks','Credits','STY','DET','DIS','CHK','COR','RFI','STY','AEC','CHK','COR','NBH','BH','DIS','CO','QTY','HOURS','OTHER WORK','TOTAL');
+
+		// for ($x = 0; $x <= 23; $x++) {
+		// 	$excel_column  = $project_excel[0]['excel_column'][$x];
+		// 	$excel_value   = $project_excel[1]['excel_value'][$x];
+		// 	$obj->getActiveSheet()->setCellValue('A'.$cummulative_sheet2, "Detailer Name: Vishal Jaganathan.A")->mergeCells('A'.$cummulative_sheet2.':X'.$cummulative_sheet2)->getStyle('A'.$cummulative_sheet2.':X'.$cummulative_sheet2)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('A'.$cummulative_sheet3, "Designation & Experience: Cad Designer & 3 Year 7 Months")->mergeCells('A'.$cummulative_sheet3.':X'.$cummulative_sheet3)->getStyle('A'.$cummulative_sheet3.':X'.$cummulative_sheet3)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('A'.$cummulative_sheet4, "Working Days")->getStyle('A'.$cummulative_sheet4)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('B'.$cummulative_sheet4, "Min. Standard Working Hours")->getStyle('B'.$cummulative_sheet4)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('C'.$cummulative_sheet4, "Target Tons")->getStyle('C'.$cummulative_sheet4)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('D'.$cummulative_sheet4, "Min Tons/Hrs")->getStyle('D'.$cummulative_sheet4)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('E'.$cummulative_sheet4, "")->mergeCells('E'.$cummulative_sheet4.':X'.$cummulative_sheet4)->getStyle('E'.$cummulative_sheet4.':X'.$cummulative_sheet4)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('A'.$cummulative_sheet5, "21")->getStyle('A'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('B'.$cummulative_sheet5, "168")->getStyle('B'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('C'.$cummulative_sheet5, "100")->getStyle('C'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('D'.$cummulative_sheet5, "006")->getStyle('D'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('E'.$cummulative_sheet5, "Team: CT10 Dhanalakshmi")->getStyle('E'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('F'.$cummulative_sheet5, "Credit")->getStyle('F'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('G'.$cummulative_sheet5, "Detailing Work")->mergeCells('G'.$cummulative_sheet5.':K'.$cummulative_sheet5)->getStyle('G'.$cummulative_sheet5.':K'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('L'.$cummulative_sheet5, "")->getStyle('L'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('M'.$cummulative_sheet5, "Revision Work")->mergeCells('M'.$cummulative_sheet5.':T'.$cummulative_sheet5)->getStyle('M'.$cummulative_sheet5.':T'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('U'.$cummulative_sheet5, "Revision Work")->mergeCells('U'.$cummulative_sheet5.':V'.$cummulative_sheet5)->getStyle('U'.$cummulative_sheet5.':V'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('W'.$cummulative_sheet5, "OTHER WORKS")->getStyle('W'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	$obj->getActiveSheet()->setCellValue('X'.$cummulative_sheet5, "TOTAL")->getStyle('X'.$cummulative_sheet5)->applyFromArray($styleArray);
+		// 	if($excel_column === 'A'){
+		// 		$obj->getActiveSheet()->setCellValue($excel_column.$cummulative_sheet6, $excel_value)->getStyle($excel_column.$cummulative_sheet6)->applyFromArray($LeftArray);
+		// 	}else
+		// 	if($excel_column === 'X'){
+		// 		$obj->getActiveSheet()->setCellValue($excel_column.$cummulative_sheet6, $excel_value)->getStyle($excel_column.$cummulative_sheet6)->applyFromArray($RightArray);
+		// 	}
+		// 	else{
+		// 	$obj->getActiveSheet()->setCellValue($excel_column.$cummulative_sheet6, $excel_value)->getStyle($excel_column.$cummulative_sheet6)->applyFromArray($styleArray);
+		// 	}
+		// }
+
+
+
+		// $project_wise_qry 			= 'SELECT employee_code,emp_name FROM cw_employees where role = 5 and employee_status = 1 and trans_status = 1';
+		// $project_wise_info   		= $this->db->query("CALL sp_a_run ('SELECT','$project_wise_qry')");
+		// $project_wise_result 		= $project_wise_info->result();
+		// $project_wise_info->next_result();
+
+
+
+
+
+
+
+
+		
+		$start_date  = '01-'.$process_month;
+		$start_date  = date('Y-m-d',strtotime($start_date));
+		$end_date  = '31-'.$process_month;
+		$end_date  = date('Y-m-d',strtotime($end_date));
+
+		$project_wise_qry 			= 'SELECT count(*) as working_days,SEC_TO_TIME(SUM(TIME_TO_SEC(total_time))) as total_time FROM cw_time_sheet where entry_date >= "'.$start_date.'" and entry_date <= "'.$end_date.'" and employee_code = "'.$employee_code.'" and trans_status = 1';
+		$project_wise_info   		= $this->db->query("CALL sp_a_run ('SELECT','$project_wise_qry')");
+		$project_wise_result 		= $project_wise_info->result();
+		$project_wise_info->next_result();
+		// echo "<pre>";
+		// print_r($project_wise_result);
+		$working_days 				= $project_wise_result[0]->working_days;
+		$total_time 				= $project_wise_result[0]->total_time;
+		$total_time 				=explode(':', $total_time);
+		$total_time 				= $total_time[0].':'.$total_time[1];
+
+		$start_t = new DateTime($total_time);
+		$current_t = new DateTime($sum_value_total_hours);
+		$difference = $start_t ->diff($current_t );
+		$differ_booking_office = $difference ->format('%H:%I');
+
+
+
+		// $project_wise_qry 			= 'SELECT sum(tonnage) as total_tonnage FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where entry_date >= "'.$start_date.'" and entry_date <= "'.$end_date.'" and employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1';
+		// $project_wise_info   		= $this->db->query("CALL sp_a_run ('SELECT','$project_wise_qry')");
+		// $project_wise_result 		= $project_wise_info->result();
+		// $project_wise_info->next_result();
+
+		// $total_tonnage = $project_wise_result[0]->total_tonnage;
+
+
+
+
+		$project_wise_qry 			= 'SELECT sum(cw_tonnage_approval.actual_tonnage) as actual_tonnage,SEC_TO_TIME(SUM(TIME_TO_SEC(cw_tonnage_approval.actual_billable_time))) as actual_billable_time FROM cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where entry_date >= "'.$start_date.'" and entry_date <= "'.$end_date.'" and employee_code = "'.$employee_code.'" and cw_tonnage_approval.trans_status = 1';
+		$project_wise_info   		= $this->db->query("CALL sp_a_run ('SELECT','$project_wise_qry')");
+		$project_wise_result 		= $project_wise_info->result();
+		$project_wise_info->next_result();
+		// echo "<pre>";
+		// print_r($project_wise_result);die;
+
+
+		$actual_tonnage = $project_wise_result[0]->actual_tonnage;
+		$actual_billable_time = $project_wise_result[0]->actual_billable_time;
+		$actual_billable_time 				=explode(':', $actual_billable_time);
+		$actual_billable_time 				= $actual_billable_time[0].':'.$actual_billable_time[1];
+		// echo $actual_billable_time;echo"<br>";
+		$time=$actual_billable_time;
+		$mult=1.5;
+		$datetime=DateTime::createFromFormat('H:i',$time,new DateTimeZone('America/Sao_Paulo'));
+		$minute=$datetime->format('i');
+		$datetime->modify('+' . ($minute * $mult) . ' minutes');
+		$datetime->modify('-' . $minute  . ' minutes');
+		$rev_hrs_tons = $datetime->format('H:i');
+
+
+		$production_tons = $actual_billable_time + $actual_tonnage;
+
+		if($production_tons<=$credit_target){
+			$target_status  = "Not Reached";
+		}else{
+			$target_status  = "Reached";
+		}
+
+	
+		// echo $production_tons;
+
+
+		// die;
+
+
+		// $sum_value_study1+$sum_value_detailing_time1+$sum_value_discussion1+$sum_value_checking1+$sum_value_correction_time1
+
+		// $sum_value_study2+$sum_value_aec+$sum_value_checking2+$sum_value_correction_time2+$sum_value_non_billable_hours+$sum_value_billable_hours+$sum_value_discussion2
+
+
+
+
+
+
+		$report_head 	= $counter+5;
+		$report_inc1 	= $counter+6;
+		$report_inc2 	= $report_inc1+1;
+		$report_inc3 	= $report_inc2+1;
+		$report_inc4 	= $report_inc3+1;
+		$report_inc5 	= $report_inc4+1;
+		$report_inc6 	= $report_inc5+1;
+		$report_inc7 	= $report_inc6+1;
+		$report_inc8 	= $report_inc7+1;
+		$report_inc9 	= $report_inc8+1;
+		$report_inc10 	= $report_inc9+1;
+		$report_inc11 	= $report_inc10+1;
+		$report_inc12 	= $report_inc11+1;
+		$report_inc13 	= $report_inc12+1;
+		$report_inc14 	= $report_inc13+1;
+		$report_inc15 	= $report_inc14+1;
+		$report_inc16 	= $report_inc15+1;
+		$report_inc17 	= $report_inc16+1;
+		$report_inc18 	= $report_inc17+1;
+		$report_inc19 	= $report_inc18+1;
+		$report_inc20 	= $report_inc19+1;
+		$report_inc21 	= $report_inc20+1;
+		$report_inc22 	= $report_inc21+1;
+
+		$project_excel[]['excel_column']= array('C'.$report_inc1,'C'.$report_inc2,'C'.$report_inc3,'C'.$report_inc4,'C'.$report_inc5,'C'.$report_inc6,'C'.$report_inc7,'C'.$report_inc8,'C'.$report_inc9,'C'.$report_inc10,'C'.$report_inc11,'C'.$report_inc12,'C'.$report_inc13,'C'.$report_inc14,'C'.$report_inc15,'C'.$report_inc16,'C'.$report_inc17,'C'.$report_inc18,'C'.$report_inc19,'C'.$report_inc20,'C'.$report_inc21,'C'.$report_inc22);
+		$project_excel[]['excel_value']= array('No. of Holiday Working Days','No. of Leave taken','No. of Working Days','Total Office hours','Total Booking hours','Difference b/t Booking  & Off Hrs','Detailed Tons (Submitted Log)','Rev. hours (Submitted Log)','Rev.hours in Tons','Total Production Tons','Target Reached/Not Reached','Actual Tons per Hour','Tons per Hour New Detailing only','Detailed Sheets (Submitted Log)','Team Tons per Sheet (From Sub. Log)','Detailed Tons per Sheet','Hrs/Dwg','Det vs Cor','Productivity %','Cumulative Productivity %','Productivity hours %','Claimed Hours %');
+		$project_excel[]['end_column']= array('G'.$report_inc1,'G'.$report_inc2,'G'.$report_inc3,'G'.$report_inc4,'G'.$report_inc5,'G'.$report_inc6,'G'.$report_inc7,'G'.$report_inc8,'G'.$report_inc9,'G'.$report_inc10,'G'.$report_inc11,'G'.$report_inc12,'G'.$report_inc13,'G'.$report_inc14,'G'.$report_inc15,'G'.$report_inc16,'G'.$report_inc17,'G'.$report_inc18,'G'.$report_inc19,'G'.$report_inc20,'G'.$report_inc21,'G'.$report_inc22);
+		$project_excel[]['column_cell']= array('H'.$report_inc1,'H'.$report_inc2,'H'.$report_inc3,'H'.$report_inc4,'H'.$report_inc5,'H'.$report_inc6,'H'.$report_inc7,'H'.$report_inc8,'H'.$report_inc9,'H'.$report_inc10,'H'.$report_inc11,'H'.$report_inc12,'H'.$report_inc13,'H'.$report_inc14,'H'.$report_inc15,'H'.$report_inc16,'H'.$report_inc17,'H'.$report_inc18,'H'.$report_inc19,'H'.$report_inc20,'H'.$report_inc21,'H'.$report_inc22);
+
+		$project_excel[]['column_value']= array('0','0',$working_days,$total_time,$sum_value_total_hours,$differ_booking_office,$actual_tonnage,$actual_billable_time,$rev_hrs_tons,$target_status,$report_inc11,$report_inc12,$report_inc13,$report_inc14,$report_inc15,$report_inc16,$report_inc17,$report_inc18,$report_inc19,$report_inc20,$report_inc21,$report_inc22);
+		$project_excel[]['column_end']= array('I'.$report_inc1,'I'.$report_inc2,'I'.$report_inc3,'I'.$report_inc4,'I'.$report_inc5,'I'.$report_inc6,'I'.$report_inc7,'I'.$report_inc8,'I'.$report_inc9,'I'.$report_inc10,'I'.$report_inc11,'I'.$report_inc12,'I'.$report_inc13,'I'.$report_inc14,'I'.$report_inc15,'I'.$report_inc16,'I'.$report_inc17,'I'.$report_inc18,'I'.$report_inc19,'I'.$report_inc20,'I'.$report_inc21,'I'.$report_inc22);
+
+		$match_id = 'H'.$report_inc22;
+		for ($x = 0; $x <= 21; $x++) {
+			$excel_column  = $project_excel[0]['excel_column'][$x];
+			$excel_value   = $project_excel[1]['excel_value'][$x];
+			$end_column   = $project_excel[2]['end_column'][$x];
+			$column_cell   = $project_excel[3]['column_cell'][$x];
+			$column_value   = $project_excel[4]['column_value'][$x];
+			$column_end   = $project_excel[5]['column_end'][$x];
+			$obj->getActiveSheet()->setCellValue('C'.$report_head, "Detailer Name: ".$emp_name)->mergeCells('C'.$report_head.':I'.$report_head)->getStyle('C'.$report_head.':I'.$report_head)->applyFromArray($TopBorder);
+			
+			if($match_id === $column_cell){
+				$obj->getActiveSheet()->setCellValue($excel_column, $excel_value)->mergeCells($excel_column.':'.$end_column)->getStyle($excel_column.':'.$column_end)->applyFromArray($FooterLeftStyletwo);
+				$obj->getActiveSheet()->setCellValue($column_cell, $column_value)->mergeCells($column_cell.':'.$column_end)->getStyle($column_cell.':'.$column_end)->applyFromArray($FooterRightStyletwo);
+			}else{
+				$obj->getActiveSheet()->setCellValue($excel_column, $excel_value)->mergeCells($excel_column.':'.$end_column)->getStyle($excel_column.':'.$column_end)->applyFromArray($LeftBorder);
+				$obj->getActiveSheet()->setCellValue($column_cell, $column_value)->mergeCells($column_cell.':'.$column_end)->getStyle($column_cell.':'.$column_end)->applyFromArray($RightBordertwo);
+			}
+			
+
+		}
+
+// echo "column_end :: $column_end";
+
+
+
+
+
+
+
+
 			// die;
 			$filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name
 			header('Content-Type: application/vnd.ms-excel'); //mime type

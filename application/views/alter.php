@@ -1,0 +1,1 @@
+ALTER TABLE `cw_time_sheet_time_line` ADD `approval_status` INT NULL DEFAULT '1' AFTER `credit`;

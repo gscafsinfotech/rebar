@@ -443,7 +443,7 @@ class Time_sheet  extends Action_controller{
 		$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
 		echo json_encode(array('success' => TRUE, 'message' => "Process Success"));
 	}
-	public function get_project_list(){
+	/*public function get_project_list(){
 		$client_name    = (int)$this->input->post("client_name");
 		$project_id     = (int)$this->input->post("project_name");
 		$client_qry     = 'select prime_project_and_drawing_master_id,project_name from cw_project_and_drawing_master where client_name ="'.$client_name.'" and trans_status = 1';
@@ -462,11 +462,11 @@ class Time_sheet  extends Action_controller{
 			$client_list  .= "<option value='$id' $selected> $project_name </option>";
 		}
 		echo $client_list;
-	}
+	}*/
 	public function get_drawing_list(){
 		$project_name   = (int)$this->input->post("project_name");
 		$drawing_no     = (int)$this->input->post("drawing_no");
-		$project_qry    = 'select prime_project_and_drawing_master_drawings_id,drawing_no from cw_project_and_drawing_master_drawings where prime_project_and_drawing_master_id ="'.$project_name.'" and trans_status = 1';
+		$project_qry    = 'select cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,drawing_no,cw_client.client_name,cw_project_and_drawing_master.client_name as client_id from cw_project_and_drawing_master_drawings inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name where cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id ="'.$project_name.'" and cw_project_and_drawing_master_drawings.trans_status = 1';
 		$project_info   = $this->db->query("CALL sp_a_run ('SELECT','$project_qry')");
 		$project_result = $project_info->result();
 		$project_info->next_result();
@@ -474,14 +474,16 @@ class Time_sheet  extends Action_controller{
 		foreach($project_result as $result){
 			$id        	    = $result->prime_project_and_drawing_master_drawings_id;
 			$drawing_no     = $result->drawing_no;
+			$client_name	= $result->client_name;
 			if((int)$drawing_no === (int)$id){
 				$selected = "selected";
 			}else{
 				$selected = "";
 			}
 			$project_list  .= "<option value='$id' $selected> $drawing_no </option>";
+			$client_list    = "<option value='$id' selected> $client_name </option>";
 		}
-		echo $project_list;
+		echo json_encode(array('success' => TRUE, 'message' => "success",'project_list' => $project_list,'client_list' => $client_list));
 	}
 	public function get_co_number_list(){
 		$drawing_no   = (int)$this->input->post("drawing_no");

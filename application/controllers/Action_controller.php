@@ -859,8 +859,8 @@ abstract class Action_controller extends Secure_Controller{
 				if((int)$logged_role === 5){
 					if((int)$work_type === 1 || (int)$work_type === 2){ 
 						if((int)$work_status === 3 && (int)$entry_type === 2){
-							$labelid_for_approval .= "work_type,detailer_name,team_leader_name,prime_time_sheet_time_line_id,trans_created_by,trans_created_date";
-							$value_for_approval   .= '"'.$work_type.'","'.$this->session->userdata('logged_emp_code').'","'.$this->session->userdata('logged_reporting').'","'.$insert_id.'",'.'"'.$this->logged_id.'",'.'"'.$created_on.'"';
+							$labelid_for_approval .= "work_type,detailer_name,team_leader_name,team,prime_time_sheet_time_line_id,trans_created_by,trans_created_date";
+							$value_for_approval   .= '"'.$work_type.'","'.$this->session->userdata('logged_emp_code').'","'.$this->session->userdata('logged_reporting').'","'.$this->session->userdata('logged_team').'","'.$insert_id.'",'.'"'.$this->logged_id.'",'.'"'.$created_on.'"';
 							$approval_query 	   = "insert into cw_tonnage_approval ($labelid_for_approval) values ($value_for_approval)";
 							$approval_info         = $this->db->query("CALL sp_a_run ('INSERT','$approval_query')");
 							$approval_result       = $approval_info->result();

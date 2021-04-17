@@ -43,7 +43,7 @@
 	$(document).ready(function (){
 		var logged_role      = "<?php echo $logged_role;?>";
 		var logged_emp_code  = "<?php echo $logged_emp_code;?>";
-		if(parseInt(logged_role) === 4){
+		if(parseInt(logged_role) === 3){
 			$("#employee_name").find("option[value='"+logged_emp_code+"']").prop("selected", "selected");
 			$("#employee_name").prop('readonly', true);
 		}

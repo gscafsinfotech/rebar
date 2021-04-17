@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script is allowed');
 require_once("Action_controller.php");
-class Time_sheet  extends Action_controller{	
+class Other_works  extends Action_controller{	
 	public function __construct(){
-		parent::__construct('time_sheet');
+		parent::__construct('other_works');
 		$this->collect_base_info();
 	}
 	
@@ -12,11 +12,6 @@ class Time_sheet  extends Action_controller{
 		$data['table_head']    = $this->table_head;
 		$data['master_pick']   = $this->master_pick;
 		$data['fliter_list']   = $this->fliter_list;
-		$process_status_qry    = 'select completed_status,prime_time_sheet_id from cw_time_sheet where trans_status = 1';
-		$process_status_info   = $this->db->query("CALL sp_a_run ('SELECT','$process_status_qry')");
-		$process_status_result = $process_status_info->result_array();
-		$process_status_info->next_result();
-		$data['process_status_result'] = $process_status_result;
 		$this->load->view("$this->control_name/manage",$data);
 	}
 	
@@ -129,8 +124,7 @@ class Time_sheet  extends Action_controller{
 		$filtered_count     = $search_info[0]->allcount;
 		
 		$search_query      .= " where $this->prime_table.trans_status = 1 $role_condition $fliter_query $common_search";
-		// $search_query      .= " ORDER BY  $order_col $order_sor";
-		$search_query	   .= "ORDER BY entry_date ASC";
+		$search_query      .= " ORDER BY  $order_col $order_sor";
 		if((int)$per_page !== -1){
 			$search_query  .= " LIMIT  $start,$per_page";
 		}		
@@ -434,96 +428,6 @@ class Time_sheet  extends Action_controller{
 		$data['excel_format_drop'] = $excel_format_drop;
 		
 		$this->load->view("$this->control_name/import",$data);
-	}
-	public function process_status(){
-		$process_status = $this->input->post("process_status");
-		$row_id 		= $this->input->post("row_id");
-		$completed_status = "completed_status = ".$process_status;
-		$prime_update_query  = 'UPDATE '. $this->prime_table .' SET '. $completed_status .' WHERE '. $this->prime_id .' = "'. $row_id .'"';
-		$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
-		echo json_encode(array('success' => TRUE, 'message' => "Process Success"));
-	}
-	/*public function get_project_list(){
-		$client_name    = (int)$this->input->post("client_name");
-		$project_id     = (int)$this->input->post("project_name");
-		$client_qry     = 'select prime_project_and_drawing_master_id,project_name from cw_project_and_drawing_master where client_name ="'.$client_name.'" and trans_status = 1';
-		$client_info    = $this->db->query("CALL sp_a_run ('SELECT','$client_qry')");
-		$client_result  = $client_info->result();
-		$client_info->next_result();
-		$client_list = "<option value=''>--- Select Project ---</option>";
-		foreach($client_result as $result){
-			$id        	   = $result->prime_project_and_drawing_master_id;
-			$project_name  = $result->project_name;
-			if((int)$project_id === (int)$id){
-				$selected  = 'selected';
-			}else{
-				$selected  = '';
-			}
-			$client_list  .= "<option value='$id' $selected> $project_name </option>";
-		}
-		echo $client_list;
-	}*/
-	public function get_drawing_list(){
-		$project_name   = (int)$this->input->post("project_name");
-		$drawing_no     = (int)$this->input->post("drawing_no");
-		$project_qry    = 'select cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,drawing_no,cw_client.client_name,cw_project_and_drawing_master.client_name as client_id from cw_project_and_drawing_master_drawings inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name where cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id ="'.$project_name.'" and cw_project_and_drawing_master_drawings.trans_status = 1';
-		$project_info   = $this->db->query("CALL sp_a_run ('SELECT','$project_qry')");
-		$project_result = $project_info->result();
-		$project_info->next_result();
-		$project_list   = "<option value=''>--- Select Diagram No ---</option>";
-		foreach($project_result as $result){
-			$id        	    = $result->prime_project_and_drawing_master_drawings_id;
-			$drawing_no     = $result->drawing_no;
-			$client_name	= $result->client_name;
-			if((int)$drawing_no === (int)$id){
-				$selected = "selected";
-			}else{
-				$selected = "";
-			}
-			$project_list  .= "<option value='$id' $selected> $drawing_no </option>";
-			$client_list    = "<option value='$id' selected> $client_name </option>";
-		}
-		echo json_encode(array('success' => TRUE, 'message' => "success",'project_list' => $project_list,'client_list' => $client_list));
-	}
-	/*public function get_co_number_list(){
-		$drawing_no   = (int)$this->input->post("drawing_no");
-		$co_number     = (int)$this->input->post("co_number");
-		$co_number_qry    = 'select prime_co_register_id,cw_co_register.co_number,drawing_description from cw_co_register where FIND_IN_SET("'.$drawing_no.'",cw_co_register.drawing_no) and cw_co_register.trans_status = 1';
-		$co_number_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_number_qry')");
-		$co_number_result = $co_number_info->result();
-		$co_number_info->next_result();
-		$co_number_list   = "<option value=''>--- Select Diagram No ---</option>";
-		foreach($co_number_result as $result){
-			$id        	    = $result->prime_co_register_id;
-			$drawing_description        	    = $result->drawing_description;
-			$co_number     = $result->co_number;
-			if((int)$co_number === (int)$id){
-				$selected = "selected";
-			}else{
-				$selected = "";
-			}
-			$co_number_list  .= "<option value='$id' $selected> $co_number - $drawing_description </option>";
-		}
-		echo $co_number_list;
-	}*/
-	public function get_co_list_list(){
-		$logged_team      = $this->session->userdata('logged_team');
-		$co_number_qry    = 'select prime_co_register_id,cw_co_register.co_number,drawing_description from cw_co_register where FIND_IN_SET("'.$logged_team.'",cw_co_register.team) and cw_co_register.trans_status = 1';
-		$co_number_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_number_qry')");
-		$co_number_result = $co_number_info->result();
-		$co_number_info->next_result();
-		foreach($co_number_result as $result){
-			$id        	    = $result->prime_co_register_id;
-			$drawing_description        	    = $result->drawing_description;
-			$co_number     = $result->co_number;
-			if((int)$co_number === (int)$id){
-				$selected = "selected";
-			}else{
-				$selected = "";
-			}
-			$co_number_list  .= "<option value='$id' $selected> $co_number - $drawing_description </option>";
-		}
-		echo $co_number_list;
 	}
 }
 ?>

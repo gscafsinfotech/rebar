@@ -8,10 +8,6 @@
 	$access_export  = (int)$access_data[$controller_name]['access_export'];
 	$access_import  = (int)$access_data[$controller_name]['access_import'];
 	$page_name      = ucwords(str_replace("_"," ",$controller_name));
-	$header_change  = explode("_",$controller_name);
-	$first_word 	= strtoupper($header_change[0]);
-	$second_word 	= ucfirst($header_change[1]);
-	$header_change  = $first_word.' '.$second_word;
 	$prime_id       = "prime_".$controller_name."_id";
 	$search_url     = site_url($controller_name ."/search");
 	$view_url       = site_url($controller_name ."/view/");
@@ -21,12 +17,12 @@
 	$breadcrumb = "";
 	if($access_add === 1){
 		$breadcrumb .= "<li>
-							<a class='btn btn-xs btn-primary add' data-btn-submit='Submit' title='Add $header_change' href='$view_url' data_form='$controller_name'> <span class='fa fa-user-plus'>&nbsp</span>Add $header_change</a>
+							<a class='btn btn-xs btn-primary add' data-btn-submit='Submit' title='Add $page_name' href='$view_url' data_form='$controller_name'> <span class='fa fa-user-plus'>&nbsp</span>Add $page_name</a>
 						</li>";
 	}
 	if($access_import === 1){
 		$breadcrumb .= "<li>
-							<a class='btn btn-xs btn-primary import' data-btn-submit= 'Submit' title='Import $header_change' href='$import_url' data_form='$controller_name' > <span class='fa fa-cloud-upload'>&nbsp</span> Import $header_change
+							<a class='btn btn-xs btn-primary import' data-btn-submit= 'Submit' title='Import $page_name' href='$import_url' data_form='$controller_name' > <span class='fa fa-cloud-upload'>&nbsp</span> Import $page_name
 							</a>
 						</li>";
 	}
@@ -121,7 +117,7 @@
 ?>
 <div class='row title_content'>
 	<div class='col-md-2 col-xs-4'>
-		<h1 class='page_txt'><?php echo $header_change;?></h1>
+		<h1 class='page_txt'><?php echo $page_name;?></h1>
 	</div>
 	<div class='col-md-10 col-xs-8'>
 		<ol class="breadcrumb">
@@ -279,11 +275,11 @@ $(document).ready(function (){
 					<?php 
 						if($access_update === 1){
 					?>
-						return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $header_change;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Edit</a>';
+						return '<a class="btn btn-xs btn-edit view" data-btn-submit="Submit" title="Update <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-pencil-square-o"></span> Edit</a>';
 					<?php 
 						}else{
 					?>
-						return '<a class="btn btn-xs btn-edit view" title="View <?php echo $header_change;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-eye"></span> View</a>';
+						return '<a class="btn btn-xs btn-edit view" title="View <?php echo $page_name;?>" href="<?php echo $view_url;?>'+value+'" data_form="<?php echo $controller_name;?>"> <span class="fa fa-eye"></span> View</a>';
 					<?php 
 						}
 					?>

@@ -17,7 +17,56 @@ class Time_sheet  extends Action_controller{
 		$process_status_result = $process_status_info->result_array();
 		$process_status_info->next_result();
 		$data['process_status_result'] = $process_status_result;
+		$logged_emp_code      = $this->session->userdata('logged_emp_code');
+		$completed_qry 			= 'select count(*) as completed_count,total_time,SEC_TO_TIME( SUM( TIME_TO_SEC(`detailing_time`))) AS detailing_time,SEC_TO_TIME( SUM( TIME_TO_SEC(`study`))) AS study,SEC_TO_TIME( SUM( TIME_TO_SEC(`discussion`))) AS discussion,SEC_TO_TIME( SUM( TIME_TO_SEC(`rfi`))) AS rfi,SEC_TO_TIME( SUM( TIME_TO_SEC(`checking`))) AS checking,SEC_TO_TIME( SUM( TIME_TO_SEC(`correction_time`))) AS correction_time,SEC_TO_TIME( SUM( TIME_TO_SEC(`first_check_minor`))) AS first_check_minor,SEC_TO_TIME( SUM( TIME_TO_SEC(`first_check_major`))) AS first_check_major,SEC_TO_TIME( SUM( TIME_TO_SEC(`second_check_major`))) AS second_check_major,SEC_TO_TIME( SUM( TIME_TO_SEC(`second_check_minor`))) AS second_check_minor,SEC_TO_TIME( SUM( TIME_TO_SEC(`qa_major`))) AS qa_major,SEC_TO_TIME( SUM( TIME_TO_SEC(`qa_minor`))) AS qa_minor,SEC_TO_TIME( SUM( TIME_TO_SEC(`other_works`))) AS other_works,SEC_TO_TIME( SUM( TIME_TO_SEC(`bar_listing_time`))) AS bar_listing_time,SEC_TO_TIME( SUM( TIME_TO_SEC(`revision_time`))) AS revision_time,SEC_TO_TIME( SUM( TIME_TO_SEC(`change_order_time`))) AS change_order_time,SEC_TO_TIME( SUM( TIME_TO_SEC(`billable_hours`))) AS billable_hours,SEC_TO_TIME( SUM( TIME_TO_SEC(`non_billable_hours`))) AS non_billable_hours,SEC_TO_TIME( SUM( TIME_TO_SEC(`emails`))) AS emails,SEC_TO_TIME( SUM( TIME_TO_SEC(`was`))) AS was,SEC_TO_TIME( SUM( TIME_TO_SEC(`co_checking`))) AS co_checking,SEC_TO_TIME( SUM( TIME_TO_SEC(`qa_checking`))) AS qa_checking,SEC_TO_TIME( SUM( TIME_TO_SEC(`monitoring`))) AS monitoring,SEC_TO_TIME( SUM( TIME_TO_SEC(`bar_listing_checking`))) AS bar_listing_checking,SEC_TO_TIME( SUM( TIME_TO_SEC(`aec`))) AS aec,SEC_TO_TIME( SUM( TIME_TO_SEC(`credit`))) AS credit from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where cw_time_sheet.employee_code = "'.$logged_emp_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1';
+		$completed_info   		= $this->db->query("CALL sp_a_run ('SELECT','$completed_qry')");
+		$completed_result 		= $completed_info->result();
+		$completed_info->next_result();
+
+		$total_entry_time = array();
+		$total_entry_time[] = $completed_result[0]->detailing_time;
+		$total_entry_time[] = $completed_result[0]->study;
+		$total_entry_time[] = $completed_result[0]->discussion;
+		$total_entry_time[] = $completed_result[0]->rfi;
+		$total_entry_time[] = $completed_result[0]->checking;
+		$total_entry_time[] = $completed_result[0]->correction_time;
+		$total_entry_time[] = $completed_result[0]->first_check_minor;
+		$total_entry_time[] = $completed_result[0]->first_check_major;
+		$total_entry_time[] = $completed_result[0]->second_check_major;
+		$total_entry_time[] = $completed_result[0]->second_check_minor;
+		$total_entry_time[] = $completed_result[0]->qa_major;
+		$total_entry_time[] = $completed_result[0]->qa_minor;
+		$total_entry_time[] = $completed_result[0]->other_works;
+		$total_entry_time[] = $completed_result[0]->bar_listing_time;
+		$total_entry_time[] = $completed_result[0]->revision_time;
+		$total_entry_time[] = $completed_result[0]->change_order_time;
+		$total_entry_time[] = $completed_result[0]->billable_hours;
+		$total_entry_time[] = $completed_result[0]->non_billable_hours;
+		$total_entry_time[] = $completed_result[0]->emails;
+		$total_entry_time[] = $completed_result[0]->was;
+		$total_entry_time[] = $completed_result[0]->co_checking;
+		$total_entry_time[] = $completed_result[0]->qa_checking;
+		$total_entry_time[] = $completed_result[0]->monitoring;
+		$total_entry_time[] = $completed_result[0]->bar_listing_checking;
+		$total_entry_time[] = $completed_result[0]->aec;
+		$total_entry_time[] = $completed_result[0]->credit;
+		$data['total_entry_time'] 	= $this->AddPlayTime($total_entry_time);
+		$data['total_time'] 		= $completed_result[0]->total_time;
+		$data['completed_count'] 	= $completed_result[0]->completed_count;
 		$this->load->view("$this->control_name/manage",$data);
+	}
+	function AddPlayTime($times) {
+	    $minutes = 0; //declare minutes either it gives Notice: Undefined variable
+	    // loop throught all the times
+	    foreach ($times as $time) {
+	        list($hour, $minute) = explode(':', $time);
+	        $minutes += $hour * 60;
+	        $minutes += $minute;
+	    }
+	    $hours = floor($minutes / 60);
+	    $minutes -= $hours * 60;
+	    // returns the time already formatted
+	    return sprintf('%02d:%02d', $hours, $minutes);
 	}
 	
 	//LOAD TABEL WITH FILTERS
@@ -117,7 +166,12 @@ class Time_sheet  extends Action_controller{
 				$common_search = str_replace("()","(0)",$common_search);
                         }
 		}
-		$count_all_query    = str_replace("@SELECT@","count(*) as allcount",$this->base_query);		
+		$logged_emp_code    = $this->session->userdata('logged_emp_code');
+		$logged_role 	    = $this->session->userdata('logged_role');
+		$count_all_query    = str_replace("@SELECT@","count(*) as allcount",$this->base_query);	
+		if((int)$logged_role === 5 || (int)$logged_role === 4 || (int)$logged_role === 3){
+			$count_all_query	= $count_all_query." where employee_code = $logged_emp_code and trans_status = 1";
+		}
 		$search_total       = $this->db->query($count_all_query);
 		$search_total_info  = $search_total->result();
 		$total_count        = $search_total_info[0]->allcount;

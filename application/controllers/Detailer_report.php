@@ -840,10 +840,11 @@ class Detailer_report  extends Action_controller{
 		$project_wise_result 		= $project_wise_info->result();
 		$project_wise_info->next_result();
 
-		$other_work_qry 			= 'select cw_time_sheet_time_line.work_type,work_description,cw_other_works.other_works,IF(SEC_TO_TIME( SUM(time_to_sec(cw_time_sheet_time_line.other_works)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(cw_time_sheet_time_line.other_works))),"%H:%i"),"") as cummulate_works,other_work_name,IF(SEC_TO_TIME( SUM(time_to_sec(credit)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(credit))),"%H:%i"),"") as cummulate_credit from cw_time_sheet_time_line inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id inner join cw_other_works on cw_other_works.prime_other_works_id = cw_time_sheet_time_line.other_work_name where cw_time_sheet.employee_code = "'.$employee_code.'" and work_type = 4 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.other_work_name order by cw_time_sheet_time_line.other_work_name';
+		$other_work_qry 			= 'select count(*) as work_result_count,cw_time_sheet_time_line.work_type,work_description,cw_other_works.other_works,IF(SEC_TO_TIME( SUM(time_to_sec(cw_time_sheet_time_line.other_works)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(cw_time_sheet_time_line.other_works))),"%H:%i"),"") as cummulate_works,other_work_name,IF(SEC_TO_TIME( SUM(time_to_sec(credit)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(credit))),"%H:%i"),"") as cummulate_credit from cw_time_sheet_time_line inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id inner join cw_other_works on cw_other_works.prime_other_works_id = cw_time_sheet_time_line.other_work_name where cw_time_sheet.employee_code = "'.$employee_code.'" and work_type = 4 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.other_work_name order by cw_time_sheet_time_line.other_work_name';
 		$other_work_info   			= $this->db->query("CALL sp_a_run ('SELECT','$other_work_qry')");
 		$other_work_result 			= $other_work_info->result();
 		$other_work_info->next_result();
+		$work_result_count			= $other_work_result[0]->work_result_count;
 
 		$q = $cummulative_detail_count;
 		$r = 0;
@@ -1015,54 +1016,58 @@ class Detailer_report  extends Action_controller{
 			$q++;
 		}
 
-		$other_work_count = $cummuate_second_count+1;
-		$m = $other_work_count;
-		foreach($other_work_result as $key => $other_work_detail){
-			$time_sheet_value['A']       = "";
-			$time_sheet_value['B']       = $other_work_detail->other_works;
-			$time_sheet_value['C']       = "";
-			$time_sheet_value['D']       = "";
-			$time_sheet_value['E']       = $other_work_detail->work_description;
-			$time_sheet_value['F'] 		 = $other_work_detail->cummulate_credit;
-			$time_sheet_value['G'] 		 = "";
-			$time_sheet_value['H'] 		 = "";
-			$time_sheet_value['I'] 		 = "";
-			$time_sheet_value['J']		 = "";
-			$time_sheet_value['K'] 		 = "";
-			$time_sheet_value['L'] 		 = "";
-			$time_sheet_value['M']		 = "";
-			$time_sheet_value['N']		 = "";
-			$time_sheet_value['O']		 = "";
-			$time_sheet_value['P'] 		 = "";
-			$time_sheet_value['Q'] 		 = "";
-			$time_sheet_value['R'] 		 = "";
-			$time_sheet_value['S'] 		 = "";
-			$time_sheet_value['T'] 		 = "";
-			$time_sheet_value['U']       = "";
-			$time_sheet_value['V'] 		 = "";
-			$time_sheet_value['W'] 		 = $other_work_detail->cummulate_works;
-			$time_sheet_value['X'] 		 = $other_work_detail->cummulate_works;
-			$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
-			$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
-			$sum_cummulate_credit2[]					= $other_work_detail->cummulate_credit;
-			$sum_value_cummulate_total_hours2			= $this->AddPlayTime($sum_cummulate_credit2);
+		$other_work_count   = $cummuate_second_count+1;
+		$m 					= $cummuate_second_count;
+		if((int)$work_result_count === 0){
+			$cummuate_final_count = $cummuate_second_count;
+		}else{
+			foreach($other_work_result as $key => $other_work_detail){
+				$time_sheet_value['A']       = "";
+				$time_sheet_value['B']       = $other_work_detail->other_works;
+				$time_sheet_value['C']       = "";
+				$time_sheet_value['D']       = "";
+				$time_sheet_value['E']       = $other_work_detail->work_description;
+				$time_sheet_value['F'] 		 = $other_work_detail->cummulate_credit;
+				$time_sheet_value['G'] 		 = "";
+				$time_sheet_value['H'] 		 = "";
+				$time_sheet_value['I'] 		 = "";
+				$time_sheet_value['J']		 = "";
+				$time_sheet_value['K'] 		 = "";
+				$time_sheet_value['L'] 		 = "";
+				$time_sheet_value['M']		 = "";
+				$time_sheet_value['N']		 = "";
+				$time_sheet_value['O']		 = "";
+				$time_sheet_value['P'] 		 = "";
+				$time_sheet_value['Q'] 		 = "";
+				$time_sheet_value['R'] 		 = "";
+				$time_sheet_value['S'] 		 = "";
+				$time_sheet_value['T'] 		 = "";
+				$time_sheet_value['U']       = "";
+				$time_sheet_value['V'] 		 = "";
+				$time_sheet_value['W'] 		 = $other_work_detail->cummulate_works;
+				$time_sheet_value['X'] 		 = $other_work_detail->cummulate_works;
+				$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
+				$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
+				$sum_cummulate_credit2[]					= $other_work_detail->cummulate_credit;
+				$sum_value_cummulate_total_hours2			= $this->AddPlayTime($sum_cummulate_credit2);
 
-			for ($x = 0; $x <= 23; $x++) {
-				$excel_column  = $project_wise_excel[0]['excel_column'][$x];
-				$excel_value   = $project_wise_excel[1]['excel_value'][$x];
-				$value_of_excel  	= $time_sheet_value[$excel_column];
+				for ($x = 0; $x <= 23; $x++) {
+					$excel_column  = $project_wise_excel[0]['excel_column'][$x];
+					$excel_value   = $project_wise_excel[1]['excel_value'][$x];
+					$value_of_excel  	= $time_sheet_value[$excel_column];
 
-				if($excel_column === 'A'){
-					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($LeftBorder);
-				}else
-				if($excel_column === 'X'){
-					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($RightBorder);
-				}else{
-					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($verticalStyle);
+					if($excel_column === 'A'){
+						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($LeftBorder);
+					}else
+					if($excel_column === 'X'){
+						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($RightBorder);
+					}else{
+						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($verticalStyle);
+					}
+					$cummuate_final_count = $m;
 				}
-				$cummuate_final_count = $m;
+				$m++;
 			}
-			$m++;
 		}
 		$sum_value_cummulate_credit[]   = $sum_value_cummulate_total_hours1;
 		$sum_value_cummulate_credit[]   = $sum_value_cummulate_total_hours2;
@@ -1212,6 +1217,11 @@ class Detailer_report  extends Action_controller{
 
 		$productivity 				= $actual_tons/$min_std_working;
 		$productivity 				= round($productivity);
+		if ($productivity = NAN || INF) {
+		    $productivity = 0;
+		}else{
+		    $productivity;
+		} 
 
 		$per_productivity   = array();
 		$per_productivity []= $sum_value_detailing_time1;
@@ -1234,6 +1244,11 @@ class Detailer_report  extends Action_controller{
 		$revision_tons 	  			= $this->time_to_decimal($revision_tons);
 		$claimed_hours  			= $claim_hrs/$revision_tons;
 		$claimed_hours  			= round($claimed_hours * 100);
+		if ($claimed_hours = NAN || INF) {
+		    $claimed_hours = 0;
+		}else{
+		    $claimed_hours;
+		} 
 
 		$no_of_holiday 				= 0;
 		$no_of_leave_taken 			= 0;

@@ -274,6 +274,7 @@ $(document).ready(function (){
 				data: '<?php echo $prime_id; ?>',
 				type: 'html',
 				render:function (value) {
+					var completed_count = "<?php echo $completed_count;?>";
 					// alert(value + '<?php echo $prime_id; ?>');
 					if (value === null) return '';
 					<?php 
@@ -287,23 +288,51 @@ $(document).ready(function (){
 							var completed_status  = completed_status[value]['completed_status'];
 						}
 							if(parseInt(completed_status) === 1){
-								return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1" selected>Inprogress</option><option value="2">Completed</option></select>';
+								if(parseInt(completed_count) === 0){
+									$("#process_status"+value).attr("disabled", true);
+										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1" selected>Inprogress</option><option value="2">Completed</option></select>';
+									}else{
+										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1" selected>Inprogress</option><option value="2">Completed</option></select>';
+									}
 							}else 
 							if(parseInt(completed_status) === 2){
 								var logged_role = "<?php echo $logged_role;?>";
 								if(parseInt(logged_role) === 5){
-									$('#process_status'+value).attr("disabled", true); 
-									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
+									
+									 if(parseInt(completed_count) === 0){
+									 	$('#process_status'+value).attr("disabled", true);
+									 	return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
+									 }else{
+									 	return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
+									 }
+									
 								}else{
-									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
+									if(parseInt(completed_count) === 0){
+										$('#process_status'+value).attr("disabled", true);
+										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
+									}else{
+										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
+									}
 								}
 							}else{
-								return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2">Completed</option></select>';
+								if(parseInt(completed_count) === 0){
+									$('#process_status'+value).attr("disabled", true);
+									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2">Completed</option></select>';
+								}else{
+									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2">Completed</option></select>';
+								}
+								
 							}
 				<?php 
 					}else{
-				?>
-						return '<select name="process_status" id="process_status" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus("'+value+'")><option value="">---- Status ----</option><option value="1">Inprogress</option><option value="2">Completed</option></select>';
+				?>		
+						if(parseInt(completed_count) === 0){
+							$("#process_status"+value).attr("disabled", true); 
+							return '<select name="process_status" id="process_status" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus("'+value+'")><option value="">---- Status ----</option><option value="1">Inprogress</option><option value="2">Completed</option></select>';
+						}else{
+							return '<select name="process_status" id="process_status" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus("'+value+'")><option value="">---- Status ----</option><option value="1">Inprogress</option><option value="2">Completed</option></select>';
+						}
+						
 					<?php 
 						}
 					?>
@@ -430,7 +459,7 @@ $(document).ready(function (){
 			type: 'POST',
 			url: control,
 			dataType: "html",
-			success: function (response){					
+			success: function (response){
 				$('.modal-title').html('<h4 class="modal-title">'+title+'</h4>');
 				$('.modal-body').html(response);
 				var btn_info = '<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>';
@@ -439,7 +468,8 @@ $(document).ready(function (){
 				}
 				btn_info = '<div class="col-md-12" style="background-color:#FFFFFF;padding: 10px 20px; text-align: right; border-top: 1px solid #e5e5e5;">'+btn_info+'</div>';
 				$('#'+form_id).append(btn_info);
-				$table.draw();
+				 // $table.draw();
+
 			}
 		});
 
@@ -550,9 +580,11 @@ $(document).ready(function (){
 	$('.select2').select2({placeholder: '---- Select ----',});
 });
 function processStatus(process_status,row_id){
-	var process_status = process_status.value; 
-	var send_url = '<?php echo site_url("$controller_name/process_status"); ?>'; 
-	var logged_role = "<?php echo $logged_role;?>";
+	var total_time 			= "<?php echo $total_time;?>";
+	var total_entry_time	= "<?php echo $total_entry_time;?>";
+	var process_status 		= process_status.value; 
+	var send_url 			= '<?php echo site_url("$controller_name/process_status"); ?>'; 
+	var logged_role 		= "<?php echo $logged_role;?>";
 
 	if(parseInt(logged_role) === 2){
 		if(parseInt(process_status) === 1){
@@ -590,7 +622,7 @@ function processStatus(process_status,row_id){
 	}else{
 		$.confirm({
 		title: 'Confirm!',
-		content: 'Are you sure. you want change select records?',
+		content: 'Total time you have Entered is : '+total_entry_time+'Are You Sure You want to complete this Day?',
 		type: 'red',
 		typeAnimated: true,
 		buttons: {
@@ -619,12 +651,6 @@ function processStatus(process_status,row_id){
 		}
 	});
 	}
-
-
-
-
-
-	
 }
 function view_form_data(action,title,control,form_id){
 	$('.modal').modal({backdrop: 'static', keyboard: false});

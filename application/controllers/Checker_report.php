@@ -917,52 +917,56 @@ class Checker_report  extends Action_controller{
 
 		$other_work_count = $cummuate_second_count+1;
 		$m = $other_work_count;
-		foreach($other_work_result as $key => $other_work_detail){
-			$time_sheet_value['A']       = "";
-			$time_sheet_value['B']       = $other_work_detail->other_works;
-			$time_sheet_value['C']       = "";
-			$time_sheet_value['D']       = "";
-			$time_sheet_value['E']       = $other_work_detail->work_description;
-			$time_sheet_value['F'] 		 = $other_work_detail->cummulate_emails;
-			$time_sheet_value['G'] 		 = "";
-			$time_sheet_value['H'] 		 = "";
-			$time_sheet_value['I'] 		 = "";
-			$time_sheet_value['J']		 = "";
-			$time_sheet_value['K'] 		 = "";
-			$time_sheet_value['L'] 		 = "";
-			$time_sheet_value['M']		 = "";
-			$time_sheet_value['N']		 = "";
-			$time_sheet_value['O']		 = "";
-			$time_sheet_value['P'] 		 = "";
-			$time_sheet_value['Q'] 		 = "";
-			$time_sheet_value['R'] 		 = "";
-			$time_sheet_value['S'] 		 = "";
-			$time_sheet_value['T'] 		 = "";
-			$time_sheet_value['U']       = "";
-			$time_sheet_value['V'] 		 = $other_work_detail->cummulate_works;
-			$time_sheet_value['W'] 		 = $other_work_detail->cummulate_works;
-			
-			$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
-			$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
-			$sum_cummulate_emails2[]					= $other_work_detail->cummulate_emails;
-			$sum_value_cummulate_emails2				= $this->AddPlayTime($sum_cummulate_emails2);
+		if((int)$work_result_count === 0){
+			$cummuate_final_count = $cummuate_second_count;
+		}else{
+			foreach($other_work_result as $key => $other_work_detail){
+				$time_sheet_value['A']       = "";
+				$time_sheet_value['B']       = $other_work_detail->other_works;
+				$time_sheet_value['C']       = "";
+				$time_sheet_value['D']       = "";
+				$time_sheet_value['E']       = $other_work_detail->work_description;
+				$time_sheet_value['F'] 		 = $other_work_detail->cummulate_emails;
+				$time_sheet_value['G'] 		 = "";
+				$time_sheet_value['H'] 		 = "";
+				$time_sheet_value['I'] 		 = "";
+				$time_sheet_value['J']		 = "";
+				$time_sheet_value['K'] 		 = "";
+				$time_sheet_value['L'] 		 = "";
+				$time_sheet_value['M']		 = "";
+				$time_sheet_value['N']		 = "";
+				$time_sheet_value['O']		 = "";
+				$time_sheet_value['P'] 		 = "";
+				$time_sheet_value['Q'] 		 = "";
+				$time_sheet_value['R'] 		 = "";
+				$time_sheet_value['S'] 		 = "";
+				$time_sheet_value['T'] 		 = "";
+				$time_sheet_value['U']       = "";
+				$time_sheet_value['V'] 		 = $other_work_detail->cummulate_works;
+				$time_sheet_value['W'] 		 = $other_work_detail->cummulate_works;
+				
+				$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
+				$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
+				$sum_cummulate_emails2[]					= $other_work_detail->cummulate_emails;
+				$sum_value_cummulate_emails2				= $this->AddPlayTime($sum_cummulate_emails2);
 
-			for ($x = 0; $x <= 22; $x++) {
-				$excel_column  = $project_wise_excel[0]['excel_column'][$x];
-				$excel_value   = $project_wise_excel[1]['excel_value'][$x];
-				$value_of_excel  	= $time_sheet_value[$excel_column];
+				for ($x = 0; $x <= 22; $x++) {
+					$excel_column  = $project_wise_excel[0]['excel_column'][$x];
+					$excel_value   = $project_wise_excel[1]['excel_value'][$x];
+					$value_of_excel  	= $time_sheet_value[$excel_column];
 
-				if($excel_column === 'A'){
-					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($LeftBorder);
-				}else
-				if($excel_column === 'W'){
-					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($RightBorder);
-				}else{
-					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($verticalStyle);
+					if($excel_column === 'A'){
+						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($LeftBorder);
+					}else
+					if($excel_column === 'W'){
+						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($RightBorder);
+					}else{
+						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($verticalStyle);
+					}
+					$cummuate_final_count = $m;
 				}
-				$cummuate_final_count = $m;
+				$m++;
 			}
-			$m++;
 		}
 
 		$sum_value_cummulate_emails[]   = $sum_value_cummulate_emails1;

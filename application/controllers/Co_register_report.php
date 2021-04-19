@@ -110,7 +110,16 @@ class Co_register_report  extends Action_controller{
 		return $filter;
 	}
 	public function datacount_check(){
-			$co_reg_qry = 'select co_number,cw_uspm.uspm,cw_project_and_drawing_master.rdd_no,cw_client.client_name,cw_project_and_drawing_master.project_name,GROUP_CONCAT(cw_project_and_drawing_master_drawings.drawing_no) as drawing_no,cw_co_register.drawing_description from cw_co_register inner join cw_uspm on cw_uspm.prime_uspm_id = cw_co_register.uspm inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_co_register.rdd_no inner join cw_client on cw_client.prime_client_id = cw_co_register.client_name inner join cw_project_and_drawing_master_drawings on find_in_set(cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_co_register.drawing_no) where cw_co_register.trans_status = 1 group by co_number order by co_number';
+		$co_reg_qry = 'select count(*) as rlst_count from cw_co_register inner join cw_uspm on cw_uspm.prime_uspm_id = cw_co_register.uspm inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_co_register.rdd_no inner join cw_client on cw_client.prime_client_id = cw_co_register.client_name inner join cw_project_and_drawing_master_drawings on FIND_IN_SET(cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_co_register.drawing_no) where cw_co_register.trans_status = 1 group by cw_co_register.prime_co_register_id order by cw_co_register.prime_co_register_id';
+		$co_reg_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_reg_qry')");
+		$co_reg_result = $co_reg_info->result();
+		$co_reg_info->next_result();
+		$rlst_count    = $co_reg_qry[0]->rlst_count;
+		if((int)$rlst_count === 0){
+			echo json_encode(array('success' => FALSE, 'message' => "No Data"));
+		}else{
+			echo json_encode(array('success' => TRUE, 'message' => "Data Available"));
+		}
 	}
 
 
@@ -126,22 +135,24 @@ class Co_register_report  extends Action_controller{
 
 
 
-	// public function datacount_check(){
-	// 	$co_reg_qry = 'select co_number,cw_uspm.uspm,cw_project_and_drawing_master.rdd_no,cw_client.client_name,cw_project_and_drawing_master.project_name,GROUP_CONCAT(cw_project_and_drawing_master_drawings.drawing_no) as drawing_no,cw_co_register.drawing_description from cw_co_register inner join cw_uspm on cw_uspm.prime_uspm_id = cw_co_register.uspm inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_co_register.rdd_no inner join cw_client on cw_client.prime_client_id = cw_co_register.client_name inner join cw_project_and_drawing_master_drawings on find_in_set(cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_co_register.drawing_no) where cw_co_register.trans_status = 1 group by co_number order by co_number';
-	// 	$co_reg_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_reg_qry')");
-	// 	$co_reg_result = $co_reg_info->result();
-	// 	$co_reg_info->next_result();
+	public function excel_export(){
+		$co_reg_qry = 'select co_number,cw_co_register.team,cw_uspm.uspm,cw_project_and_drawing_master.rdd_no,cw_client.client_name,cw_project_and_drawing_master.project_name,GROUP_CONCAT(cw_project_and_drawing_master_drawings.drawing_no),cw_co_register.drawing_description from cw_co_register inner join cw_uspm on cw_uspm.prime_uspm_id = cw_co_register.uspm inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_co_register.rdd_no inner join cw_client on cw_client.prime_client_id = cw_co_register.client_name inner join cw_project_and_drawing_master_drawings on FIND_IN_SET(cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_co_register.drawing_no) where cw_co_register.trans_status = 1 group by cw_co_register.prime_co_register_id order by cw_co_register.prime_co_register_id';
+		$co_reg_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_reg_qry')");
+		$co_reg_result = $co_reg_info->result();
+		$co_reg_info->next_result();
+		echo "<pre>";
+		print_r($co_reg_result);die;
 
-	// 	$team_qry = 'select prime_team_id,cw_team.team_name from cw_co_register inner join cw_team on find_in_set(cw_team.prime_team_id,cw_co_register.team) where cw_co_register.trans_status = 1 group by co_number order by co_number';
-	// 	$team_info   = $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
-	// 	$team_result = $team_info->result();
-	// 	$team_info->next_result();
+		$team_qry = 'select prime_team_id,cw_team.team_name from cw_co_register inner join cw_team on find_in_set(cw_team.prime_team_id,cw_co_register.team) where cw_co_register.trans_status = 1 group by co_number order by co_number';
+		$team_info   = $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
+		$team_result = $team_info->result();
+		$team_info->next_result();
 
 
 
 
-	// 	echo "<pre>";
-	// 	print_r($team_result);die;
-	// }
+		echo "<pre>";
+		print_r($team_result);die;
+	}
 }
 ?>

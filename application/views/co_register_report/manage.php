@@ -41,9 +41,16 @@
 							$fliter_label = form_input(array('type'=>'hidden','name' => 'fliter_label[]', 'class' => 'form-control input-sm','value' => $label_id));
 							$fliter_type  = form_input(array('type'=>'hidden','name' => 'fliter_type[]', 'class' => 'form-control input-sm','value' => $field_isdefault));
 							$filter_cond  = form_dropdown(array('name' => 'filter_cond[]','class' => 'form-control input-sm'), $filter_cond_array);
-							$input_field_type = form_input(array('type' => 'hidden','name' => 'input_field_type[]','class' => 'form-control input-sm datepicker', 'placeholder'=>'Select Date','value' => $field_type));
-							if(((int)$field_type === 5) || ((int)$field_type === 7)){
+							// $input_field_type = form_input(array('type' => 'hidden','name' => 'input_field_type[]','class' => 'form-control input-sm datepicker', 'placeholder'=>'Select Date','value' => $field_type));
+							$input_field_type = form_input(array('type' => 'hidden','name' => 'field_type[]','class' => 'form-control input-sm', 'placeholder'=>'','value' => $field_type));
+							// echo "input_field_type :: $input_field_type<br>";
+							if(((int)$field_type === 5)){
 								$fliter_val  = form_dropdown(array('name' => 'fliter_val[]','class' => 'form-control input-sm'), $array_list);
+							}else
+							if((int)$field_type === 7){
+								$fliter_val =  form_dropdown(array( 'name' => 'fliter_val[]', 'multiple id' => 'fliter_val', 'class' => 'form-control input-sm select2'), $array_list);
+
+								$fliter_val_multi = form_input(array('type'=>'hidden','id' => 'fliter_val_multi','name' => 'fliter_val_multi[]','class' => 'form-control input-sm', 'placeholder'=>'','value' => ''));
 							}else
 							if((int)$field_type === 4){
 								$fliter_val   = form_input(array( 'name' => 'fliter_val[]', 'class' => 'form-control input-sm datepicker', 'placeholder'=>'Select Date','value' => ''));
@@ -52,7 +59,7 @@
 							}
 							$tr_line .= "<tr>
 											<td class='search_td'> $input_field_type $label_name $fliter_label $fliter_type</td>
-											<td> $filter_cond</td>
+											<td> $filter_cond $fliter_val_multi</td>
 											<td> $fliter_val </td>
 										</tr>";
 						}
@@ -134,6 +141,12 @@
 				end_date   = endDate.format('YYYY-MM-DD');
 			}
 		});
+		$(".select2").on('change', function (e) {
+			var fliter_val_multi = $(this).val().length;
+			console.log(fliter_val_multi);
+			$("#fliter_val_multi").val(fliter_val_multi);
+
+		});
 		$('#co_register_export').click(function(){
 			var employee_code 	= $("#employee_name").val();
 			var process_month 	= $("#process_month").val();
@@ -147,24 +160,23 @@
 
 			var fliter_label       =  $("input[name='fliter_label[]']").map(function(){return $(this).val();}).get();
 			var fliter_type        =  $("input[name='fliter_type[]']").map(function(){return $(this).val();}).get();
-			var input_field_type   =  $("input[name='input_field_type[]']").map(function(){return $(this).val();}).get();
+			var field_type   	   =  $("input[name='field_type[]']").map(function(){return $(this).val();}).get();
 			var filter_cond        =  $("select[name='filter_cond[]']").map(function(){return $(this).val();}).get();
 			var fliter_val         =  $("input[name='fliter_val[]'],select[name='fliter_val[]']").map(function(){return $(this).val();}).get();
-			var group_by         =  $("select[name='group_by[]']").map(function(){return $(this).val();}).get();
-
-
+			var multipick_val 	   = $("#fliter_val_multi").val();
+			var multipick_val = parseInt(multipick_val);
 
 
 			if(employee_code !== '' && process_month !== ''){
 				$.ajax({
 					type: "POST",
 					url: '<?php echo site_url("$controller_name/datacount_check"); ?>',
-					data:{employee_code:employee_code,process_month:process_month,role:logged_role,fliter_label:fliter_label,fliter_type:fliter_type,input_field_type:input_field_type,filter_cond:filter_cond,fliter_val:fliter_val,group_by:group_by},
+					data:{employee_code:employee_code,process_month:process_month,role:logged_role,fliter_label:fliter_label,fliter_type:fliter_type,field_type:field_type,filter_cond:filter_cond,fliter_val:fliter_val,multipick_val:multipick_val},
 					success: function(data) {
 						var rslt = JSON.parse(data);
 						if(rslt.success){
 							var export_excel 	= "<?php echo $excel_export;?>";
-							var export_url   	= export_excel+'/'+employee_code+'/'+process_month;
+							var export_url   	= export_excel+'/'+process_month+'/'+fliter_label+'/'+fliter_type+'/'+field_type+'/'+filter_cond+'/'+fliter_val+'/'+multipick_val;
 							$('#link').attr("href",export_url);
 							window.location = $('#link').attr('href');
 						}else{

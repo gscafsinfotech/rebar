@@ -434,7 +434,7 @@ class Co_register  extends Action_controller{
 		$client_id    = (int)$this->input->post("client_name");
 		$project    = (int)$this->input->post("project");
 		// echo "project :: $project";die;
-		$client_qry     = 'select prime_project_and_drawing_master_id,cw_client.client_name,cw_project_and_drawing_master.client_name as client_name_id,project_name from cw_project_and_drawing_master inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name where prime_project_and_drawing_master_id ="'.$rdd_no.'" and cw_project_and_drawing_master.trans_status = 1';
+		$client_qry     = 'select prime_project_and_drawing_master_id,cw_client.client_name,cw_project_and_drawing_master.client_name as client_name_id,project_name,cw_client.prime_client_id from cw_project_and_drawing_master inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name where prime_project_and_drawing_master_id ="'.$rdd_no.'" and cw_project_and_drawing_master.trans_status = 1';
 		$client_info    = $this->db->query("CALL sp_a_run ('SELECT','$client_qry')");
 		$client_result  = $client_info->result();
 		$client_info->next_result();
@@ -443,13 +443,13 @@ class Co_register  extends Action_controller{
 			$id        	   = $result->prime_project_and_drawing_master_id;
 			$client_name   = $result->client_name;
 			$project_name  = $result->project_name;
-			$client_name_id = $result->client_name_id;
-			if((int)$client_id === (int)$id){
+			$client_name_id = $result->prime_client_id;
+			if((int)$client_id === (int)$client_name_id){
 				$selected  = 'selected';
 			}else{
 				$selected  = '';
 			}
-			$client_list  .= "<option value='$id' $selected> $client_name </option>";
+			$client_list  .= "<option value='$client_name_id' $selected> $client_name </option>";
 		}
 
 		$project_qry     = 'select prime_project_and_drawing_master_id,project_name,client_name from cw_project_and_drawing_master where client_name ="'.$client_name_id.'" and trans_status = 1';

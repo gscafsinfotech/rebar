@@ -266,6 +266,25 @@ class Tonnage_approval  extends Action_controller{
 			$can_process  = implode(",<br/>", $can_process);
 			echo json_encode(array('success' => false, 'message' => $can_process,));
 		}else{
+
+
+			/*$get_data = $this->input->post();
+			echo "<pre>";
+			print_r($test);
+			echo "<br>";
+			$project 		= $get_data['project'];
+			$client_name 	= $get_data['client_name'];
+			$drawing_no 	= $get_data['drawing_no'];
+			echo "<br>";
+
+			$co_register_qry = 'select * from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_co_register on cw_co_register.prime_co_register_id = cw_time_sheet_time_line.co_number where cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.approval_status = 2 and cw_co_register.project = "'.$project.'" and cw_tonnage_approval.client_name = "'.$client_name.'" and cw_tonnage_approval.trans_status = 1';
+			echo $co_register_qry;
+			die;*/
+
+
+
+
+
 			$created_on = date("Y-m-d h:i:s");
 			if((int)$form_id === 0){
 				$prime_qry_key     .= "trans_created_by,trans_created_date";

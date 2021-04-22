@@ -30,12 +30,6 @@ class Time_sheet  extends Action_controller{
 		$total_entry_time[] = $completed_result[0]->rfi;
 		$total_entry_time[] = $completed_result[0]->checking;
 		$total_entry_time[] = $completed_result[0]->correction_time;
-		$total_entry_time[] = $completed_result[0]->first_check_minor;
-		$total_entry_time[] = $completed_result[0]->first_check_major;
-		$total_entry_time[] = $completed_result[0]->second_check_major;
-		$total_entry_time[] = $completed_result[0]->second_check_minor;
-		$total_entry_time[] = $completed_result[0]->qa_major;
-		$total_entry_time[] = $completed_result[0]->qa_minor;
 		$total_entry_time[] = $completed_result[0]->other_works;
 		$total_entry_time[] = $completed_result[0]->bar_listing_time;
 		$total_entry_time[] = $completed_result[0]->revision_time;
@@ -199,6 +193,7 @@ class Time_sheet  extends Action_controller{
 		//VIEW, FORM INPUT
 		$data['view_info']      = $this->view_info;
 		$data['form_info']      = $this->form_info;	
+		$data['time_sheet_form_id'] 	= $form_view_id;
 		
 		//VIEW DATA
 		$base_query  = str_replace("@SELECT@",$this->view_select,$this->base_query);
@@ -579,6 +574,77 @@ class Time_sheet  extends Action_controller{
 			$co_number_list  .= "<option value='$id' $selected> $co_number - $drawing_description </option>";
 		}
 		echo $co_number_list;
+	}
+	public function check_total_time(){
+		$logged_emp_code      	= $this->session->userdata('logged_emp_code');
+		$total_time 			= $this->input->post("total_time");
+		$total_time 			= str_replace(" ","",$total_time);
+		$time_sheet_form_id 	= $this->input->post("time_sheet_form_id");
+		$input_time 			= array();
+		$input_time[]			= $this->input->post("detailing_time");
+		$input_time[] 			= $this->input->post("study");
+		$input_time[] 			= $this->input->post("discussion");
+		$input_time[] 			= $this->input->post("rfi");
+		$input_time[] 			= $this->input->post("checking");
+		$input_time[] 			= $this->input->post("correction_time");
+		$input_time[] 			= $this->input->post("other_works");
+		$input_time[] 			= $this->input->post("bar_listing_time");
+		$input_time[] 			= $this->input->post("revision_time");
+		$input_time[] 			= $this->input->post("change_order_time");
+		$input_time[] 			= $this->input->post("billable_hours");
+		$input_time[] 			= $this->input->post("non_billable_hours");
+		$input_time[] 			= $this->input->post("emails");
+		$input_time[] 			= $this->input->post("was");
+		$input_time[] 			= $this->input->post("co_checking");
+		$input_time[] 			= $this->input->post("actual_billable_time");
+		$input_time[] 			= $this->input->post("qa_checking");
+		$input_time[] 			= $this->input->post("monitoring");
+		$input_time[] 			= $this->input->post("bar_listing_checking");
+		$input_time[] 			= $this->input->post("aec");
+		$input_time[] 			= $this->input->post("credit");
+		$input_time 			= $this->AddPlayTime($input_time);
+
+		$time_sheet_qry 		= 'select IF(SEC_TO_TIME( SUM(time_to_sec(detailing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(detailing_time))),"%H:%i"),"") as detailing_time,IF(SEC_TO_TIME( SUM(time_to_sec(study)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(study))),"%H:%i"),"") as study,IF(SEC_TO_TIME( SUM(time_to_sec(discussion)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(discussion))),"%H:%i"),"") as discussion,IF(SEC_TO_TIME( SUM(time_to_sec(rfi)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(rfi))),"%H:%i"),"") as rfi,IF(SEC_TO_TIME( SUM(time_to_sec(checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(checking))),"%H:%i"),"") as checking,IF(SEC_TO_TIME( SUM(time_to_sec(correction_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(correction_time))),"%H:%i"),"") as correction_time,IF(SEC_TO_TIME( SUM(time_to_sec(first_check_minor)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(first_check_minor))),"%H:%i"),"") as first_check_minor,IF(SEC_TO_TIME( SUM(time_to_sec(first_check_major)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(first_check_major))),"%H:%i"),"") as first_check_major,IF(SEC_TO_TIME( SUM(time_to_sec(second_check_major)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(second_check_major))),"%H:%i"),"") as second_check_major,IF(SEC_TO_TIME( SUM(time_to_sec(second_check_minor)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(second_check_minor))),"%H:%i"),"") as second_check_minor,IF(SEC_TO_TIME( SUM(time_to_sec(qa_major)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(qa_major))),"%H:%i"),"") as qa_major,IF(SEC_TO_TIME( SUM(time_to_sec(qa_minor)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(qa_minor))),"%H:%i"),"") as qa_minor,IF(SEC_TO_TIME( SUM(time_to_sec(other_works)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(other_works))),"%H:%i"),"") as other_works,IF(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time))),"%H:%i"),"") as bar_listing_time,IF(SEC_TO_TIME( SUM(time_to_sec(revision_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(revision_time))),"%H:%i"),"") as revision_time,IF(SEC_TO_TIME( SUM(time_to_sec(change_order_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(change_order_time))),"%H:%i"),"") as change_order_time,IF(SEC_TO_TIME( SUM(time_to_sec(billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(billable_hours))),"%H:%i"),"") as billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours))),"%H:%i"),"") as non_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(emails)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(emails))),"%H:%i"),"") as emails,IF(SEC_TO_TIME( SUM(time_to_sec(was)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(was))),"%H:%i"),"") as was,IF(SEC_TO_TIME( SUM(time_to_sec(co_checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(co_checking))),"%H:%i"),"") as co_checking,IF(SEC_TO_TIME( SUM(time_to_sec(actual_billable_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(actual_billable_time))),"%H:%i"),"") as actual_billable_time,IF(SEC_TO_TIME( SUM(time_to_sec(qa_checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(qa_checking))),"%H:%i"),"") as qa_checking,IF(SEC_TO_TIME( SUM(time_to_sec(monitoring)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(monitoring))),"%H:%i"),"") as monitoring,IF(SEC_TO_TIME( SUM(time_to_sec(bar_listing_checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(bar_listing_checking))),"%H:%i"),"") as bar_listing_checking,IF(SEC_TO_TIME( SUM(time_to_sec(aec)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(aec))),"%H:%i"),"") as aec,IF(SEC_TO_TIME( SUM(time_to_sec(credit)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(credit))),"%H:%i"),"") as credit from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where cw_time_sheet.employee_code = "'.$logged_emp_code.'" and cw_time_sheet.prime_time_sheet_id = "'.$time_sheet_form_id.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet.employee_code';
+		$time_sheet_info   		= $this->db->query("CALL sp_a_run ('SELECT','$time_sheet_qry')");
+		$time_sheet_result 		= $time_sheet_info->result();
+		$time_sheet_info->next_result();
+
+		$sum_time				= array();
+		$sum_time[] 			= $time_sheet_result[0]->detailing_time;
+		$sum_time[] 			= $time_sheet_result[0]->study;
+		$sum_time[] 			= $time_sheet_result[0]->discussion;
+		$sum_time[] 			= $time_sheet_result[0]->rfi;
+		$sum_time[] 			= $time_sheet_result[0]->checking;
+		$sum_time[] 			= $time_sheet_result[0]->correction_time;
+		$sum_time[] 			= $time_sheet_result[0]->other_works;
+		$sum_time[] 			= $time_sheet_result[0]->bar_listing_time;
+		$sum_time[] 			= $time_sheet_result[0]->revision_time;
+		$sum_time[] 			= $time_sheet_result[0]->change_order_time;
+		$sum_time[] 			= $time_sheet_result[0]->billable_hours;
+		$sum_time[] 			= $time_sheet_result[0]->non_billable_hours;
+		$sum_time[] 			= $time_sheet_result[0]->emails;
+		$sum_time[] 			= $time_sheet_result[0]->was;
+		$sum_time[] 			= $time_sheet_result[0]->co_checking;
+		$sum_time[] 			= $time_sheet_result[0]->actual_billable_time;
+		$sum_time[] 			= $time_sheet_result[0]->qa_checking;
+		$sum_time[] 			= $time_sheet_result[0]->monitoring;
+		$sum_time[] 			= $time_sheet_result[0]->bar_listing_checking;
+		$sum_time[] 			= $time_sheet_result[0]->aec;
+		$sum_time[] 			= $time_sheet_result[0]->credit;
+		$sum_db_time 			= $this->AddPlayTime($sum_time);
+
+		$final_time				= array();
+		$final_time[] 			= $input_time;
+		$final_time[] 			= $sum_db_time;
+		$final_time 			= $this->AddPlayTime($final_time);
+
+		if($total_time === $final_time){
+			$time_sheet_upd_qry = 'UPDATE cw_time_sheet SET completed_status = 2 WHERE cw_time_sheet.prime_time_sheet_id = "'.$time_sheet_form_id.'"';
+			$this->db->query("CALL sp_a_run ('UPDATE','$time_sheet_upd_qry')");
+		   echo json_encode(array('success' => TRUE, 'message' => "success"));
+		}else{
+			echo json_encode(array('success' => FALSE, 'message' => "failed"));
+		}
 	}
 }
 ?>

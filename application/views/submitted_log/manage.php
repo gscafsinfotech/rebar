@@ -1,7 +1,9 @@
 <?php 
 	$this->load->view("partial/header");
 	$page_name      = ucwords(str_replace("_"," ",$controller_name));
-	$excel_export       = site_url().'/'.$controller_name.'/excel_export';
+	$excel_export   = site_url().'/'.$controller_name.'/excel_export';
+	$logged_role 	= $this->session->userdata('logged_role');
+	$logged_emp_code = $this->session->userdata('logged_emp_code');
 ?>
 <div class='row title_content'>
 	<div class='col-md-2 col-xs-4'>
@@ -13,21 +15,21 @@
 		<div class="col-md-9">
 			<div class="form-group">
 				<?php
-					$process_by_list = array(''=>"---- Select ----",'1'=>"Detailing",'2'=>"Revision");
+					$process_by_list = array(''=>"---- Select ----",'1'=>"Team Wise",'2'=>"All");
 					echo form_label("Process By", 'process_by', array('class' => 'required'));
 					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
 				?>
 			</div>
-			<div class="form-group">
+			<div class="form-group" style="display: none;">
 				<?php
-					echo form_label("From Date", 'from_date', array('class' => 'required'));
-					echo form_input(array( 'name' => 'from_date', 'id' => 'from_date', 'class' => 'form-control input-sm datepicker'));
+					echo form_label("Process Team", 'process_team', array('class' => 'required'));
+					echo form_dropdown(array( 'name' => 'process_team', 'id' => 'process_team', 'class' => 'form-control input-sm select2'), $team_list);
 				?>
 			</div>
 			<div class="form-group">
 				<?php
-					echo form_label("To Date", 'to_date', array('class' => 'required'));
-					echo form_input(array( 'name' => 'to_date', 'id' => 'to_date', 'class' => 'form-control input-sm datepicker'));
+					echo form_label("Process Month", 'process_month', array('class' => 'required'));
+					echo form_input(array( 'name' => 'process_month', 'id' => 'process_month', 'class' => 'form-control input-sm datepicker'));
 				?>
 			</div>
 			<div class="form-group" style="z-index: 999;">
@@ -52,9 +54,16 @@
 							$fliter_label = form_input(array('type'=>'hidden','name' => 'fliter_label[]', 'class' => 'form-control input-sm','value' => $label_id));
 							$fliter_type  = form_input(array('type'=>'hidden','name' => 'fliter_type[]', 'class' => 'form-control input-sm','value' => $field_isdefault));
 							$filter_cond  = form_dropdown(array('name' => 'filter_cond[]','class' => 'form-control input-sm'), $filter_cond_array);
-							$input_field_type = form_input(array('type' => 'hidden','name' => 'input_field_type[]','class' => 'form-control input-sm datepicker', 'placeholder'=>'Select Date','value' => $field_type));
-							if(((int)$field_type === 5) || ((int)$field_type === 7)){
+							// $input_field_type = form_input(array('type' => 'hidden','name' => 'input_field_type[]','class' => 'form-control input-sm datepicker', 'placeholder'=>'Select Date','value' => $field_type));
+							$input_field_type = form_input(array('type' => 'hidden','name' => 'field_type[]','class' => 'form-control input-sm', 'placeholder'=>'','value' => $field_type));
+							// echo "input_field_type :: $input_field_type<br>";
+							if(((int)$field_type === 5)){
 								$fliter_val  = form_dropdown(array('name' => 'fliter_val[]','class' => 'form-control input-sm'), $array_list);
+							}else
+							if((int)$field_type === 7){
+								$fliter_val =  form_dropdown(array( 'name' => 'fliter_val[]', 'multiple id' => 'fliter_val', 'class' => 'form-control input-sm select2'), $array_list);
+
+								$fliter_val_multi = form_input(array('type'=>'hidden','id' => 'fliter_val_multi','name' => 'fliter_val_multi[]','class' => 'form-control input-sm', 'placeholder'=>'','value' => ''));
 							}else
 							if((int)$field_type === 4){
 								$fliter_val   = form_input(array( 'name' => 'fliter_val[]', 'class' => 'form-control input-sm datepicker', 'placeholder'=>'Select Date','value' => ''));
@@ -63,7 +72,7 @@
 							}
 							$tr_line .= "<tr>
 											<td class='search_td'> $input_field_type $label_name $fliter_label $fliter_type</td>
-											<td> $filter_cond</td>
+											<td> $filter_cond $fliter_val_multi</td>
 											<td> $fliter_val </td>
 										</tr>";
 						}
@@ -87,7 +96,7 @@
 	</div>
 			<a id="link" style="display: none;" href="#" title='Export All Data'><span class="fa fa-user-exit">&nbsp</span></a>
 			<div class="form-group">
-				<button class='btn btn-primary btn-sm' id="submitted_export">Search</button>
+				<button class='btn btn-primary btn-sm' id="submitted_log_export">Search</button>
 			</div>
 		</div>
 	</div>
@@ -101,17 +110,12 @@
 <script src="dist/daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 	$(document).ready(function (){
-		$(function(){
-			$(".datepicker").datetimepicker({
-				format: 'DD-MM-YYYY',
-			});
+		$("#process_team").hide();
+		$("#search_submit").click(function(){
+			$("#search_filter_div").toggle();
 		});
-		$(function(){
-			$('.select2').select2({
-				placeholder: '---- Select ----',
-				allowClear: true,
-			});
-		});
+		select();
+		$("#pdf_block_employees").parent().hide();
 		$("#search_filter_div").hide();
 		$("#search_filter").click(function(){
 			$("#search_filter_div").toggle();
@@ -121,6 +125,31 @@
 			$('#search_filter_div').find('option').attr('selected', false);
 			$("#search_filter_div").toggle();
 			select();
+		});
+
+		$("#process_by").change(function(){
+
+			var process_by = $(this).val();
+			if(parseInt(process_by) === 1){
+				$("#process_team").parent().show();
+			}else{
+				$("#process_team").parent().hide();
+			}
+		});
+
+
+		var logged_role      = "<?php echo $logged_role;?>";
+		var logged_emp_code  = "<?php echo $logged_emp_code;?>";
+		$(function(){
+			$(".datepicker").datetimepicker({
+				format: 'MM-YYYY',
+			});
+		});
+		$(function(){
+			$('.select2').select2({
+				placeholder: '---- Select ----',
+				allowClear: true,
+			});
 		});
 		
 		$(".daterangepicker-field").daterangepicker({
@@ -133,21 +162,73 @@
 				end_date   = endDate.format('YYYY-MM-DD');
 			}
 		});
+		$(".select2").on('change', function (e) {
+			var fliter_val_multi = $(this).val().length;
+			console.log(fliter_val_multi);
+			$("#fliter_val_multi").val(fliter_val_multi);
 
-		$('#submitted_export').click(function(){
-			var process_by 		= $("#process_by").val();
-			var from_date 		= $("#from_date").val();
-			var to_date		 	= $("#to_date").val();
-			var export_excel 	= "<?php echo $excel_export;?>";
-			var export_url   	= export_excel+'/'+process_by+'/'+from_date+'/'+to_date;
-			$('#link').attr("href",export_url);
-			window.location = $('#link').attr('href');
+		});
+		$('#submitted_log_export').click(function(){
+			var process_month 	= $("#process_month").val();
+			var process_team 	= $("#process_team").val();
+			// if(employee_code === ''){
+			// 	toastr.error("Employee Code Required");	
+			// }
+			// if(process_month === ''){
+			// 	toastr.error("Process Month Required");	
+			// }
+
+
+			var fliter_label       =  $("input[name='fliter_label[]']").map(function(){return $(this).val();}).get();
+			var fliter_type        =  $("input[name='fliter_type[]']").map(function(){return $(this).val();}).get();
+			var field_type   	   =  $("input[name='field_type[]']").map(function(){return $(this).val();}).get();
+			var filter_cond        =  $("select[name='filter_cond[]']").map(function(){return $(this).val();}).get();
+			var fliter_val         =  $("input[name='fliter_val[]'],select[name='fliter_val[]']").map(function(){return $(this).val();}).get();
+			var multipick_val 	   = $("#fliter_val_multi").val();
+			var multipick_val = parseInt(multipick_val);
+
+
+			// if(employee_code !== '' && process_month !== ''){
+				$.ajax({
+					type: "POST",
+					url: '<?php echo site_url("$controller_name/datacount_check"); ?>',
+					data:{process_month:process_month,role:logged_role,fliter_label:fliter_label,fliter_type:fliter_type,field_type:field_type,filter_cond:filter_cond,fliter_val:fliter_val,multipick_val:multipick_val,process_team:process_team},
+					success: function(data) {
+						var rslt = JSON.parse(data);
+						if(rslt.success){
+							var export_excel 	= "<?php echo $excel_export;?>";
+							var export_url   	= export_excel+'/'+process_team+'/'+process_month+'/'+fliter_label+'/'+fliter_type+'/'+field_type+'/'+filter_cond+'/'+fliter_val+'/'+multipick_val;
+							$('#link').attr("href",export_url);
+							window.location = $('#link').attr('href');
+						}else{
+							toastr.error(rslt.message);							
+						}
+					}
+				
+				});
+			// }
 		});
 	});
 	function empty_all(){
 		$('.select2').select2({
 			placeholder: '---- Select ----',
 			allowClear: true,
+		});
+	}
+	function select(){
+		$(".datepicker").datetimepicker({
+			format: 'MM-YYYY'
+		});
+		$("#payslip_month").datetimepicker({
+			format: 'MM-YYYY'
+		});
+		$('.select2').select2({
+			placeholder: '---- Select ----',
+			allowClear: true,
+		});
+		$('.select2-tags').select2({
+			tags: true,
+			tokenSeparators: [',']
 		});
 	}
 </script>

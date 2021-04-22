@@ -683,6 +683,21 @@ function view_form_data(action,title,control,form_id){
 		pointer-events: none;
   		touch-action: none;
 	}
+	/*#table tbody > tr:not(:first-child){*/
+	/*tr:not(:first-child) td:nth-child(1),
+	tr:not(:first-child) td:nth-child(2),
+	tr:not(:first-child) td:nth-child(3){*/
+		/*background-color: #c9d0ce;*/
+	/*}*/
+
+
+	#table tbody > tr:not(:first-child) td:nth-child(n-1){  
+	  background-color: #cac7c7;
+	}
+
+	.DTFC_Cloned tbody > tr:not(:first-child) td:nth-child(n-1){
+		background-color: #cac7c7;
+	}
 </style>
 <?php } ?>
 <?php $this->load->view("partial/footer"); ?>

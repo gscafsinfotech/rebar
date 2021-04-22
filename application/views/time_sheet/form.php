@@ -543,6 +543,8 @@ foreach($view_info as $view){
 													tokenSeparators: [',']
 												});
 											});	
+											$('#team').val($logged_team);
+											default_hide();
 											$('#'+rslt.row_set_data.table_id).DataTable();
 										}
 									});
@@ -568,6 +570,8 @@ foreach($view_info as $view){
 												tokenSeparators: [',']
 											});
 										});
+										$('#team').val($logged_team);
+										default_hide();
 										$('#'+rslt.row_set_data.table_id).DataTable();
 									}
 								});";
@@ -783,6 +787,56 @@ $(document).ready(function(){
 			echo $list;
 		}
 	?>
+	
+
+	$("#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_minor,#first_check_major,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#other_works,#bar_listing_time,#revision_time,#change_order_time,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit").on("dp.change", function (e) {
+		var submit_btn_id 			= "<?php echo $submit_btn_id;?>";
+		var total_time 				= $("#total_time").val();
+		var time_sheet_form_id  	= "<?php echo $time_sheet_form_id;?>";
+		var detailing_time 			= $("#detailing_time").val();
+		var study 					= $("#study").val();
+		var discussion 				= $("#discussion").val();
+		var rfi 					= $("#rfi").val();
+		var checking 				= $("#checking").val();
+		var correction_time 		= $("#correction_time").val();
+		var first_check_minor 		= $("#first_check_minor").val();
+		var first_check_major 		= $("#first_check_major").val();
+		var second_check_major 		= $("#second_check_major").val();
+		var second_check_minor 		= $("#second_check_minor").val();
+		var qa_major 				= $("#qa_major").val();
+		var qa_minor 				= $("#qa_minor").val();
+		var other_works 			= $("#other_works").val();
+		var bar_listing_time 		= $("#bar_listing_time").val();
+		var revision_time 			= $("#revision_time").val();
+		var change_order_time 		= $("#change_order_time").val();
+		var billable_hours 			= $("#billable_hours").val();
+		var non_billable_hours 		= $("#non_billable_hours").val();
+		var emails 					= $("#emails").val();
+		var was 					= $("#was").val();
+		var co_checking 			= $("#co_checking").val();
+		var actual_billable_time 	= $("#actual_billable_time").val();
+		var qa_checking 			= $("#qa_checking").val();
+		var monitoring 				= $("#monitoring").val();
+		var bar_listing_checking 	= $("#bar_listing_checking").val();
+		var aec 					= $("#aec").val();
+		var credit 					= $("#credit").val();
+		var send_url 				= '<?php echo site_url("$controller_name/check_total_time"); ?>';
+		$.ajax({
+			type: "POST",
+			url: send_url,
+			data:{total_time:total_time,time_sheet_form_id:time_sheet_form_id,detailing_time:detailing_time,study:study,discussion:discussion,rfi:rfi,checking:checking,correction_time:correction_time,other_works:other_works,bar_listing_time:bar_listing_time,revision_time:revision_time,change_order_time:change_order_time,billable_hours:billable_hours,non_billable_hours:non_billable_hours,emails:emails,was:was,co_checking:co_checking,actual_billable_time:actual_billable_time,qa_checking:qa_checking,monitoring:monitoring,bar_listing_checking:bar_listing_checking,aec:aec,credit:credit},
+			success: function(data) {
+				var rslt = JSON.parse(data);
+				if(rslt.success){
+					$("#"+submit_btn_id).trigger("click");
+					$('.modal').modal('hide');
+						//$('#table').DataTable.reload();
+						$('#table').DataTable().ajax.reload();
+						location.reload();
+				}
+			}
+		});
+	});
 	/* LOAD SCRIPT AND CONDITION LOAD */
 });
 
@@ -937,25 +991,41 @@ function inputs_hide_show(logged_role,work_type){
 			$("#entry_type,#detailing_time,#study,#discussion,#checking,#correction_time,#work_status,#work_description,#credit").parent().show();
 			$("#entry_type,#detailing_time,#study,#discussion,#checking,#correction_time,#work_status,#work_description,#credit").removeClass('ignore');
 			$("#revision_time,#co_number,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#client_name,#approval_status,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#other_work_name,#team,#bar_list_quantity,#bar_listing_time,#rfi").parent().hide();
-			$("#revision_time,#co_number,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#client_name,#approval_status,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#other_work_name,#team,#bar_list_quantity,#bar_listing_time,#rfi").addClass('ignore');	
+			$("#revision_time,#co_number,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#client_name,#approval_status,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#other_work_name,#team,#bar_list_quantity,#bar_listing_time,#rfi").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else
 		if(parseInt(work_type) === 2){
 			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit,#billable_hours,#non_billable_hours").parent().show();
 			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit,#billable_hours,#non_billable_hours").removeClass('ignore');
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#client_name,#approval_status,#other_work_name,#team,#bar_list_quantity,#bar_listing_time").parent().hide();
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#client_name,#approval_status,#other_work_name,#team,#bar_list_quantity,#bar_listing_time").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else 
 		if(parseInt(work_type) === 3){
 			$("#bar_list_quantity,#bar_listing_time,#work_description,#credit,#entry_type").parent().show();
 			$("#bar_list_quantity,#bar_listing_time,#work_description,#credit,#entry_type").removeClass('ignore');
 			$("#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#other_works,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#approval_status,#other_work_name,#team").parent().hide();
 			$("#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#other_works,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else 
 		if(parseInt(work_type) === 4){
 			$("#other_works,#work_description,#credit,#other_work_name").parent().show();
 			$("#other_works,#work_description,#credit,#other_work_name").removeClass('ignore');
 			$("#entry_type,#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#approval_status,#team").parent().hide();
 			$("#entry_type,#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#approval_status,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}
 	}else 
 	if(parseInt(logged_role) === 4){
@@ -964,24 +1034,40 @@ function inputs_hide_show(logged_role,work_type){
 			$("#entry_type,#emails,#study,#checking,#discussion,#was,#correction_time,#work_status,#work_description").removeClass('ignore');
 			$("#detailing_time,#rfi,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#tonnage,#actual_tonnage,#other_work_name,#team").parent().hide();
 			$("#detailing_time,#rfi,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#tonnage,#actual_tonnage,#other_work_name,#team").addClass('ignore');	
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else
 		if(parseInt(work_type) === 2){
 			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#emails,#was,#co_checking,#billable_hours,#non_billable_hours,#actual_billable_time,#work_description,#aec").parent().show();
 			$("#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#emails,#was,#co_checking,#billable_hours,#non_billable_hours,#actual_billable_time,#work_description,#aec").removeClass('ignore');
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#change_order_time,#billable,#actual_tonnage,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#change_order_time,#billable,#actual_tonnage,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else 
 		if(parseInt(work_type) === 3){
 			$("#bar_list_quantity,#bar_listing_time,#work_description,#entry_type").parent().show();
 			$("#bar_list_quantity,#bar_listing_time,#work_description#entry_type").removeClass('ignore');
 			$("#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#other_works,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#other_work_name,#team").parent().hide();
 			$("#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#other_works,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else 
 		if(parseInt(work_type) === 4){
 			$("#other_works,#work_description,#other_work_name").parent().show();
 			$("#other_works,#work_description,#other_work_name").removeClass('ignore');
 			$("#entry_type,#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#team").parent().hide();
 			$("#entry_type,#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}
 	}else 
 	if(parseInt(logged_role) === 3){
@@ -990,24 +1076,40 @@ function inputs_hide_show(logged_role,work_type){
 			$("#entry_type,#emails,#study,#qa_checking,#discussion,#was,#monitoring,#work_description").removeClass('ignore');
 			$("#detailing_time,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
 			$("#detailing_time,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else 
 		if(parseInt(work_type) === 2){
 			$("#entry_type,#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#co_checking,#bar_listing_checking,#work_description").parent().show();
 			$("#entry_type,#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#co_checking,#bar_listing_checking,#work_description").removeClass('ignore');
 			$("#detailing_time,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#actual_tonnage,#actual_billable_time,#co_number,#bar_listing_time,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
 			$("#detailing_time,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#actual_tonnage,#actual_billable_time,#co_number,#bar_listing_time,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else 
 		if(parseInt(work_type) === 3){
 			$("#bar_list_quantity,#bar_listing_time,#work_description,#entry_type").parent().show();
 			$("#bar_list_quantity,#bar_listing_time,#work_description,#entry_type").removeClass('ignore');
 			$("#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#other_works,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#other_work_name,#team").parent().hide();
 			$("#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#other_works,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}else 
 		if(parseInt(work_type) === 4){
 			$("#other_works,#work_description,#other_work_name").parent().show();
 			$("#other_works,#work_description,#other_work_name").removeClass('ignore');
 			$("#entry_type,#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#team").parent().hide();
 			$("#entry_type,#client_name,#project,#drawing_no,#detailing_time,#study,#discussion,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#aec,#credit,#approval_status,#team").addClass('ignore');
+			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
+			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
+			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			select_all();
 		}
 	}
 }
@@ -1122,6 +1224,17 @@ function get_co_list_list(){
 		success: function(data){
 			$('#co_number').html(data);
 		}
+	});
+}
+function select_all(){
+	$('.select2').select2({
+					placeholder: '---- Select ----',
+		allowClear: true,
+		dropdownParent: $('.modal-dialog')
+	});
+	$('.select2-tags').select2({
+		tags: true,
+		tokenSeparators: [',']
 	});
 }
 /*function get_co_number_list(drawing_no){

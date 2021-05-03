@@ -646,12 +646,12 @@ $(document).ready(function(){
 		entry_type_wise(entry_type);
 	});
 	entry_type_wise(entry_type);
-	// var billable 	= $("#billable").val();
-	// $("#billable").change(function(){
-	// 	var billable = $(this).val();
-	// 	billable_wise(billable);
-	// });
-	// billable_wise(billable);
+	var billable 	= $("#billable").val();
+	$("#billable").change(function(){
+		var billable = $(this).val();
+		billable_wise(billable);
+	});
+	billable_wise(billable);
 	// var work_status 	= $("#work_status").val();
 	$("#work_status").change(function(){
 		var work_status = $(this).val();
@@ -916,10 +916,10 @@ function row_set_edit(row_id,table_name,view_id){
 								var entry_type = optionVal;
 								entry_type_wise(entry_type);
 							}else 
-							// if(key === "billable"){
-							// 	var billable = optionVal;
-							// 	billable_wise(billable);
-							// }else 
+							if(key === "billable"){
+								var billable = optionVal;
+								billable_wise(billable);
+							}else 
 							if(key === "approval_status"){
 								var approval_status = optionVal;
 								if(parseInt(approval_status) === 2){
@@ -998,8 +998,8 @@ function inputs_hide_show(logged_role,work_type){
 			select_all();
 		}else
 		if(parseInt(work_type) === 2){
-			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit,#billable_hours,#non_billable_hours").parent().show();
-			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit,#billable_hours,#non_billable_hours").removeClass('ignore');
+			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit").parent().show();
+			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#change_order_time,#work_status,#billable,#work_description,#aec,#credit").removeClass('ignore');
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#client_name,#approval_status,#other_work_name,#team,#bar_list_quantity,#bar_listing_time").parent().hide();
 			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#emails,#was,#actual_tonnage,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#client_name,#approval_status,#other_work_name,#team,#bar_list_quantity,#bar_listing_time").addClass('ignore');
 			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
@@ -1142,8 +1142,6 @@ function entry_type_wise(entry_type){
 		if(parseInt(work_type) === 2){
 			var logged_role = "<?php echo $logged_role;?>";
 			if(parseInt(logged_role) === 5){
-				$("#co_number").parent().show();
-				$("#co_number").removeClass('ignore');
 				$("#tonnage,#client_name,#approval_status").parent().hide();
 				$("#tonnage,#client_name,#approval_status").addClass('ignore');
 			}else
@@ -1158,20 +1156,24 @@ function entry_type_wise(entry_type){
 		get_co_list_list();
 	}
 }
-// function billable_wise(billable){
-// 	if(parseInt(billable) === 1){
-// 		$("#billable_hours").parent().show();
-// 		$("#billable_hours").removeClass('ignore');
-// 		$("#non_billable_hours").parent().hide();
-// 		$("#non_billable_hours").addClass('ignore');
-// 	}else
-// 	if(parseInt(billable) === 2){
-// 		$("#non_billable_hours").parent().show();
-// 		$("#non_billable_hours").removeClass('ignore');
-// 		$("#billable_hours").parent().hide();
-// 		$("#billable_hours").addClass('ignore');
-// 	}
-// }
+function billable_wise(billable){
+	if(parseInt(billable) === 1){
+		$("#billable_hours,#co_number").parent().show();
+		$("#billable_hours,#co_number").removeClass('ignore');
+		$("#non_billable_hours").parent().hide();
+		$("#non_billable_hours").addClass('ignore');
+		$("#non_billable_hours").val('');
+		select_all();
+	}else
+	if(parseInt(billable) === 2){
+		$("#non_billable_hours").parent().show();
+		$("#non_billable_hours").removeClass('ignore');
+		$("#billable_hours,#co_number").parent().hide();
+		$("#billable_hours,#co_number").addClass('ignore');
+		$("#billable_hours,#co_number").val('');
+		select_all();
+	}
+}
 function work_status_wise(work_status){
 	var entry_type 	= $("#entry_type").val();
 	var work_type 	= $("#work_type").val();
@@ -1222,6 +1224,7 @@ function get_co_list_list(){
 		url: send_url,
 		data:{drawing_no:1},
 		success: function(data){
+			console.log(data);
 			$('#co_number').html(data);
 		}
 	});

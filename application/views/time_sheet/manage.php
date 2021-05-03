@@ -198,7 +198,7 @@ $(document).ready(function (){
 						echo "{title:'$view_name',data: '$label_name',type: 'date',visible:true,
 								render:function(value) {
 									if (value === null) return '';
-									return moment(value).format('DD/MM/YYYY');
+									return moment(value).format('DD-MM-YYYY');
 								}
 							},\n";
 					}else

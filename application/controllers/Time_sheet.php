@@ -562,6 +562,8 @@ class Time_sheet  extends Action_controller{
 		$co_number_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_number_qry')");
 		$co_number_result = $co_number_info->result();
 		$co_number_info->next_result();
+		$co_number_list = "";
+		$co_number_list .= "<option value=''> --- Select --- </option>";
 		foreach($co_number_result as $result){
 			$id        	    = $result->prime_co_register_id;
 			$drawing_description        	    = $result->drawing_description;

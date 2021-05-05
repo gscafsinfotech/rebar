@@ -844,14 +844,16 @@ class Detailer_report  extends Action_controller{
 		$project_wise_info->next_result();
 		$project_wise_count = $project_wise_result[0]['project_wise_count'];
 
+		// echo "<pre>";
+		// print_r($project_wise_result); die;
 
 		$project_wise_result = array_reduce($project_wise_result, function($result, $arr){			
 		    $result[$arr['project']][$arr['work_type']] = $arr;
 		    return $result;
 		}, array());
 
-		echo "<pre>";
-		print_r($project_wise_result); die;
+		// echo "<pre>";
+		// print_r($project_wise_result); die;
 
 
 
@@ -866,80 +868,82 @@ class Detailer_report  extends Action_controller{
 		$other_work_info->next_result();
 		$work_result_count			= $other_work_result[0]->work_result_count;
 
+
+
+		$get_work_type_qry 			= 'select prime_work_type_id from cw_work_type where trans_status = 1';
+		$get_work_type_info   		= $this->db->query("CALL sp_a_run ('SELECT','$get_work_type_qry')");
+		$get_work_type_result 		= $get_work_type_info->result();
+		$get_work_type_info->next_result();
+
+
+
 		$q = $cummulative_detail_count;
 		$r = 0;
 		$s = 0;
 		$sum_new_detail_count 		= 0;
 		$sum_new_rev_count 			= 0;
 		$sum_value_bar_list_quantity_cummlate  		 = 0;
+
 		if((int)$project_wise_count === 0){
 			$cummuate_second_count = $cummulative_detail_count;
+			// echo "cummuate_second_count :: $cummuate_second_count";die;
 			
 		}else{
+			$cummulate_credit1 = array();
 			foreach($project_wise_result as $key => $cummulative_time_sheet){
-				$sum_value_bar_list_quantity_cummlate  	+= $cummulative_time_sheet->cummulate_bar_list_quantity;
-				$work_type_time							 = $cummulative_time_sheet->work_type;
-				$cummulate_booking_hours 	 			 = array();
-				if((int)$work_type_time === 1){
-					$cummulate_study1 						= $cummulative_time_sheet->cummulate_study;
-					$cummulate_checking1 					= $cummulative_time_sheet->cummulate_checking;
-					$cummulate_correction_time1 			= $cummulative_time_sheet->cummulate_correction_time;
-					$cummulate_discussion1 	 				= $cummulative_time_sheet->cummulate_discussion;
-					$cummulate_study2 						= "";
-					$cummulate_checking2 					= "";
-					$cummulate_correction_time2 			= "";
-					$cummulate_discussion2  				= "";
-					$cummulate_aec2							= "";
-					$cummulate_non_billable_hours2			= "";
-					$cummulate_billable_hours2				= "";
-					$cummulate_change_order_time2			= "";
-					$cummulate_bar_listing_time2			= "";
-					$cummulate_other_works  				= "";
-					$cummulate_detailing_time1 				= $cummulative_time_sheet->cummulate_detailing_time;
-					$cummulate_rfi2 						= "";
-					$cummulate_bar_listing_time 			= "";
-					$new_detail_count = $cummulative_time_sheet->work_type_count;
-					$new_rev_count = "";
-				}else
-				if((int)$work_type_time === 2){
-					$cummulate_study2 						= $cummulative_time_sheet->cummulate_study;
-					$cummulate_checking2 					= $cummulative_time_sheet->cummulate_checking;
-					$cummulate_correction_time2 			= $cummulative_time_sheet->cummulate_correction_time;
-					$cummulate_discussion2 	 				= $cummulative_time_sheet->cummulate_discussion;
-					$cummulate_study1 						= "";
-					$cummulate_checking1 					= "";
-					$cummulate_correction_time1 			= "";
-					$cummulate_discussion1  				= "";
-					$cummulate_aec2							= $cummulative_time_sheet->cummulate_aec;
-					$cummulate_non_billable_hours2			= $cummulative_time_sheet->cummulate_non_billable_hours;
-					$cummulate_billable_hours2				= $cummulative_time_sheet->cummulate_billable_hours;
-					$cummulate_change_order_time2			= $cummulative_time_sheet->cummulate_change_order_time;
-					$cummulate_bar_listing_time 			= "";
-					$cummulate_other_works					= "";
-					$cummulate_detailing_time1				= "";
-					$cummulate_rfi2 						= $cummulative_time_sheet->cummulate_rfi;
-					$new_rev_count = $cummulative_time_sheet->work_type_count;
-					$new_detail_count = "";
-				}else{
-					$new_detail_count = "";
-					$new_rev_count = "";
-					$cummulate_study1 						= "";
-					$cummulate_checking1 					= "";
-					$cummulate_correction_time1 			= "";
-					$cummulate_discussion1 	 				= "";
-					$cummulate_study2 						= "";
-					$cummulate_checking2 					= "";
-					$cummulate_correction_time2 			= "";
-					$cummulate_discussion2 	 				= "";
-					$cummulate_aec2							= "";
-					$cummulate_non_billable_hours2			= "";
-					$cummulate_billable_hours2				= "";
-					$cummulate_change_order_time2			= "";
-					$cummulate_bar_listing_time 			= $cummulative_time_sheet->cummulate_bar_listing_time;
-					$cummulate_other_works					= "";
-					$cummulate_detailing_time1				= "";
-					$cummulate_rfi2 						= "";
+				foreach ($cummulative_time_sheet as $aa => $value) {
+					//echo "BSK $aa  ".$value['cummulate_credit'];
+					$cummulate_credit1[$key][] = $value['cummulate_credit'];
 				}
+				/*echo "<pre>";
+				print_r($cummulative_time_sheet);die;*/
+				//echo "BSK $key".$cummulative_time_sheet['cummulate_credit'];
+				
+			}
+			print_r($cummulate_credit1);die;
+			die;
+				$cummulate_booking_hours = array();
+				
+				$work_type1 = $cummulative_time_sheet[$key];
+				$work_type2 = $cummulative_time_sheet[$key];
+				$work_type3 = $cummulative_time_sheet[$key];
+				$job_category1 = $work_type1['job_category'];
+				$project_name1 = $work_type1['project_name'];
+				$work_description1 = $work_type1['work_description'];
+				$cummulate_credit1[] = $work_type1['cummulate_credit'];
+				$cummulate_study1 = $work_type1['cummulate_study'];
+				$cummulate_detailing_time1 = $work_type1['cummulate_detailing_time'];
+				$cummulate_discussion1 = $work_type1['cummulate_discussion'];
+				$cummulate_checking1 = $work_type1['cummulate_checking'];
+				$cummulate_correction_time1 = $work_type1['cummulate_correction_time'];
+
+				$test 	   = $this->AddPlayTime($cummulate_credit1);
+				// echo "test :: $cummulate_credit1<br>";
+				echo "<pre>";
+				print_r($test);
+
+				// $cummulate_credit1 	   = $this->AddPlayTime($cummulate_credit1);
+				// $cummulate_credit1 	   = $this->AddPlayTime($cummulate_credit1);
+				// echo "<br>";
+
+
+
+
+				$cummulate_study2 = $work_type2['cummulate_study'];
+				$cummulate_rfi2 = $work_type2['cummulate_rfi'];
+				$cummulate_aec2 = $work_type2['cummulate_aec'];
+				$cummulate_checking2 = $work_type2['cummulate_checking'];
+				$cummulate_correction_time2 = $work_type2['cummulate_correction_time'];
+				$cummulate_non_billable_hours2 = $work_type2['cummulate_non_billable_hours'];
+				$cummulate_billable_hours2 = $work_type2['cummulate_billable_hours'];
+				$cummulate_discussion2 = $work_type2['cummulate_discussion'];
+				$cummulate_change_order_time2 = $work_type2['cummulate_change_order_time'];
+				$cummulate_credit2 = $work_type2['cummulate_credit'];
+
+
+				$cummulate_bar_listing_time3 = $work_type3['cummulate_bar_listing_time'];
+				$cummulate_bar_list_quantity3 = $work_type3['cummulate_bar_list_quantity'];
+				$cummulate_credit3 = $work_type3['cummulate_credit'];
 
 
 				$cummulate_booking_hours[] = $cummulate_study1;
@@ -956,16 +960,90 @@ class Detailer_report  extends Action_controller{
 				$cummulate_booking_hours[] = $cummulate_billable_hours2;
 				$cummulate_booking_hours[] = $cummulate_discussion2;
 				$cummulate_booking_hours[] = $cummulate_change_order_time2;
-				$cummulate_booking_hours[] = $cummulate_bar_listing_time;
-				$cummulate_booking_hours[] = $cummulate_other_works;
+				$cummulate_booking_hours[] = $cummulate_bar_listing_time3;
 				$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
+				// echo"<pre>";
+				// print_r($cummulate_booking_hours);
+				// echo "cummulate_total_hours :: $cummulate_total_hours<br>";
+				
 
-				$time_sheet_value['A']       = $cummulative_time_sheet->job_category;
-				$time_sheet_value['B']       = $cummulative_time_sheet->project_name;
+
+
+				
+
+				$sum_value_bar_list_quantity_cummlate  	+= $cummulate_bar_list_quantity3;
+				// $work_type_time							 = $cummulative_time_sheet->work_type;
+				// $cummulate_booking_hours 	 			 = array();
+				// if((int)$work_type_time === 1){
+				// 	$cummulate_study1 						= $cummulative_time_sheet->cummulate_study;
+				// 	$cummulate_checking1 					= $cummulative_time_sheet->cummulate_checking;
+				// 	$cummulate_correction_time1 			= $cummulative_time_sheet->cummulate_correction_time;
+				// 	$cummulate_discussion1 	 				= $cummulative_time_sheet->cummulate_discussion;
+				// 	$cummulate_study2 						= "";
+				// 	$cummulate_checking2 					= "";
+				// 	$cummulate_correction_time2 			= "";
+				// 	$cummulate_discussion2  				= "";
+				// 	$cummulate_aec2							= "";
+				// 	$cummulate_non_billable_hours2			= "";
+				// 	$cummulate_billable_hours2				= "";
+				// 	$cummulate_change_order_time2			= "";
+				// 	$cummulate_bar_listing_time2			= "";
+				// 	$cummulate_other_works  				= "";
+				// 	$cummulate_detailing_time1 				= $cummulative_time_sheet->cummulate_detailing_time;
+				// 	$cummulate_rfi2 						= "";
+				// 	$cummulate_bar_listing_time 			= "";
+				// 	$new_detail_count = $cummulative_time_sheet->work_type_count;
+				// 	$new_rev_count = "";
+				// }else
+				// if((int)$work_type_time === 2){
+				// 	$cummulate_study2 						= $cummulative_time_sheet->cummulate_study;
+				// 	$cummulate_checking2 					= $cummulative_time_sheet->cummulate_checking;
+				// 	$cummulate_correction_time2 			= $cummulative_time_sheet->cummulate_correction_time;
+				// 	$cummulate_discussion2 	 				= $cummulative_time_sheet->cummulate_discussion;
+				// 	$cummulate_study1 						= "";
+				// 	$cummulate_checking1 					= "";
+				// 	$cummulate_correction_time1 			= "";
+				// 	$cummulate_discussion1  				= "";
+				// 	$cummulate_aec2							= $cummulative_time_sheet->cummulate_aec;
+				// 	$cummulate_non_billable_hours2			= $cummulative_time_sheet->cummulate_non_billable_hours;
+				// 	$cummulate_billable_hours2				= $cummulative_time_sheet->cummulate_billable_hours;
+				// 	$cummulate_change_order_time2			= $cummulative_time_sheet->cummulate_change_order_time;
+				// 	$cummulate_bar_listing_time 			= "";
+				// 	$cummulate_other_works					= "";
+				// 	$cummulate_detailing_time1				= "";
+				// 	$cummulate_rfi2 						= $cummulative_time_sheet->cummulate_rfi;
+				// 	$new_rev_count = $cummulative_time_sheet->work_type_count;
+				// 	$new_detail_count = "";
+				// }else{
+				// 	$new_detail_count = "";
+				// 	$new_rev_count = "";
+				// 	$cummulate_study1 						= "";
+				// 	$cummulate_checking1 					= "";
+				// 	$cummulate_correction_time1 			= "";
+				// 	$cummulate_discussion1 	 				= "";
+				// 	$cummulate_study2 						= "";
+				// 	$cummulate_checking2 					= "";
+				// 	$cummulate_correction_time2 			= "";
+				// 	$cummulate_discussion2 	 				= "";
+				// 	$cummulate_aec2							= "";
+				// 	$cummulate_non_billable_hours2			= "";
+				// 	$cummulate_billable_hours2				= "";
+				// 	$cummulate_change_order_time2			= "";
+				// 	$cummulate_bar_listing_time 			= $cummulative_time_sheet->cummulate_bar_listing_time;
+				// 	$cummulate_other_works					= "";
+				// 	$cummulate_detailing_time1				= "";
+				// 	$cummulate_rfi2 						= "";
+				// }
+
+
+				
+
+				$time_sheet_value['A']       = $job_category1;
+				$time_sheet_value['B']       = $project_name1;
 				$time_sheet_value['C']       = $new_detail_count;
 				$time_sheet_value['D']       = $new_rev_count;
-				$time_sheet_value['E']       = $cummulative_time_sheet->work_description;
-				$time_sheet_value['F'] 		 = $cummulative_time_sheet->cummulate_credit;
+				$time_sheet_value['E']       = $work_description1;
+				$time_sheet_value['F'] 		 = $cummulate_credit1;
 				$time_sheet_value['G'] 		 = $cummulate_study1;
 				$time_sheet_value['H'] 		 = $cummulate_detailing_time1;
 				$time_sheet_value['I'] 		 = $cummulate_discussion1;
@@ -980,8 +1058,8 @@ class Detailer_report  extends Action_controller{
 				$time_sheet_value['R'] 		 = $cummulate_billable_hours2;
 				$time_sheet_value['S'] 		 = $cummulate_discussion2;
 				$time_sheet_value['T'] 		 = $cummulate_change_order_time2;
-				$time_sheet_value['U']       = $cummulative_time_sheet->cummulate_bar_list_quantity;
-				$time_sheet_value['V'] 		 = $cummulate_bar_listing_time;
+				$time_sheet_value['U']       = $cummulate_bar_list_quantity3;
+				$time_sheet_value['V'] 		 = $cummulate_bar_listing_time3;
 				$time_sheet_value['W'] 		 = $cummulate_other_works;
 				$time_sheet_value['X'] 		 = $cummulate_total_hours;
 
@@ -1014,11 +1092,11 @@ class Detailer_report  extends Action_controller{
 				$sum_value_cummulate_billable_hours2		= $this->AddPlayTime($sum_cummulate_billable_hours2);
 				$sum_cummulate_change_order_time2[]  		= $cummulate_change_order_time2;
 				$sum_value_cummulate_change_order_time2		= $this->AddPlayTime($sum_cummulate_change_order_time2);
-				$sum_cummulate_bar_listing_time[]  			= $cummulate_bar_listing_time;
+				$sum_cummulate_bar_listing_time[]  			= $cummulate_bar_listing_time3;
 				$sum_value_cummulate_bar_listing_time		= $this->AddPlayTime($sum_cummulate_bar_listing_time);
 				$sum_cummulate_total_hours[]  				= $cummulate_total_hours;
 				$sum_value_cummulate_total_hours			= $this->AddPlayTime($sum_cummulate_total_hours);
-				$sum_cummulate_credit1[]					= $cummulative_time_sheet->cummulate_credit;
+				$sum_cummulate_credit1[]					= $cummulate_credit1;
 				$sum_value_cummulate_total_hours1			= $this->AddPlayTime($sum_cummulate_credit1);
 				$sum_new_detail_count 				       += $new_detail_count;
 				$sum_new_rev_count 						   += $new_rev_count;
@@ -1038,64 +1116,70 @@ class Detailer_report  extends Action_controller{
 					$cummuate_second_count = $q;
 				}
 				$q++;
-			}
+			//}
 		}
-		$other_work_count   = $cummuate_second_count+1;
-		$m 					= $other_work_count;
-		if((int)$work_result_count === 0){
-			$cummuate_final_count = $cummuate_second_count;
+		if((int)$project_wise_count === 0){
+			$m 					= $cummuate_second_count;
 		}else{
-			foreach($other_work_result as $key => $other_work_detail){
-				$time_sheet_value['A']       = "";
-				$time_sheet_value['B']       = $other_work_detail->other_works;
-				$time_sheet_value['C']       = "";
-				$time_sheet_value['D']       = "";
-				$time_sheet_value['E']       = $other_work_detail->work_description;
-				$time_sheet_value['F'] 		 = $other_work_detail->cummulate_credit;
-				$time_sheet_value['G'] 		 = "";
-				$time_sheet_value['H'] 		 = "";
-				$time_sheet_value['I'] 		 = "";
-				$time_sheet_value['J']		 = "";
-				$time_sheet_value['K'] 		 = "";
-				$time_sheet_value['L'] 		 = "";
-				$time_sheet_value['M']		 = "";
-				$time_sheet_value['N']		 = "";
-				$time_sheet_value['O']		 = "";
-				$time_sheet_value['P'] 		 = "";
-				$time_sheet_value['Q'] 		 = "";
-				$time_sheet_value['R'] 		 = "";
-				$time_sheet_value['S'] 		 = "";
-				$time_sheet_value['T'] 		 = "";
-				$time_sheet_value['U']       = "";
-				$time_sheet_value['V'] 		 = "";
-				$time_sheet_value['W'] 		 = $other_work_detail->cummulate_works;
-				$time_sheet_value['X'] 		 = $other_work_detail->cummulate_works;
-				$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
-				$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
-				$sum_cummulate_credit2[]					= $other_work_detail->cummulate_credit;
-				$sum_value_cummulate_total_hours2			= $this->AddPlayTime($sum_cummulate_credit2);
-
-				for ($x = 0; $x <= 23; $x++) {
-					$excel_column  = $project_wise_excel[0]['excel_column'][$x];
-					$excel_value   = $project_wise_excel[1]['excel_value'][$x];
-					$value_of_excel  	= $time_sheet_value[$excel_column];
-
-					if($excel_column === 'A'){
-						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($LeftBorder);
-					}else
-					if($excel_column === 'X'){
-						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($RightBorder);
-					}else{
-						$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($verticalStyle);
-					}
-					$cummuate_final_count = $m;
-				}
-				$m++;
-			}
+			$other_work_count   = $cummuate_second_count+1;
+			$m 					= $other_work_count;
 		}
-		$sum_value_cummulate_credit[]   = $sum_value_cummulate_total_hours1;
-		$sum_value_cummulate_credit[]   = $sum_value_cummulate_total_hours2;
+		foreach($other_work_result as $key => $other_work_detail){
+			$time_sheet_value['A']       = "";
+			$time_sheet_value['B']       = $other_work_detail->other_works;
+			$time_sheet_value['C']       = "";
+			$time_sheet_value['D']       = "";
+			$time_sheet_value['E']       = $other_work_detail->work_description;
+			$time_sheet_value['F'] 		 = $other_work_detail->cummulate_credit;
+			$time_sheet_value['G'] 		 = "";
+			$time_sheet_value['H'] 		 = "";
+			$time_sheet_value['I'] 		 = "";
+			$time_sheet_value['J']		 = "";
+			$time_sheet_value['K'] 		 = "";
+			$time_sheet_value['L'] 		 = "";
+			$time_sheet_value['M']		 = "";
+			$time_sheet_value['N']		 = "";
+			$time_sheet_value['O']		 = "";
+			$time_sheet_value['P'] 		 = "";
+			$time_sheet_value['Q'] 		 = "";
+			$time_sheet_value['R'] 		 = "";
+			$time_sheet_value['S'] 		 = "";
+			$time_sheet_value['T'] 		 = "";
+			$time_sheet_value['U']       = "";
+			$time_sheet_value['V'] 		 = "";
+			$time_sheet_value['W'] 		 = $other_work_detail->cummulate_works;
+			$time_sheet_value['X'] 		 = $other_work_detail->cummulate_works;
+			$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
+			$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
+			$sum_cummulate_credit2[]					= $other_work_detail->cummulate_credit;
+			$sum_value_cummulate_total_hours2			= $this->AddPlayTime($sum_cummulate_credit2);
+
+			for ($x = 0; $x <= 23; $x++) {
+				$excel_column  = $project_wise_excel[0]['excel_column'][$x];
+				$excel_value   = $project_wise_excel[1]['excel_value'][$x];
+				$value_of_excel  	= $time_sheet_value[$excel_column];
+
+				if($excel_column === 'A'){
+					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($LeftBorder);
+				}else
+				if($excel_column === 'X'){
+					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($RightBorder);
+				}else{
+					$obj->getActiveSheet()->setCellValue($excel_column.$m, $value_of_excel)->getStyle($excel_column.$m)->applyFromArray($verticalStyle);
+				}
+				$cummuate_final_count = $m;
+			}
+			$m++;
+		}
+		// die;
+		// echo "cummulate_credit1 :: $cummulate_credit1<br>";
+		// echo "cummulate_credit2 :: $cummulate_credit2<br>";
+		// echo "cummulate_credit3 :: $cummulate_credit3<br>";die;
+		$sum_value_cummulate_credit[]   = $cummulate_credit1;
+		$sum_value_cummulate_credit[]   = $cummulate_credit2;
+		$sum_value_cummulate_credit[]   = $cummulate_credit3;
 		$sum_value_cummulate_credit     = $this->AddPlayTime($sum_value_cummulate_credit);
+		echo "sum_value_cummulate_credit :: $sum_value_cummulate_credit<br>";die;
 
 		$cummuate_final_sumcount 		= $cummuate_final_count+1;
 		$cummuate_final_second_sumcount = $cummuate_final_sumcount+1;

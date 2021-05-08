@@ -1346,7 +1346,13 @@ class Detailer_report  extends Action_controller{
 
 		$rev_hrs_tons = round($rev_hrs_tons * 1000)/1000;
 		$production_tons = round($production_tons * 1000)/1000;
-		$different_bk_hrs =( strtotime($total_time_date_wise) - strtotime($final_sum_total) ) / 60;
+		$total_min     = $this->time_to_min($total_time_date_wise);
+		$final_sum_min = $this->time_to_min($final_sum_total);
+		$res3          = $total_min-$final_sum_min;
+		$different_bk_hrs = intdiv($res3, 60).':'. ($res3 % 60);
+
+		//echo "BSK $total_time_date_wise :: $final_sum_total"; die;
+		//$different_bk_hrs =( strtotime($total_time_date_wise) - strtotime($final_sum_total) ) / 60;
 
 		$report_head 	= $cummuate_final_second_sumcount+5;
 		$report_inc3 	= $cummuate_final_second_sumcount+6;
@@ -1437,6 +1443,11 @@ class Detailer_report  extends Action_controller{
 		}else{
 			echo json_encode(array('success' => TRUE, 'message' => "Data Available"));
 		}
+	}
+	public function time_to_min($time){
+		$timeArr = explode(':', $time);
+		$decTime = ($timeArr[0]*60) + ($timeArr[1]) + ($timeArr[2]/60);
+		return $decTime;
 	}
 }
 ?>

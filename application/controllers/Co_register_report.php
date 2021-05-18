@@ -214,7 +214,7 @@ class Co_register_report  extends Action_controller{
 				if((int)$table_name === 1){ $fliter_query .= $table_qry.".". $db_name ." ". $db_cond .' '.$search_val.''; }
 			}			
 		}
-		$co_reg_qry = 'select cw_co_register.prime_co_register_id,co_number,cw_co_register.team,cw_uspm.uspm,cw_project_and_drawing_master.rdd_no,cw_client.client_name,cw_project_and_drawing_master.project_name,GROUP_CONCAT(cw_project_and_drawing_master_drawings.drawing_no) as drawing_no,cw_co_register.drawing_description from cw_co_register inner join cw_uspm on cw_uspm.prime_uspm_id = cw_co_register.uspm inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_co_register.rdd_no inner join cw_client on cw_client.prime_client_id = cw_co_register.client_name inner join cw_project_and_drawing_master_drawings on FIND_IN_SET(cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_co_register.drawing_no) inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_co_register.team) where cw_co_register.trans_status = 1 '.$fliter_query.' group by cw_co_register.prime_co_register_id order by cw_co_register.prime_co_register_id';
+		$co_reg_qry = 'select cw_co_register.prime_co_register_id,co_number,cw_co_register.team,cw_uspm.uspm,cw_project_and_drawing_master.rdd_no,cw_client.client_name,cw_project_and_drawing_master.project_name,GROUP_CONCAT(cw_project_and_drawing_master_drawings.drawing_no) as drawing_no,cw_co_register.drawing_description,estimation_hours from cw_co_register inner join cw_uspm on cw_uspm.prime_uspm_id = cw_co_register.uspm inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_co_register.rdd_no inner join cw_client on cw_client.prime_client_id = cw_co_register.client_name inner join cw_project_and_drawing_master_drawings on FIND_IN_SET(cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_co_register.drawing_no) inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_co_register.team) where cw_co_register.trans_status = 1 '.$fliter_query.' group by cw_co_register.prime_co_register_id order by cw_co_register.prime_co_register_id';
 		$co_reg_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_reg_qry')");
 		$co_reg_result = $co_reg_info->result();
 		$co_reg_info->next_result();
@@ -229,8 +229,16 @@ class Co_register_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		$revision_qry = 'select cw_co_register.prime_co_register_id,cw_co_register.co_number,IF(SEC_TO_TIME( SUM(time_to_sec(cw_tonnage_approval.actual_billable_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(cw_tonnage_approval.actual_billable_time))),"%H:%i"),"") as actual_billable_time,cw_tonnage_approval.trans_updated_date from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_co_register on cw_co_register.prime_co_register_id = cw_time_sheet_time_line.co_number where cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.trans_status = 1 group by cw_time_sheet_time_line.co_number';
-		// echo $revision_qry;die;
+		$billable_hrs_qry = 'select cw_co_register.prime_co_register_id,cw_co_register.co_number,IF(SEC_TO_TIME( SUM(time_to_sec(cw_tonnage_approval.actual_billable_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(cw_tonnage_approval.actual_billable_time))),"%H:%i"),"") as actual_billable_time,cw_tonnage_approval.trans_updated_date,submitted_date from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_co_register on cw_co_register.prime_co_register_id = cw_time_sheet_time_line.co_number where cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.trans_status = 1 group by cw_time_sheet_time_line.co_number';
+		$billable_hrs_info   	= $this->db->query("CALL sp_a_run ('SELECT','$billable_hrs_qry')");
+		$billable_hrs_result 	= $billable_hrs_info->result_array();
+		$billable_hrs_info->next_result();
+		$billable_hrs_result = array_reduce($billable_hrs_result, function($result, $arr){			
+		    $result[$arr['prime_co_register_id']] = $arr;
+		    return $result;
+		}, array());
+
+		$revision_qry = 'select submitted_date,prime_co_register_id from cw_co_register inner join cw_time_sheet_time_line on cw_time_sheet_time_line.co_number = cw_co_register.prime_co_register_id where cw_co_register.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 order by cw_time_sheet_time_line.prime_time_sheet_time_line_id ASC';
 		$revision_qry   	= $this->db->query("CALL sp_a_run ('SELECT','$revision_qry')");
 		$revision_result 	= $revision_qry->result_array();
 		$revision_qry->next_result();
@@ -239,8 +247,6 @@ class Co_register_report  extends Action_controller{
 		    $result[$arr['prime_co_register_id']] = $arr;
 		    return $result;
 		}, array());
-		// echo "<pre>";
-		// print_r($revision_result);die;
 
 		require_once APPPATH."/third_party/PHPExcel.php";
 		$obj = new PHPExcel();
@@ -678,13 +684,11 @@ class Co_register_report  extends Action_controller{
 			$team 							 = $co_register_sheet->team;
 			$co_number_id 					 = $co_register_sheet->prime_co_register_id;
 			$team_name 						 = $team_result[$team]['team_name'];
-			$revision_actual_billable_hours  = $revision_result[$co_number_id]['actual_billable_time'];
-			$revision_submitted_date 	     = $revision_result[$co_number_id]['trans_updated_date'];
+			$revision_actual_billable_hours  = $billable_hrs_result[$co_number_id]['actual_billable_time'];
+			$revision_submitted_date 	     = $revision_result[$co_number_id]['submitted_date'];
 			if($revision_submitted_date){
 				$revision_submitted_date		 = date('d-m-Y',strtotime($revision_submitted_date));
 			}
-			
-
 			$co_reg_sheet_value['A']         = $co_register_sheet->co_number;
 			$co_reg_sheet_value['B']         = $team_name;
 			$co_reg_sheet_value['C']         = $co_register_sheet->uspm;
@@ -694,7 +698,7 @@ class Co_register_report  extends Action_controller{
 			$co_reg_sheet_value['G'] 		 = $co_register_sheet->drawing_no;
 			$co_reg_sheet_value['H'] 		 = $co_register_sheet->drawing_description;
 			$co_reg_sheet_value['I'] 		 = $revision_actual_billable_hours;
-			$co_reg_sheet_value['J']		 = "Estimation hours";
+			$co_reg_sheet_value['J']		 = $co_register_sheet->estimation_hours;
 			$co_reg_sheet_value['K'] 		 = $revision_submitted_date;
 
 			for ($x = 0; $x <= 10; $x++) {

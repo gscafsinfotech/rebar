@@ -17,15 +17,18 @@ class Submitted_log  extends Action_controller{
 		$team_result = $team_info->result();
 		$team_info->next_result();
 		$team_list[""] = "---- Select ----";
-
-
 		foreach ($team_result as $key => $team) {
 			$prime_team_id = $team->prime_team_id;
 			$team_name  = $team->team_name;
 			$team_list[$prime_team_id] = $team_name;
 		}
 		$data['team_list'] = $team_list;
-
+		$from_query = 'select * from cw_form_setting where  prime_module_id IN("project_and_drawing_master","tonnage_approval") and search_show = "1" ORDER BY input_for,field_sort asc';
+		$form_data   = $this->db->query("CALL sp_a_run ('SELECT','$from_query')");
+		$form_result = $form_data->result();
+		$form_data->next_result();
+		$fliter_list = $this->get_filter_data($form_result);
+		$data['fliter_list']  = $fliter_list;
 
 		$this->load->view("$this->control_name/manage",$data);
 	}
@@ -118,6 +121,54 @@ class Submitted_log  extends Action_controller{
 		return $filter;
 	}
 	public function datacount_check(){
+		$multipick_val = $this->input->post("multipick_val");
+		$multi_val 			 = (int)$multipick_val-1;
+		$filter_cond 		 = urldecode($filter_cond);
+		$fliter_val 		 = $this->input->post("fliter_val");
+		$fliter_val_count 	 = count($fliter_val);
+		$first_value 		 = array_splice($fliter_val,0,$multipick_val);
+		$second_value 		 = array_splice($fliter_val,0,$fliter_val_count);
+		$first_value 		 = implode(',', $first_value);
+		$first_value 		 = rtrim($first_value,',');
+		$first_value 		 = array($first_value);
+		$fliter_val 		 = array_merge($first_value,$second_value);
+		$filter_count 		 = $this->input->post("filter_count");
+		$fliter_label 		 = $this->input->post("fliter_label");
+		$fliter_type 		 = $this->input->post("fliter_type");
+		$filter_cond 		 = $this->input->post("filter_cond");
+		$field_types 		 = $this->input->post("field_type");
+		$filter_count        = count($fliter_label);
+		$fliter_query        = "";
+		$search_count        = 0;
+		echo "<pre>";
+		print_r($fliter_val);die;
+		for($i=0;$i<=(int)$filter_count;$i++){
+			$db_name     	 = $fliter_label[$i];
+			$table_name  	 = $fliter_type[$i];
+			$db_cond     	 = $filter_cond[$i];
+			$db_value    	 = $fliter_val[$i];
+			$field_type  	 = $field_types[$i];
+			if(($db_cond) && ($db_value)){
+				if((int)$field_type === 7){
+					$search_val    = $db_value;
+					if($db_cond === "LIKE"){ $search_val = "IN($db_value)";
+						$db_cond = "";
+						$db_name = "prime_team_id";
+						$table_qry = " and cw_team";
+					 }else{
+					 	$table_qry = " and cw_co_register";
+					 }
+				}else{
+					$search_val = $db_value;
+					if($db_cond === "LIKE"){ $search_val = "$db_value%";}
+					$table_qry = " and cw_co_register";
+				}
+				if((int)$table_name === 1){ $fliter_query .= $table_qry.".". $db_name ." ". $db_cond .' '.$search_val.''; }
+			}		
+		}
+		// echo $fliter_query;
+		die;
+
 		$process_team 				= $this->input->post("process_team");
 		$process_month 				= $this->input->post("process_month");
 		$process_month  			= '01-'.$process_month;
@@ -130,7 +181,7 @@ class Submitted_log  extends Action_controller{
 		$team_info->next_result();
 		$process_team 	= $team_result[0]->prime_team_id;
 		
-		$team_wise_detailing_qry	= 'select count(*) as rlst_count from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_team on find_in_set(cw_team.prime_team_id,cw_time_sheet_time_line.team) inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_time_sheet_time_line.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id = cw_project_and_drawing_master.prime_project_and_drawing_master_id where cw_time_sheet.entry_date like "%'.$process_month.'%" and cw_team.prime_team_id in('.$process_team.') and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1';
+		$team_wise_detailing_qry	= 'select count(*) as rlst_count from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.'';
 		$team_wise_detailing_info   = $this->db->query("CALL sp_a_run ('SELECT','$team_wise_detailing_qry')");
 		$team_wise_detailing_result = $team_wise_detailing_info->result();
 		$team_wise_detailing_info->next_result();
@@ -141,7 +192,54 @@ class Submitted_log  extends Action_controller{
 			echo json_encode(array('success' => TRUE, 'message' => "Data Available"));
 		}
 	}
-	public function excel_export($process_month){
+	public function excel_export($process_month,$fliter_label,$fliter_type,$field_type,$filter_cond,$fliter_val,$multipick_val){
+		$process_month 		= $process_month;
+		$get_month 			= explode('-', $process_month);
+		$month_name			= $get_month[0];
+		$month_name 		= date("F", mktime(null, null, null, $month_name, 1));
+		$multi_val 			 = (int)$multipick_val-1;
+		$filter_cond 		 = urldecode($filter_cond);
+		$fliter_val 		 = explode(',', $fliter_val);
+		$fliter_val_count 	 = count($fliter_val);
+		$first_value 		 = array_splice($fliter_val,0,$multipick_val);
+		$second_value 		 = array_splice($fliter_val,0,$fliter_val_count);
+		$first_value 		 = implode(',', $first_value);
+		$first_value 		 = rtrim($first_value,',');
+		$first_value 		 = array($first_value);
+		$fliter_val 		 = array_merge($first_value,$second_value);
+		$filter_cond 		 = explode(',', $filter_cond);
+		$field_types 	 	 = explode(',', $field_type);
+		$fliter_type 		 = explode(',', $fliter_type);
+		$fliter_label 		 = explode(',', $fliter_label);
+		$filter_count        = count($fliter_label);
+		$fliter_query        = "";
+		$search_count        = 0;
+		for($i=0;$i<=(int)$filter_count;$i++){
+			$db_name     = $fliter_label[$i];
+			$table_name  = $fliter_type[$i];
+			$db_cond     = $filter_cond[$i];
+			$db_value    = $fliter_val[$i];
+			$field_type  = $field_types[$i];
+			if(($db_cond) && ($db_value)){
+				// echo "field_type ::$field_type<br>";
+				if((int)$field_type === 7){
+					$search_val    = $db_value;
+					if($db_cond === "LIKE"){ $search_val = "IN($db_value)";
+						$db_cond = "";
+						$db_name = "prime_team_id";
+						$table_qry = " and cw_team";
+					 }else{
+					 	$table_qry = " and cw_project_and_drawing_master";
+					 }
+				}else{
+					$search_val = $db_value;
+					if($db_cond === "LIKE"){ $search_val = "$db_value%";}
+					$table_qry = " and cw_project_and_drawing_master";
+				}
+				if((int)$table_name === 1){ $fliter_query .= $table_qry.".". $db_name ." ". $db_cond .' '.$search_val.''; }
+			}			
+		}
+
 		// $process_month  			= '01-'.$process_month;
 		// $process_month  			= date('Y-m',strtotime($process_month));
 
@@ -151,7 +249,7 @@ class Submitted_log  extends Action_controller{
 		$all_team_info->next_result();
 		$process_team 	= $all_team_result[0]->prime_team_id;
 
-		$detailing_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1';
+		$detailing_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.'';
 		$detailing_info   			= $this->db->query("CALL sp_a_run ('SELECT','$detailing_qry')");
 		$detailing_result 			= $detailing_info->result();
 		$detailing_info->next_result();
@@ -420,7 +518,7 @@ class Submitted_log  extends Action_controller{
 		$obj->getActiveSheet(1)->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($styleArray);
 	}
 
-	$revision_qry = 'select cw_co_register.co_number,cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_client.client_name,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master.received_date,cw_tonnage_approval.actual_billable_time,cw_employees.emp_name as detailer_name,prime_team_id,cw_tonnage_approval.team as team_id from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_co_register on cw_co_register.prime_co_register_id = cw_time_sheet_time_line.co_number inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_client on cw_client.prime_client_id = cw_tonnage_approval.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1';
+	$revision_qry = 'select cw_co_register.co_number,cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_client.client_name,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master.received_date,cw_tonnage_approval.actual_billable_time,cw_employees.emp_name as detailer_name,prime_team_id,cw_tonnage_approval.team as team_id from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_co_register on cw_co_register.prime_co_register_id = cw_time_sheet_time_line.co_number inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_client on cw_client.prime_client_id = cw_tonnage_approval.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1 '.$fliter_query.'';
 	$revision_info   			= $this->db->query("CALL sp_a_run ('SELECT','$revision_qry')");
 	$revision_result 			= $revision_info->result();
 	$revision_info->next_result();

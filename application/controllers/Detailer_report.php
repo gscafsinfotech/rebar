@@ -931,7 +931,7 @@ class Detailer_report  extends Action_controller{
 			}
 		}
 
-		$project_wise_qry 			= 'SELECT count(*) as project_wise_count,count(*) as count_project_wise,count(cw_time_sheet_time_line.work_type) as work_type_count,cw_time_sheet_time_line.project,cw_project_and_drawing_master.project_name,cw_time_sheet_time_line.work_description,IF(SEC_TO_TIME( SUM(time_to_sec(credit)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(credit))),"%H:%i"),"") as cummulate_credit,IF(SEC_TO_TIME( SUM(time_to_sec(study)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(study))),"%H:%i"),"") as cummulate_study,IF(SEC_TO_TIME( SUM(time_to_sec(detailing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(detailing_time))),"%H:%i"),"") as cummulate_detailing_time,IF(SEC_TO_TIME( SUM(time_to_sec(discussion)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(discussion))),"%H:%i"),"") as cummulate_discussion,IF(SEC_TO_TIME( SUM(time_to_sec(checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(checking))),"%H:%i"),"") as cummulate_checking,IF(SEC_TO_TIME( SUM(time_to_sec(correction_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(correction_time))),"%H:%i"),"") as cummulate_correction_time,IF(SEC_TO_TIME( SUM(time_to_sec(rfi)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(rfi))),"%H:%i"),"") as cummulate_rfi,IF(SEC_TO_TIME( SUM(time_to_sec(aec)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(aec))),"%H:%i"),"") as cummulate_aec,IF(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours))),"%H:%i"),"") as cummulate_non_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(billable_hours))),"%H:%i"),"") as cummulate_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(change_order_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(change_order_time))),"%H:%i"),"") as cummulate_change_order_time,IF(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time))),"%H:%i"),"") as cummulate_bar_listing_time,IF(SEC_TO_TIME( SUM(time_to_sec(other_works)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(other_works))),"%H:%i"),"") as cummulate_other_works,sum(bar_list_quantity) as cummulate_bar_list_quantity,work_type,GROUP_CONCAT(work_description) as work_description FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.project,work_type order by cw_time_sheet_time_line.work_type';
+		$project_wise_qry 			= 'SELECT work_status,count(*) as project_wise_count,count(*) as count_project_wise,count(cw_time_sheet_time_line.work_type) as work_type_count,cw_time_sheet_time_line.project,cw_project_and_drawing_master.project_name,cw_time_sheet_time_line.work_description,IF(SEC_TO_TIME( SUM(time_to_sec(credit)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(credit))),"%H:%i"),"") as cummulate_credit,IF(SEC_TO_TIME( SUM(time_to_sec(study)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(study))),"%H:%i"),"") as cummulate_study,IF(SEC_TO_TIME( SUM(time_to_sec(detailing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(detailing_time))),"%H:%i"),"") as cummulate_detailing_time,IF(SEC_TO_TIME( SUM(time_to_sec(discussion)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(discussion))),"%H:%i"),"") as cummulate_discussion,IF(SEC_TO_TIME( SUM(time_to_sec(checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(checking))),"%H:%i"),"") as cummulate_checking,IF(SEC_TO_TIME( SUM(time_to_sec(correction_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(correction_time))),"%H:%i"),"") as cummulate_correction_time,IF(SEC_TO_TIME( SUM(time_to_sec(rfi)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(rfi))),"%H:%i"),"") as cummulate_rfi,IF(SEC_TO_TIME( SUM(time_to_sec(aec)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(aec))),"%H:%i"),"") as cummulate_aec,IF(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours))),"%H:%i"),"") as cummulate_non_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(billable_hours))),"%H:%i"),"") as cummulate_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(change_order_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(change_order_time))),"%H:%i"),"") as cummulate_change_order_time,IF(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time))),"%H:%i"),"") as cummulate_bar_listing_time,IF(SEC_TO_TIME( SUM(time_to_sec(other_works)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(other_works))),"%H:%i"),"") as cummulate_other_works,sum(bar_list_quantity) as cummulate_bar_list_quantity,work_type,GROUP_CONCAT(work_description) as work_description FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.project,work_type order by cw_time_sheet_time_line.work_type';
 
 		$project_wise_info   		= $this->db->query("CALL sp_a_run ('SELECT','$project_wise_qry')");
 		$project_wise_result 		= $project_wise_info->result_array();
@@ -943,6 +943,15 @@ class Detailer_report  extends Action_controller{
 		    return $result;
 		}, array());
 
+
+		$complete_pending_qry 			= 'SELECT count(*) as work_status_count,work_status as work_status,cw_time_sheet_time_line.project FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by project,work_status';
+		$complete_pending_info   		= $this->db->query("CALL sp_a_run ('SELECT','$complete_pending_qry')");
+		$complete_pending_result 		= $complete_pending_info->result_array();
+		$complete_pending_info->next_result();
+		$complete_pending_result = array_reduce($complete_pending_result, function($result, $arr){			
+		    $result[$arr['project']][$arr['work_status']] = $arr;
+		    return $result;
+		}, array());
 
 		$get_work_type_qry 			= 'select prime_work_type_id from cw_work_type where trans_status = 1';
 		$get_work_type_info   		= $this->db->query("CALL sp_a_run ('SELECT','$get_work_type_qry')");
@@ -969,20 +978,15 @@ class Detailer_report  extends Action_controller{
 					$project_name = array();
 					$cummulate_credit1[$key] = $value['cummulate_credit'];
 					$project_name[$key] = $value['project_name'];
-					// echo "project_name :: $project_name<br>";
 					$credit_cummulate[] 		= $cummulate_credit1[$key];
 					$credit_project_wise 	    = $this->AddPlayTime($credit_cummulate);
 					$project_name1 = $project_name[$key];
 				}
-				// echo"<pre>";
-				// print_r($project_name);
 				$cummulate_booking_hours = array();
 					$work_type1 					= $cummulative_time_sheet[1];
 					$work_type2 					= $cummulative_time_sheet[2];
 					$work_type3 					= $cummulative_time_sheet[3];
 					$job_category1 					= $work_type1['job_category'];
-					// $project_name1 					= $work_type1['project_name'];
-					// echo "project_name :: $project_name<br>";
 					$work_description1 				= $work_type1['work_description'];
 					$cummulate_study1 				= $work_type1['cummulate_study'];
 					$cummulate_detailing_time1 		= $work_type1['cummulate_detailing_time'];
@@ -1026,13 +1030,33 @@ class Detailer_report  extends Action_controller{
 					$cummulate_booking_hours[] = $cummulate_change_order_time2;
 					$cummulate_booking_hours[] = $cummulate_bar_listing_time3;
 					$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
-					// echo "project_name1 ::$project_name1<br>";
+
+					$pending_status_counting = $complete_pending_result[$key][1]['work_status_count'];
+					$partial_status_counting = $complete_pending_result[$key][2]['work_status_count'];
+					$complete_status_counting = $complete_pending_result[$key][3]['work_status_count'];
+					if((int)$pending_status_counting ===0){
+						$pending_status_counting = 0;
+					}else{
+						$pending_status_counting = $pending_status_counting;
+					}
+					if((int)$partial_status_counting ===0){
+						$partial_status_counting = 0;
+					}else{
+						$partial_status_counting = $partial_status_counting;
+					}
+					if((int)$complete_status_counting ===0){
+						$complete_status_counting = 0;
+					}else{
+						$complete_status_counting = $complete_status_counting;
+					}
+					$total_pending = $partial_status_counting + $pending_status_counting;
+					$total_works_status = "(".$complete_status_counting.") Completed - (".$total_pending.") Inprogress";
 
 					$time_sheet_value['A']       = $job_category1;
 					$time_sheet_value['B']       = $project_name1;
 					$time_sheet_value['C']       = $detailing_count;
 					$time_sheet_value['D']       = $revision_count;
-					$time_sheet_value['E']       = $work_description1;
+					$time_sheet_value['E']       = $total_works_status;
 					$time_sheet_value['F'] 		 = $credit_project_wise;
 					$time_sheet_value['G'] 		 = $cummulate_study1;
 					$time_sheet_value['H'] 		 = $cummulate_detailing_time1;
@@ -1438,10 +1462,7 @@ class Detailer_report  extends Action_controller{
 		$final_sum_min = $this->time_to_min($final_sum_total);
 		$res3          = $total_min-$final_sum_min;
 		$different_bk_hrs = intdiv($res3, 60).':'. ($res3 % 60);
-
-		//echo "BSK $total_time_date_wise :: $final_sum_total"; die;
-		//$different_bk_hrs =( strtotime($total_time_date_wise) - strtotime($final_sum_total) ) / 60;
-
+		
 		$report_head 	= $cummuate_final_second_sumcount+5;
 		$report_inc3 	= $cummuate_final_second_sumcount+6;
 		$report_inc4 	= $report_inc3+1;

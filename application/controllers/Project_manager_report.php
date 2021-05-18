@@ -839,6 +839,16 @@ class Project_manager_report  extends Action_controller{
 		    $result[$arr['project']][$arr['work_type']] = $arr;
 		    return $result;
 		}, array());
+
+
+		$complete_pending_qry 			= 'SELECT count(*) as work_status_count,work_status as work_status,cw_time_sheet_time_line.project FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by project,work_status';
+		$complete_pending_info   		= $this->db->query("CALL sp_a_run ('SELECT','$complete_pending_qry')");
+		$complete_pending_result 		= $complete_pending_info->result_array();
+		$complete_pending_info->next_result();
+		$complete_pending_result = array_reduce($complete_pending_result, function($result, $arr){			
+		    $result[$arr['project']][$arr['work_status']] = $arr;
+		    return $result;
+		}, array());
 		
 
 		$q = $cummulative_detail_count;
@@ -909,14 +919,33 @@ class Project_manager_report  extends Action_controller{
 				$cummulate_booking_hours[] = $emails_project_wise;
 				$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
 
-
+				$pending_status_counting = $complete_pending_result[$key][1]['work_status_count'];
+				$partial_status_counting = $complete_pending_result[$key][2]['work_status_count'];
+				$complete_status_counting = $complete_pending_result[$key][3]['work_status_count'];
+				if((int)$pending_status_counting ===0){
+					$pending_status_counting = 0;
+				}else{
+					$pending_status_counting = $pending_status_counting;
+				}
+				if((int)$partial_status_counting ===0){
+					$partial_status_counting = 0;
+				}else{
+					$partial_status_counting = $partial_status_counting;
+				}
+				if((int)$complete_status_counting ===0){
+					$complete_status_counting = 0;
+				}else{
+					$complete_status_counting = $complete_status_counting;
+				}
+				$total_pending = $partial_status_counting + $pending_status_counting;
+				$total_works_status = "(".$complete_status_counting.") Completed - (".$total_pending.") Inprogress";
 				
 
 				$time_sheet_value['A']       = $job_category1;
 				$time_sheet_value['B']       = $project_name1;
 				$time_sheet_value['C']       = $detailing_count;
 				$time_sheet_value['D']       = $revision_count;
-				$time_sheet_value['E']       = $cummulative_time_sheet->work_description;
+				$time_sheet_value['E']       = $total_works_status;
 				$time_sheet_value['F'] 		 = $emails_project_wise;
 				$time_sheet_value['G'] 		 = $cummulate_study1;
 				$time_sheet_value['H'] 		 = $cummulate_qa_checking1;
@@ -1079,7 +1108,6 @@ class Project_manager_report  extends Action_controller{
 
 
 
-
 		$report_head 	= $cummuate_final_second_sumcount+5;
 		$report_inc3 	= $cummuate_final_second_sumcount+6;
 		$report_inc4 	= $report_inc3+1;
@@ -1138,6 +1166,7 @@ class Project_manager_report  extends Action_controller{
 		$actual_info->next_result();
 
 		$actual_tonnage 			= $actual_result[0]->actual_tonnage;
+
 		$actual_billable_time 		= $actual_result[0]->actual_billable_time;
 		$actual_billable_time 		= explode(':', $actual_billable_time);
 		$actual_billable_time 		= $actual_billable_time[0].':'.$actual_billable_time[1];
@@ -1156,17 +1185,55 @@ class Project_manager_report  extends Action_controller{
 		$submitted_log_approval_info   			= $this->db->query("CALL sp_a_run ('SELECT','$submitted_log_approval_qry')");
 		$submitted_log_approval_result 			= $submitted_log_approval_info->result();
 		$submitted_log_approval_info->next_result();
-		$submitted_log_actual_tonnage 			= $actual_result[0]->submitted_log_actual_tonnage;
-		$submitted_log_actual_billable_time 	= $actual_result[0]->submitted_log_actual_billable_time;
+		$submitted_log_actual_tonnage 			= $submitted_log_approval_result[0]->submitted_log_actual_tonnage;
+		$submitted_log_actual_billable_time 	= $submitted_log_approval_result[0]->submitted_log_actual_billable_time;
+		if((int)$submitted_log_actual_tonnage === 0 ){
+			$submitted_log_actual_tonnage = 0;
+		}else{
+			$submitted_log_actual_tonnage;
+		}
+		$submitted_log_actual_billable_time 		= $actual_result[0]->submitted_log_actual_billable_time;
+		$submitted_log_actual_billable_time 		= explode(':', $submitted_log_actual_billable_time);
+		$submitted_log_actual_billable_time 		= $submitted_log_actual_billable_time[0].':'.$submitted_log_actual_billable_time[1];
+		if($submitted_log_actual_billable_time === ':'){
+			$submitted_log_actual_billable_time = 0;
+		}else{
+			$submitted_log_actual_billable_time;
+		}
 
 
-		$checked_sheet_new  		= "DOUBT1";
-		$checked_sheet_rev  		= "DOUBT2";
+		$checker_new_detailing_qry 			= 'SELECT qa_major,qa_minor FROM cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where entry_date like "%'.$process_month.'%"  and project_manager_name = "'.$employee_code.'" and cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1';
+		$checker_new_detailing_info   		= $this->db->query("CALL sp_a_run ('SELECT','$checker_new_detailing_qry')");
+		$checker_new_detailing_result 		= $checker_new_detailing_info->result();
+		$checker_new_detailing_info->next_result();
+		$checked_sheet_new_details = count($checker_new_detailing_result);
+		$qa_error_count = 0;
+		foreach ($checker_new_detailing_result as $key => $value) {
+			$qa_error_count += $value->qa_major;
+			$qa_error_count += $value->qa_minor;
+		}
+
+
+		$checker_rev_detailing_qry 			= 'SELECT count(*) as actual_billable_time FROM cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where entry_date like "%'.$process_month.'%"  and project_manager_name = "'.$employee_code.'" and cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1';
+		$checker_rev_detailing_info   		= $this->db->query("CALL sp_a_run ('SELECT','$checker_rev_detailing_qry')");
+		$checker_rev_detailing_result 		= $checker_rev_detailing_info->result();
+		$checker_rev_detailing_info->next_result();
+		$checked_sheet_rev_details = $checker_rev_detailing_result[0]->actual_billable_time;
+
+		$avg_qa_error = $qa_error_count/$checked_sheet_new_details;
+		if ($avg_qa_error = NAN || INF) {
+		    $avg_qa_error = 0;
+		}else{
+		    $avg_qa_error;
+		} 
+
 		$tons_new_detailing 		= $production_tons/500;
-		$team_ton_per_sheet 		= $actual_tonnage/$checked_sheet_new;
-		$total_qa_error_count 		= "DOUBT3";
-		$avg_qa_error_sheet  		= $total_qa_error_count/$checked_sheet_new;
-		$client_reported_error 		= "DOUBT4";
+		$team_ton_per_sheet 		= $actual_tonnage/$checked_sheet_new_details;
+		if ($team_ton_per_sheet = NAN || INF) {
+		    $team_ton_per_sheet = 0;
+		}else{
+		    $team_ton_per_sheet;
+		} 
 
 		$team_rev_hours_tons 		= $this->time_to_decimal($submitted_log_actual_billable_time);
 		$team_tot_production_tons	= $team_rev_hours_tons + $submitted_log_actual_tonnage;
@@ -1183,18 +1250,18 @@ class Project_manager_report  extends Action_controller{
 		$min_different  			= ($min_different_office_hrs * $min_different2)/$min_different1;
 		$min_different 				= $this->decimal_to_time($min_different);
 
-		$project_excel[]['excel_column']= array('C'.$report_inc3,'C'.$report_inc4,'C'.$report_inc5,'C'.$report_inc6,'C'.$report_inc7,'C'.$report_inc8,'C'.$report_inc9,'C'.$report_inc10,'C'.$report_inc11,'C'.$report_inc12,'C'.$report_inc13,'C'.$report_inc14,'C'.$report_inc15,'C'.$report_inc16,'C'.$report_inc17,'C'.$report_inc18,'C'.$report_inc19);
-		$project_excel[]['excel_value']= array('No. of Working Days','Total Office hours','Total Booking hours','Difference b/t Booking  & Office Hrs','X','Teams Tons Detailed (Submitted Log)','Teams Rev. hours (Submitted Log)','Teams Rev. hours in Tons','Teams Total Production Tons','Target Reached/Not Reached','Checked Sheets New (Submitted Log)','Checked Sheets Rev (Time Sheet)','Teams Tons per Hour New Detailing only','Teams Tons per Sheet','Total QA Error Count (Submitted Log)','Avg. QA Error Count per Sheet','Client Reported Severe Errors');
-		$project_excel[]['end_column']= array('G'.$report_inc3,'G'.$report_inc4,'G'.$report_inc5,'G'.$report_inc6,'G'.$report_inc7,'G'.$report_inc8,'G'.$report_inc9,'G'.$report_inc10,'G'.$report_inc11,'G'.$report_inc12,'G'.$report_inc13,'G'.$report_inc14,'G'.$report_inc15,'G'.$report_inc16,'G'.$report_inc17,'G'.$report_inc18,'G'.$report_inc19);
-		$project_excel[]['column_cell']= array('H'.$report_inc3,'H'.$report_inc4,'H'.$report_inc5,'H'.$report_inc6,'H'.$report_inc7,'H'.$report_inc8,'H'.$report_inc9,'H'.$report_inc10,'H'.$report_inc11,'H'.$report_inc12,'H'.$report_inc13,'H'.$report_inc14,'H'.$report_inc15,'H'.$report_inc16,'H'.$report_inc17,'H'.$report_inc18,'H'.$report_inc19);
+		$project_excel[]['excel_column']= array('C'.$report_inc3,'C'.$report_inc4,'C'.$report_inc5,'C'.$report_inc6,'C'.$report_inc7,'C'.$report_inc8,'C'.$report_inc9,'C'.$report_inc10,'C'.$report_inc11,'C'.$report_inc12,'C'.$report_inc13,'C'.$report_inc14,'C'.$report_inc15,'C'.$report_inc16,'C'.$report_inc17,'C'.$report_inc18);
+		$project_excel[]['excel_value']= array('No. of Working Days','Total Office hours','Total Booking hours','Difference b/t Booking  & Office Hrs','X','Teams Tons Detailed (Submitted Log)','Teams Rev. hours (Submitted Log)','Teams Rev. hours in Tons','Teams Total Production Tons','Target Reached/Not Reached','Checked Sheets New (Submitted Log)','Checked Sheets Rev (Time Sheet)','Teams Tons per Hour New Detailing only','Teams Tons per Sheet','Total QA Error Count (Submitted Log)','Avg. QA Error Count per Sheet');
+		$project_excel[]['end_column']= array('G'.$report_inc3,'G'.$report_inc4,'G'.$report_inc5,'G'.$report_inc6,'G'.$report_inc7,'G'.$report_inc8,'G'.$report_inc9,'G'.$report_inc10,'G'.$report_inc11,'G'.$report_inc12,'G'.$report_inc13,'G'.$report_inc14,'G'.$report_inc15,'G'.$report_inc16,'G'.$report_inc17,'G'.$report_inc18);
+		$project_excel[]['column_cell']= array('H'.$report_inc3,'H'.$report_inc4,'H'.$report_inc5,'H'.$report_inc6,'H'.$report_inc7,'H'.$report_inc8,'H'.$report_inc9,'H'.$report_inc10,'H'.$report_inc11,'H'.$report_inc12,'H'.$report_inc13,'H'.$report_inc14,'H'.$report_inc15,'H'.$report_inc16,'H'.$report_inc17,'H'.$report_inc18);
 
-		$project_excel[]['column_value']= array($working_days,$total_time_date_wise,$sum_value_total_hours,$diff_office_office,"",$submitted_log_actual_tonnage,$submitted_log_actual_billable_time,$team_rev_hours_tons,$team_tot_production_tons,$target_status,"Doubt","Doubt",$team_ton_per_hrs_detail,$team_ton_per_sheet,$total_qa_error_count,$avg_qa_error_sheet,$client_reported_error);
+		$project_excel[]['column_value']= array($no_of_working_days,$total_time_date_wise,$sum_value_total_hours,$diff_office_office,"",$submitted_log_actual_tonnage,$submitted_log_actual_billable_time,$team_rev_hours_tons,$team_tot_production_tons,$target_status,$checked_sheet_new_details,$checked_sheet_rev_details,$tons_new_detailing,$team_ton_per_sheet,$qa_error_count,$avg_qa_error);
 
-		$project_excel[]['column_end']= array('I'.$report_inc3,'I'.$report_inc4,'I'.$report_inc5,'I'.$report_inc6,'I'.$report_inc7,'I'.$report_inc8,'I'.$report_inc9,'I'.$report_inc10,'I'.$report_inc11,'I'.$report_inc12,'I'.$report_inc13,'I'.$report_inc14,'I'.$report_inc15,'I'.$report_inc16,'I'.$report_inc17,'I'.$report_inc18,'I'.$report_inc19);
+		$project_excel[]['column_end']= array('I'.$report_inc3,'I'.$report_inc4,'I'.$report_inc5,'I'.$report_inc6,'I'.$report_inc7,'I'.$report_inc8,'I'.$report_inc9,'I'.$report_inc10,'I'.$report_inc11,'I'.$report_inc12,'I'.$report_inc13,'I'.$report_inc14,'I'.$report_inc15,'I'.$report_inc16,'I'.$report_inc17,'I'.$report_inc18);
 
 
-		$match_id = 'H'.$report_inc19;
-		for ($x = 0; $x <= 16; $x++) {
+		$match_id = 'H'.$report_inc18;
+		for ($x = 0; $x <= 15; $x++) {
 			$excel_column  		= $project_excel[0]['excel_column'][$x];
 			$excel_value   		= $project_excel[1]['excel_value'][$x];
 			$end_column   		= $project_excel[2]['end_column'][$x];
@@ -1213,39 +1280,16 @@ class Project_manager_report  extends Action_controller{
 			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $min_different)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
 		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			// die;
-			$filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name
-			header('Content-Type: application/vnd.ms-excel'); //mime type
-			header('Content-Disposition: attachment;filename="'.$filename.'"'); //tell browser what's the file name
-			header('Cache-Control: max-age=0'); //no cache
-			//save it to Excel5 format (excel 2003 .XLS file), change this to 'Excel2007' (and adjust the filename extension, also the header mime type)
-			//if you want to save it as .XLSX Excel 2007 format
-			$objWriter = PHPExcel_IOFactory::createWriter($obj, 'Excel5');
-			//force user to download the Excel file without writing it to server's HD
-			$objWriter->save('php://output');
-			echo json_encode(array('success' => TRUE, 'output' => $excelOutput));
-		// }
+		$filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name
+		header('Content-Type: application/vnd.ms-excel'); //mime type
+		header('Content-Disposition: attachment;filename="'.$filename.'"'); //tell browser what's the file name
+		header('Cache-Control: max-age=0'); //no cache
+		//save it to Excel5 format (excel 2003 .XLS file), change this to 'Excel2007' (and adjust the filename extension, also the header mime type)
+		//if you want to save it as .XLSX Excel 2007 format
+		$objWriter = PHPExcel_IOFactory::createWriter($obj, 'Excel5');
+		//force user to download the Excel file without writing it to server's HD
+		$objWriter->save('php://output');
+		echo json_encode(array('success' => TRUE, 'output' => $excelOutput));
 		
 	}
 	function decimalHours($time)

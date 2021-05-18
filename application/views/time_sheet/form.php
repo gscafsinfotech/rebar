@@ -1040,10 +1040,10 @@ function inputs_hide_show(logged_role,work_type){
 			select_all();
 		}else
 		if(parseInt(work_type) === 2){
-			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#emails,#was,#co_checking,#billable_hours,#non_billable_hours,#actual_billable_time,#work_description,#aec").parent().show();
-			$("#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#emails,#was,#co_checking,#billable_hours,#non_billable_hours,#actual_billable_time,#work_description,#aec").removeClass('ignore');
-			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#change_order_time,#billable,#actual_tonnage,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
-			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#change_order_time,#billable,#actual_tonnage,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#entry_type,#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#emails,#was,#co_checking,#billable_hours,#non_billable_hours,#actual_billable_time,#work_description,#aec,#work_status").parent().show();
+			$("#revision_time,#correction_time,#checking,#study,#discussion,#rfi,#emails,#was,#co_checking,#billable_hours,#non_billable_hours,#actual_billable_time,#work_description,#aec,#work_status").removeClass('ignore');
+			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#change_order_time,#billable,#actual_tonnage,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
+			$("#detailing_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#change_order_time,#billable,#actual_tonnage,#co_number,#qa_checking,#monitoring,#bar_listing_checking,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
 			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
 			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
 			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
@@ -1072,20 +1072,20 @@ function inputs_hide_show(logged_role,work_type){
 	}else 
 	if(parseInt(logged_role) === 3){
 		if(parseInt(work_type) === 1){
-			$("#entry_type,#emails,#study,#qa_checking,#discussion,#was,#monitoring,#work_description").parent().show();
-			$("#entry_type,#emails,#study,#qa_checking,#discussion,#was,#monitoring,#work_description").removeClass('ignore');
-			$("#detailing_time,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
-			$("#detailing_time,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#entry_type,#emails,#study,#qa_checking,#discussion,#was,#monitoring,#work_description,#work_status").parent().show();
+			$("#entry_type,#emails,#study,#qa_checking,#discussion,#was,#monitoring,#work_description,#work_status").removeClass('ignore');
+			$("#detailing_time,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
+			$("#detailing_time,#rfi,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#other_works,#bar_list_quantity,#bar_listing_time,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#co_checking,#actual_billable_time,#co_number,#bar_listing_checking,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
 			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
 			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
 			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
 			select_all();
 		}else 
 		if(parseInt(work_type) === 2){
-			$("#entry_type,#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#co_checking,#bar_listing_checking,#work_description,#emails").parent().show();
-			$("#entry_type,#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#co_checking,#bar_listing_checking,#work_description,#emails").removeClass('ignore');
-			$("#detailing_time,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#actual_billable_time,#co_number,#bar_listing_time,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
-			$("#detailing_time,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#work_status,#tonnage,#other_works,#bar_list_quantity,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#actual_billable_time,#co_number,#bar_listing_time,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
+			$("#entry_type,#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#co_checking,#bar_listing_checking,#work_description,#emails,#work_status").parent().show();
+			$("#entry_type,#rfi,#study,#qa_checking,#monitoring,#was,#discussion,#co_checking,#bar_listing_checking,#work_description,#emails,#work_status").removeClass('ignore');
+			$("#detailing_time,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#other_works,#bar_list_quantity,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#actual_billable_time,#co_number,#bar_listing_time,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").parent().hide();
+			$("#detailing_time,#checking,#correction_time,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#tonnage,#other_works,#bar_list_quantity,#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#actual_tonnage,#actual_billable_time,#co_number,#bar_listing_time,#aec,#credit,#client_name,#approval_status,#other_work_name,#team").addClass('ignore');
 			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
 			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
 			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
@@ -1129,8 +1129,15 @@ function entry_type_wise(entry_type){
 		}
 	}else 
 	if(parseInt(entry_type) === 2 && parseInt(work_status) === 3){
-		$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().show();
-		$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").removeClass('ignore');
+		var logged_role = "<?php echo $logged_role;?>";
+		if(parseInt(logged_role) === 5){
+			$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().show();
+			$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").removeClass('ignore');
+		}else{
+			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().hide();
+			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").addClass('ignore');
+		}
+		
 	}else
 	if(parseInt(entry_type) === 2){
 		$("#drawing_no,#project").parent().show();
@@ -1178,14 +1185,15 @@ function work_status_wise(work_status){
 	var entry_type 	= $("#entry_type").val();
 	var work_type 	= $("#work_type").val();
 	var logged_role = "<?php echo $logged_role;?>";
-	if((parseInt(logged_role)))
-	if(parseInt(work_type) === 1){
-		if(parseInt(entry_type) === 2 && parseInt(work_status) === 3){
-			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().show();
-			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").removeClass('ignore');
-		}else{
-			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().hide();
-			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").addClass('ignore');
+	if((parseInt(logged_role)) === 5){
+		if(parseInt(work_type) === 1){
+			if(parseInt(entry_type) === 2 && parseInt(work_status) === 3){
+				$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().show();
+				$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").removeClass('ignore');
+			}else{
+				$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().hide();
+				$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").addClass('ignore');
+			}
 		}
 	}
 }

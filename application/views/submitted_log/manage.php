@@ -15,7 +15,7 @@
 		<div class="col-md-9">
 			<div class="form-group">
 				<?php
-					$process_by_list = array(''=>"---- Select ----",'1'=>"Team Wise",'2'=>"All");
+					$process_by_list = array(''=>"---- Select ----",'1'=>"All");
 					echo form_label("Process By", 'process_by', array('class' => 'required'));
 					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
 				?>
@@ -29,7 +29,7 @@
 			<div class="form-group">
 				<?php
 					echo form_label("Process Month", 'process_month', array('class' => 'required'));
-					echo form_input(array( 'name' => 'process_month', 'id' => 'process_month', 'class' => 'form-control input-sm datepicker'));
+					echo form_input(array( 'name' => 'process_month', 'id' => 'process_month', 'class' => 'form-control input-sm datepickermonth'));
 				?>
 			</div>
 			<div class="form-group" style="z-index: 999;">
@@ -61,7 +61,7 @@
 								$fliter_val  = form_dropdown(array('name' => 'fliter_val[]','class' => 'form-control input-sm'), $array_list);
 							}else
 							if((int)$field_type === 7){
-								$fliter_val =  form_dropdown(array( 'name' => 'fliter_val[]', 'multiple id' => 'fliter_val', 'class' => 'form-control input-sm select2'), $array_list);
+								$fliter_val =  form_dropdown(array( 'name' => 'fliter_val[]', 'multiple id' => 'fliter_val', 'class' => 'form-control input-sm select2 filter_picks'), $array_list);
 
 								$fliter_val_multi = form_input(array('type'=>'hidden','id' => 'fliter_val_multi','name' => 'fliter_val_multi[]','class' => 'form-control input-sm', 'placeholder'=>'','value' => ''));
 							}else
@@ -127,15 +127,15 @@
 			select();
 		});
 
-		$("#process_by").change(function(){
+		// $("#process_by").change(function(){
 
-			var process_by = $(this).val();
-			if(parseInt(process_by) === 1){
-				$("#process_team").parent().show();
-			}else{
-				$("#process_team").parent().hide();
-			}
-		});
+		// 	var process_by = $(this).val();
+		// 	if(parseInt(process_by) === 1){
+		// 		$("#process_team").parent().show();
+		// 	}else{
+		// 		$("#process_team").parent().hide();
+		// 	}
+		// });
 
 
 		var logged_role      = "<?php echo $logged_role;?>";
@@ -162,7 +162,8 @@
 				end_date   = endDate.format('YYYY-MM-DD');
 			}
 		});
-		$(".select2").on('change', function (e) {
+		$(".filter_picks").on('change', function (e) {
+			alert();
 			var fliter_val_multi = $(this).val().length;
 			console.log(fliter_val_multi);
 			$("#fliter_val_multi").val(fliter_val_multi);
@@ -186,6 +187,7 @@
 			var fliter_val         =  $("input[name='fliter_val[]'],select[name='fliter_val[]']").map(function(){return $(this).val();}).get();
 			var multipick_val 	   = $("#fliter_val_multi").val();
 			var multipick_val = parseInt(multipick_val);
+			console.log(multipick_val);
 
 
 			// if(employee_code !== '' && process_month !== ''){
@@ -217,6 +219,9 @@
 	}
 	function select(){
 		$(".datepicker").datetimepicker({
+			format: 'DD-MM-YYYY'
+		});
+		$(".datepickermonth").datetimepicker({
 			format: 'MM-YYYY'
 		});
 		$("#payslip_month").datetimepicker({

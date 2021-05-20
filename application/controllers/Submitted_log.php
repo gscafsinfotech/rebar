@@ -207,6 +207,7 @@ class Submitted_log  extends Action_controller{
 	public function excel_export($process_month,$fliter_label,$fliter_type,$field_type,$filter_cond,$fliter_val,$multipick_val){
 		$process_month 		= $process_month;
 		$get_month 			= explode('-', $process_month);
+		$month_year			= $get_month[1];
 		$month_name			= $get_month[0];
 		$month_name 		= date("F", mktime(null, null, null, $month_name, 1));
 		$multi_val 			 = (int)$multipick_val-1;
@@ -268,47 +269,6 @@ class Submitted_log  extends Action_controller{
 			}				
 		}
 
-		$all_team_qry  	= 'select GROUP_CONCAT(prime_team_id) as prime_team_id from cw_team where trans_status = 1';
-		$all_team_info   	= $this->db->query("CALL sp_a_run ('SELECT','$all_team_qry')");
-		$all_team_result  	= $all_team_info->result();
-		$all_team_info->next_result();
-		$process_team 	= $all_team_result[0]->prime_team_id;
-
-		$detailing_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.'';
-		$detailing_info   			= $this->db->query("CALL sp_a_run ('SELECT','$detailing_qry')");
-		$detailing_result 			= $detailing_info->result();
-		$detailing_info->next_result();
-		$team_qry  	= 'select prime_team_id,team_name from cw_team where cw_team.prime_team_id in('.$process_team.') and trans_status = 1';
-		$team_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
-		$team_result  	= $team_info->result();
-		$team_info->next_result();
-
-		$team_emp_name_qry  	= 'select prime_team_id,team_name,GROUP_CONCAT(emp_name) as team_emp_name from cw_team inner join cw_employees on find_in_set(cw_team.prime_team_id,cw_employees.team) where cw_team.prime_team_id in('.$process_team.') and cw_employees.role = 5 and cw_team.trans_status = 1 group by prime_team_id';
-		$team_emp_name_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_emp_name_qry')");
-		$team_emp_name_result  	= $team_emp_name_info->result();
-		$team_emp_name_info->next_result();
-
-		$checker_time_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as team_leader_name,prime_team_id,cw_tonnage_approval.detailer_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.approval_status  and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1';
-		$checker_time_info   			= $this->db->query("CALL sp_a_run ('SELECT','$checker_time_qry')");
-		$checker_time_result 			= $checker_time_info->result();
-		$checker_time_info->next_result();
-
-		$employee_team_qry  	= 'select GROUP_CONCAT(emp_name),team_name,prime_team_id from cw_team inner join cw_employees on cw_employees.team in('.$process_team.')  where  cw_employees.role = 5 and cw_employees.employee_status =1 and cw_team.trans_status = 1 and cw_employees.trans_status = 1 group by prime_team_id order by prime_team_id ASC';
-		$employee_team_info   	= $this->db->query("CALL sp_a_run ('SELECT','$employee_team_qry')");
-		$employee_team_result  	= $employee_team_info->result();
-		$employee_team_info->next_result();
-
-		$team_result  = json_decode(json_encode($team_result),true);		
-		$team_result = array_reduce($team_result, function($result, $arr){			
-		    $result[$arr['prime_team_id']] = $arr;
-		    return $result;
-		}, array());
-		$team_emp_name_result  = json_decode(json_encode($team_emp_name_result),true);		
-		$team_emp_name_result = array_reduce($team_emp_name_result, function($result, $arr){			
-		    $result[$arr['prime_team_id']] = $arr;
-		    return $result;
-		}, array());
-
 		require_once APPPATH."/third_party/PHPExcel.php";
 		$obj = new PHPExcel();	
 
@@ -342,7 +302,139 @@ class Submitted_log  extends Action_controller{
 	    $verticalStyle  = array(
 	    	'borders' => array(
 			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    )
+			  ),
+	    	'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+	        )
+	    );
+	    $LeftBorder  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    )
+			  ),
+	        'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
+	    );
+	    $RightBorder  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_DOTTED
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
+	        'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
+	    );
+	    $HeaderRightBorder  = array(
+	    	'borders' => array(
+			    'bottom' => array(
 			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
+	    	'font' => array(
+	            'bold' => true,
+	            'color' => array('rgb' => '000'),
+	        ),
+	        'fill' => array(
+	            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	            'color' => array('rgb' => '99CC00')
+	        ),
+	        'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
+	    );
+	    $HeaderLeftBorder  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    )
+			  ),
+	    	'font' => array(
+	            'bold' => true,
+	            'color' => array('rgb' => '000'),
+	        ),
+	        'fill' => array(
+	            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	            'color' => array('rgb' => '99CC00')
+	        ),
+	        'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
+	    );
+	    $teamStyle  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
+	    	'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+	        )
+	    );
+	    $FooterStyle  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
 			    ),
 			    'top' => array(
 			      'style' => PHPExcel_Style_Border::BORDER_THIN
@@ -354,14 +446,127 @@ class Submitted_log  extends Action_controller{
 			      'style' => PHPExcel_Style_Border::BORDER_THIN
 			    )
 			  ),
+	    	'font' => array(
+	            'bold' => true,
+	            'color' => array('rgb' => '000'),
+	        ),
+	    	'fill' => array(
+	            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	            'color' => array('rgb' => 'FFFF00')
+	        ),
+	    	'alignment' => array(
+	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+	        )
+	    );
+	    $LeftBorderFoot  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    )
+			  ),
+	    	'font' => array(
+	            'bold' => true,
+	            'color' => array('rgb' => '000'),
+	        ),
+	    	'fill' => array(
+	            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	            'color' => array('rgb' => 'FFFF00')
+	        ),
+	        'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
+	    );
+	    $RightBorderFoot  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THIN
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
+	    	'font' => array(
+	            'bold' => true,
+	            'color' => array('rgb' => '000'),
+	        ),
+	    	'fill' => array(
+	            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	            'color' => array('rgb' => 'FFFF00')
+	        ),
+	        'alignment' => array(
+	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+	        )
+	    );
+	    $header_first  = array(
+	    	'borders' => array(
+			    'bottom' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'top' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'left' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    ),
+			    'right' => array(
+			      'style' => PHPExcel_Style_Border::BORDER_THICK
+			    )
+			  ),
+	    	'font' => array(
+	            'bold' => true,
+	            'color' => array('rgb' => '000'),
+	        ),
+	        'fill' => array(
+	            'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	            'color' => array('rgb' => '99CC00')
+	        ),
 	    	'alignment' => array(
 	            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
 	            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
 	        )
 	    );
 
+		$excel_types[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V');
+		$excel_types[]['excel_value']= array('RDA#','US PM','Client','Name of Project','Recd On','Dwg. No','No .OfDwgs','Drawing Description','Sub Date','Tons','Detailer Name','Time','"Checker Name','Time','Total','1st Check Major','1st Check Minor','2nd Check','QA Major','QA Minor','PM','Branch');
+		for ($x = 0; $x <= 21; $x++) {
+			$excel_column  = $excel_types[0]['excel_column'][$x];
+			$excel_value   = $excel_types[1]['excel_value'][$x];
+			$obj->getActiveSheet()->setCellValue('A'."1", "US DETAILING PROJECTS - NEW SUBMISSIONS DURING ".strtoupper($month_name)."-".$month_year)->mergeCells('A1:V1')->getStyle('A1:V1')->applyFromArray($header_first);
+			if($excel_column === 'A'){
+				$obj->getActiveSheet()->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($HeaderLeftBorder);
+			}else
+			if($excel_column === 'V'){
+				$obj->getActiveSheet()->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($HeaderRightBorder);
+			}else{
+				$obj->getActiveSheet()->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($styleArray);
+			}
+			$obj->getActiveSheet()->calculateWorksheetDimension();
+		}
+		$detailing_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,team_name,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.'';
+		$detailing_info   			= $this->db->query("CALL sp_a_run ('SELECT','$detailing_qry')");
+		$detailing_result 			= $detailing_info->result_array();
+		$detailing_info->next_result();
+		$detailing_result = array_reduce($detailing_result, function($result, $arr){			
+		    $result[$arr['prime_team_id']][] = $arr;
+		    return $result;
+		}, array());
 
-	    $checker_name_qry = 'select cw_tonnage_approval.team,cw_employees.emp_name,prime_team_id,cw_employees.employee_code from cw_tonnage_approval inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.trans_status = 1 and cw_employees.trans_status = 1 and cw_tonnage_approval.approval_status = 2 and cw_employees.trans_status = 1';
+		$checker_name_qry = 'select cw_tonnage_approval.team,cw_employees.emp_name,prime_team_id,cw_employees.employee_code from cw_tonnage_approval inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.trans_status = 1 and cw_employees.trans_status = 1 and cw_tonnage_approval.approval_status = 2 and cw_employees.trans_status = 1';
 	    $checker_name_info   	= $this->db->query("CALL sp_a_run ('SELECT','$checker_name_qry')");
 		$checker_name_result  	= $checker_name_info->result();
 		$checker_name_info->next_result();
@@ -371,242 +576,299 @@ class Submitted_log  extends Action_controller{
 		$pm_name_result  	= $pm_name_info->result();
 		$pm_name_info->next_result();
 
+		$checker_time_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as team_leader_name,prime_team_id,cw_tonnage_approval.detailer_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.approval_status  and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1';
+		$checker_time_info   			= $this->db->query("CALL sp_a_run ('SELECT','$checker_time_qry')");
+		$checker_time_result 			= $checker_time_info->result();
+		$checker_time_info->next_result();
 
-		$excel_types[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V');
-		$excel_types[]['excel_value']= array('RDA#','US PM','Client','Name of Project','Recd On','Dwg. No','No .OfDwgs','Drawing Description','Sub Date','Tons','Detailer Name','Time','"Checker Name','Time','Total','1st Check Major','1st Check Minor','2nd Check','QA Major','QA Minor','PM','Branch');
-		for ($x = 0; $x <= 21; $x++) {
-			$excel_column  = $excel_types[0]['excel_column'][$x];
-			$excel_value   = $excel_types[1]['excel_value'][$x];
-			$obj->getActiveSheet()->setCellValue('A'."1", "US DETAILING PROJECTS - NEW SUBMISSIONS DURING DEC 2020")->mergeCells('A1:V1')->getStyle('A1:V1')->applyFromArray($styleArray);
-			$obj->getActiveSheet()->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($styleArray);
-			$obj->getActiveSheet()->calculateWorksheetDimension();
-		}
+		$team_qry  	= 'select prime_team_id,team_name from cw_team where trans_status = 1';
+		$team_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
+		$team_result  	= $team_info->result_array();
+		$team_info->next_result();
+		$team_result = array_reduce($team_result, function($result, $arr){			
+		    $result[$arr['prime_team_id']] = $arr;
+		    return $result;
+		}, array());
 
-		$i=3;
-		foreach ($team_result as $key => $value) {
-			$team_name 		= $value['team_name'];
-			$prime_team_id  = $value['prime_team_id'];
-			$team_emp_name  = $value['team_emp_name'];
-			$team_emp_name  = $team_emp_name_result[$prime_team_id]['team_emp_name'];
-					$time_sheet_value['A']  = $team_name.' >>> '.$team_emp_name;
-			$can_process = false;
+		$team_all_qry  		= 'select GROUP_CONCAT(prime_team_id) as prime_team_id from cw_team where trans_status = 1';
+		$team_all_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_all_qry')");
+		$team_all_result  	= $team_all_info->result();
+		$team_all_info->next_result();
+		$process_team 		= $team_all_result[0]->prime_team_id;
+
+		$team_emp_name_qry  	= 'select prime_team_id,team_name,GROUP_CONCAT(emp_name) as team_emp_name from cw_team inner join cw_employees on find_in_set(cw_team.prime_team_id,cw_employees.team) where cw_team.prime_team_id in('.$process_team.') and cw_employees.role = 5 and cw_team.trans_status = 1 group by prime_team_id';
+		$team_emp_name_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_emp_name_qry')");
+		$team_emp_name_result  	= $team_emp_name_info->result_array();
+		$team_emp_name_info->next_result();
+
+		$team_emp_name_result = array_reduce($team_emp_name_result, function($result, $arr){			
+		    $result[$arr['prime_team_id']] = $arr;
+		    return $result;
+		}, array());
+		$i = 3;
+		foreach ($detailing_result as $team_id => $value) {
 			for ($x = 0; $x <= 1; $x++) {
 				$excel_column  		= $excel_types[0]['excel_column'][$x];
 				$value_of_excel  	= $time_sheet_value[$excel_column];
-				$obj->getActiveSheet()->setCellValue($excel_column.$i, $value_of_excel)->mergeCells($excel_column.$i.':'.'V'.$i)->getStyle($excel_column.$i.':'.'V'.$i)->applyFromArray($styleArray);
-				$can_process = true;
-			}
-			$counter=$i;
-			if($can_process){
-				foreach ($detailing_result as $key => $details){
-					$cummulate_booking_hours =array();
-					$cummulate_booking_hours[] = $details->detailing_time;
-					$cummulate_booking_hours[] = $details->study;
-					$cummulate_booking_hours[] = $details->discussion;
-					$cummulate_booking_hours[] = $details->rfi;
-					$cummulate_booking_hours[] = $details->checking;
-					$cummulate_booking_hours[] = $details->correction_time;
-					$cummulate_booking_hours[] = $details->other_works;
-					$cummulate_booking_hours[] = $details->bar_listing_time;
-					$cummulate_booking_hours[] = $details->revision_time;
-					$cummulate_booking_hours[] = $details->change_order_time;
-					$cummulate_booking_hours[] = $details->billable_hours;
-					$cummulate_booking_hours[] = $details->non_billable_hours;
-					$cummulate_booking_hours[] = $details->emails;
-					$cummulate_booking_hours[] = $details->was;
-					$cummulate_booking_hours[] = $details->co_checking;
-					$cummulate_booking_hours[] = $details->actual_billable_time;
-					$cummulate_booking_hours[] = $details->qa_checking;
-					$cummulate_booking_hours[] = $details->monitoring;
-					$cummulate_booking_hours[] = $details->bar_listing_checking;
-					$cummulate_booking_hours[] = $details->aec;
-					$cummulate_booking_hours[] = $details->credit;
-					$cummulate_booking_hours[] = $details->first_check_minor;
-					$cummulate_booking_hours[] = $details->first_check_major;
-					$cummulate_booking_hours[] = $details->second_check_major;
-					$cummulate_booking_hours[] = $details->second_check_minor;
-					$cummulate_booking_hours[] = $details->qa_major;
-					$cummulate_booking_hours[] = $details->qa_minor;
-					$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
-
-					$team_id = $details->team_id;
-					$team_leader_name = $details->team_leader_name;
-					$project_manager_name = $details->project_manager_name;
-
-					if($prime_team_id === $team_id){
-						$time_sheet_inside['A']  = $details->rdd_no;
-						$time_sheet_inside['B']  = $details->uspm;
-						$time_sheet_inside['C']  = $details->client_name;
-						$time_sheet_inside['D']  = $details->project_name;
-						$time_sheet_inside['E']  = $details->received_date;
-						$time_sheet_inside['F']  = $details->drawing_no;
-						$time_sheet_inside['G']  = "1";
-						$time_sheet_inside['H']  = $details->drawing_description;
-						$time_sheet_inside['I']  = date('d-m-Y',strtotime($details->trans_created_date));
-						$time_sheet_inside['J']  = $details->actual_tonnage;
-						$time_sheet_inside['K']  = $details->detailer_name;
-						$time_sheet_inside['L']  = $cummulate_total_hours;
-						foreach ($checker_name_result as $key => $checker_rlst) {
-							$checker_id_team = $checker_rlst->team;
-							$emps_code = $checker_rlst->employee_code;
-
-
-							if($team_leader_name === $emps_code){
-								$time_sheet_inside['M']  = $checker_rlst->emp_name;
-							}
-						}
-
-						foreach ($checker_time_result as $key => $chk_rlst) {
-							$checker_booking_hours =array();
-							$checker_booking_hours[] = $chk_rlst->detailing_time;
-							$checker_booking_hours[] = $chk_rlst->study;
-							$checker_booking_hours[] = $chk_rlst->discussion;
-							$checker_booking_hours[] = $chk_rlst->rfi;
-							$checker_booking_hours[] = $chk_rlst->checking;
-							$checker_booking_hours[] = $chk_rlst->correction_time;
-							$checker_booking_hours[] = $chk_rlst->other_works;
-							$checker_booking_hours[] = $chk_rlst->bar_listing_time;
-							$checker_booking_hours[] = $chk_rlst->revision_time;
-							$checker_booking_hours[] = $chk_rlst->change_order_time;
-							$checker_booking_hours[] = $chk_rlst->billable_hours;
-							$checker_booking_hours[] = $chk_rlst->non_billable_hours;
-							$checker_booking_hours[] = $chk_rlst->emails;
-							$checker_booking_hours[] = $chk_rlst->was;
-							$checker_booking_hours[] = $chk_rlst->co_checking;
-							$checker_booking_hours[] = $chk_rlst->actual_billable_time;
-							$checker_booking_hours[] = $chk_rlst->qa_checking;
-							$checker_booking_hours[] = $chk_rlst->monitoring;
-							$checker_booking_hours[] = $chk_rlst->bar_listing_checking;
-							$checker_booking_hours[] = $chk_rlst->aec;
-							$checker_booking_hours[] = $chk_rlst->credit;
-							$checker_booking_hours[] = $chk_rlst->first_check_minor;
-							$checker_booking_hours[] = $chk_rlst->first_check_major;
-							$checker_booking_hours[] = $chk_rlst->second_check_major;
-							$checker_booking_hours[] = $chk_rlst->second_check_minor;
-							$checker_booking_hours[] = $chk_rlst->qa_major;
-							$checker_booking_hours[] = $chk_rlst->qa_minor;
-							$checker_bookhours 	   	 = $this->AddPlayTime($checker_booking_hours);
-							$time_sheet_inside['N']  = $checker_bookhours;
-
-							$total_times 			 = array();
-							$total_times[] 			 = $cummulate_total_hours;
-							$total_times[] 			 = $checker_bookhours;
-							$total_times 	   	 	 = $this->AddPlayTime($total_times);
-							$time_sheet_inside['O']  = $total_times;
-						}
-						
-						$time_sheet_inside['P']  = $details->first_check_major;
-						$time_sheet_inside['Q']  = $details->first_check_minor;
-						$time_sheet_inside['R']  = $details->second_check_major;
-						$time_sheet_inside['S']  = $details->qa_major;
-						$time_sheet_inside['T']  = $details->qa_minor;
-						foreach ($pm_name_result as $key => $pm_rlst) {
-							$pm_id_team = $pm_rlst->team;
-							$pm_emp_code = $pm_rlst->employee_code;
-							if($project_manager_name === $pm_emp_code){
-								$time_sheet_inside['U']  = $pm_rlst->emp_name;
-							}
-						}
-						$time_sheet_inside['V']  = $details->branch;
-						$counter++;	
-						for ($y = 0; $y <= 21; $y++) {
-							$excel_column  		= $excel_types[0]['excel_column'][$y];					
-							$value_of_excel  	= $time_sheet_inside[$excel_column];
-							
-							$obj->getActiveSheet()->setCellValue($excel_column.$counter, $value_of_excel)->getStyle($excel_column.$counter)->applyFromArray($verticalStyle);
-							$obj->setActiveSheetIndex(0);
-							$obj->getActiveSheet()->setTitle('Detailing');
-						}					
-						$i++;	
-				
+				$team_emp_name  = $team_emp_name_result[$team_id]['team_emp_name'];
+				foreach ($team_result as $team_name_id => $team_details) {
+					if($team_id === $team_name_id){
+						$team_id_with_name = $team_details['team_name'].">>>".$team_emp_name;
+						$obj->getActiveSheet()->setCellValue($excel_column.$i, $team_id_with_name)->mergeCells($excel_column.$i.':'.'V'.$i)->getStyle($excel_column.$i.':'.'V'.$i)->applyFromArray($teamStyle);
 					}
 				}
-			}		
-		$i++;	
-	}
+			}
+			$counter 	= $i;
+			$team_total = "";
+			$i++;
+			$total_first_check_minor  = 0;
+			$total_first_check_major  = 0;
+			$total_second_check_major = 0;
+			$total_qa_major			  = 0;
+			$total_qa_minor			  = 0;
+			$total_actual_tons 		  = 0;
+			$no_of_draw				  = 0;
+			foreach ($value as $team_data) {
+				$total_first_check_minor  += $team_data['first_check_minor'];
+				$total_first_check_major  += $team_data['first_check_major'];
+				$total_second_check_major += $team_data['second_check_major'];
+				$total_qa_major  		  += $team_data['qa_major'];
+				$total_qa_minor  		  += $team_data['qa_minor'];
+				$total_actual_tons 		  += $team_data['actual_tonnage'];
+				$no_of_draw				  += 1;
 
-	//Revision Sheet
+				$cummulate_booking_hours   = array();
+				$cummulate_booking_hours[] = $team_data['detailing_time'];
+				$cummulate_booking_hours[] = $team_data['study'];
+				$cummulate_booking_hours[] = $team_data['discussion'];
+				$cummulate_booking_hours[] = $team_data['rfi'];
+				$cummulate_booking_hours[] = $team_data['checking'];
+				$cummulate_booking_hours[] = $team_data['correction_time'];
+				$cummulate_booking_hours[] = $team_data['other_works'];
+				$cummulate_booking_hours[] = $team_data['bar_listing_time'];
+				$cummulate_booking_hours[] = $team_data['revision_time'];
+				$cummulate_booking_hours[] = $team_data['change_order_time'];
+				$cummulate_booking_hours[] = $team_data['billable_hours'];
+				$cummulate_booking_hours[] = $team_data['non_billable_hours'];
+				$cummulate_booking_hours[] = $team_data['emails'];
+				$cummulate_booking_hours[] = $team_data['was'];
+				$cummulate_booking_hours[] = $team_data['co_checking'];
+				$cummulate_booking_hours[] = $team_data['actual_billable_time'];
+				$cummulate_booking_hours[] = $team_data['qa_checking'];
+				$cummulate_booking_hours[] = $team_data['monitoring'];
+				$cummulate_booking_hours[] = $team_data['bar_listing_checking'];
+				$cummulate_booking_hours[] = $team_data['aec'];
+				$cummulate_booking_hours[] = $team_data['credit'];
+				$cummulate_booking_hours[] = $team_data['first_check_minor'];
+				$cummulate_booking_hours[] = $team_data['first_check_major'];
+				$cummulate_booking_hours[] = $team_data['second_check_major'];
+				$cummulate_booking_hours[] = $team_data['second_check_minor'];
+				$cummulate_booking_hours[] = $team_data['qa_major'];
+				$cummulate_booking_hours[] = $team_data['qa_minor'];
+				$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
+				$team_leader_name 		   = $team_data['team_leader_name'];
+				$project_manager_name 	   = $team_data['project_manager_name'];
 
-	$obj->createSheet();
-	$obj->setActiveSheetIndex(1);
-	$obj->getActiveSheet(1)->setTitle('Revision');
+				$time_sheet_inside['A']  = $team_data['rdd_no'];
+				$time_sheet_inside['B']  = $team_data['uspm'];
+				$time_sheet_inside['C']  = $team_data['client_name'];
+				$time_sheet_inside['D']  = $team_data['project_name'];
+				$time_sheet_inside['E']  = $team_data['received_date'];
+				$time_sheet_inside['F']  = $team_data['drawing_no'];
+				$time_sheet_inside['G']  = "1";
+				$time_sheet_inside['H']  = $team_data['drawing_description'];
+				$time_sheet_inside['I']  = date('d-m-Y',strtotime($team_data['trans_created_date']));
+				$time_sheet_inside['J']  = $team_data['actual_tonnage'];
+				$time_sheet_inside['K']  = $team_data['detailer_name'];
+				$time_sheet_inside['L']  = $cummulate_total_hours;
+				foreach ($checker_name_result as $key => $checker_rlst) {
+					$checker_id_team 	 = $checker_rlst->team;
+					$emps_code 			 = $checker_rlst->employee_code;
+					if($team_leader_name === $emps_code){
+						$time_sheet_inside['M']  = $checker_rlst->emp_name;
+					}
+				}
+				foreach ($checker_time_result as $key => $chk_rlst) {
+					$checker_booking_hours   = array();
+					$checker_booking_hours[] = $chk_rlst->detailing_time;
+					$checker_booking_hours[] = $chk_rlst->study;
+					$checker_booking_hours[] = $chk_rlst->discussion;
+					$checker_booking_hours[] = $chk_rlst->rfi;
+					$checker_booking_hours[] = $chk_rlst->checking;
+					$checker_booking_hours[] = $chk_rlst->correction_time;
+					$checker_booking_hours[] = $chk_rlst->other_works;
+					$checker_booking_hours[] = $chk_rlst->bar_listing_time;
+					$checker_booking_hours[] = $chk_rlst->revision_time;
+					$checker_booking_hours[] = $chk_rlst->change_order_time;
+					$checker_booking_hours[] = $chk_rlst->billable_hours;
+					$checker_booking_hours[] = $chk_rlst->non_billable_hours;
+					$checker_booking_hours[] = $chk_rlst->emails;
+					$checker_booking_hours[] = $chk_rlst->was;
+					$checker_booking_hours[] = $chk_rlst->co_checking;
+					$checker_booking_hours[] = $chk_rlst->actual_billable_time;
+					$checker_booking_hours[] = $chk_rlst->qa_checking;
+					$checker_booking_hours[] = $chk_rlst->monitoring;
+					$checker_booking_hours[] = $chk_rlst->bar_listing_checking;
+					$checker_booking_hours[] = $chk_rlst->aec;
+					$checker_booking_hours[] = $chk_rlst->credit;
+					$checker_booking_hours[] = $chk_rlst->first_check_minor;
+					$checker_booking_hours[] = $chk_rlst->first_check_major;
+					$checker_booking_hours[] = $chk_rlst->second_check_major;
+					$checker_booking_hours[] = $chk_rlst->second_check_minor;
+					$checker_booking_hours[] = $chk_rlst->qa_major;
+					$checker_booking_hours[] = $chk_rlst->qa_minor;
+					$checker_bookhours 	   	 = $this->AddPlayTime($checker_booking_hours);
+					$time_sheet_inside['N']  = $checker_bookhours;
 
+					$total_times 			 = array();
+					$total_times[] 			 = $cummulate_total_hours;
+					$total_times[] 			 = $checker_bookhours;
+					$total_times 	   	 	 = $this->AddPlayTime($total_times);
+					$time_sheet_inside['O']  = $total_times;
+				}
+				$time_sheet_inside['P']  = $team_data['first_check_major'];
+				$time_sheet_inside['Q']  = $team_data['first_check_minor'];
+				$time_sheet_inside['R']  = $team_data['second_check_major'];
+				$time_sheet_inside['S']  = $team_data['qa_major'];
+				$time_sheet_inside['T']  = $team_data['qa_minor'];
+				foreach ($pm_name_result as $key => $pm_rlst) {
+					$pm_id_team 		 = $pm_rlst->team;
+					$pm_emp_code 		 = $pm_rlst->employee_code;
+					if($project_manager_name === $pm_emp_code){
+						$time_sheet_inside['U']  = $pm_rlst->emp_name;
+					}
+				}
+				$time_sheet_inside['V']  = $team_data['branch'];
 
-	$revision_types[]['excel_column']= array('A','B','C','D','E','F','G','H');
-	$revision_types[]['excel_value']= array('CO Number','RDA####','Client','Name of Project','Drawing number','Date','Hours','Name of Detailer');
-	for ($x = 0; $x <= 7; $x++) {
-		$excel_column  = $revision_types[0]['excel_column'][$x];
-		$excel_value   = $revision_types[1]['excel_value'][$x];
-		$obj->getActiveSheet(1)->setCellValue('A'."1", "US DETAILING PROJECTS - REVISIONS DURING DEC 2020")->mergeCells('A1:H1')->getStyle('A1:H1')->applyFromArray($styleArray);
-		$obj->getActiveSheet(1)->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($styleArray);
-	}
-
-	$revision_qry = 'select cw_co_register.co_number,cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_client.client_name,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master.received_date,cw_tonnage_approval.actual_billable_time,cw_employees.emp_name as detailer_name,prime_team_id,cw_tonnage_approval.team as team_id from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_co_register on cw_co_register.prime_co_register_id = cw_time_sheet_time_line.co_number inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_client on cw_client.prime_client_id = cw_tonnage_approval.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1 '.$fliter_query.'';
-	$revision_info   			= $this->db->query("CALL sp_a_run ('SELECT','$revision_qry')");
-	$revision_result 			= $revision_info->result();
-	$revision_info->next_result();
-	// echo "<pre>";
-	// print_r($revision_result);die;
-
-
-
-	$m=3;
-		foreach ($team_result as $key => $value) {
-			$team_name 		= $value['team_name'];
-			$prime_team_id  = $value['prime_team_id'];
-			$team_emp_name  = $team_emp_name_result[$prime_team_id]['team_emp_name'];
-			$time_sheet_value['A']  = $team_name.' >>> '.$team_emp_name;
-			$can_process = false;
-			for ($x = 0; $x <= 7; $x++) {
-				$excel_column  		= $revision_types[0]['excel_column'][$x];
+				$counter++;
+				for ($y = 0; $y <= 21; $y++) {
+					$excel_column  		= $excel_types[0]['excel_column'][$y];
+					$value_of_excel  	= $time_sheet_inside[$excel_column];
+					if($excel_column === 'A'){
+						$obj->getActiveSheet()->setCellValue($excel_column.$counter, $value_of_excel)->getStyle($excel_column.$counter)->applyFromArray($LeftBorder);
+					}else
+					if($excel_column === 'V'){
+						$obj->getActiveSheet()->setCellValue($excel_column.$counter, $value_of_excel)->getStyle($excel_column.$counter)->applyFromArray($RightBorder);
+					}else{
+						$obj->getActiveSheet()->setCellValue($excel_column.$counter, $value_of_excel)->getStyle($excel_column.$counter)->applyFromArray($verticalStyle);
+					}
+				}
+				$i++;
+			}
+			$team_total = $counter+1;
+			for ($z = 0; $z <= 1; $z++) {
+				$excel_column  		= $excel_types[0]['excel_column'][$z];
 				$value_of_excel  	= $time_sheet_value[$excel_column];
-				$obj->getActiveSheet(1)->setCellValue($excel_column.$m, $value_of_excel)->mergeCells($excel_column.$m.':'.'H'.$m)->getStyle($excel_column.$m.':'.'H'.$m)->applyFromArray($styleArray);
-				$can_process = true;
+				$obj->getActiveSheet()->setCellValue("A".$team_total, "")->mergeCells("A".$team_total.":F".$team_total)->getStyle("A".$team_total.":F".$team_total)->applyFromArray($LeftBorderFoot);
+				$obj->getActiveSheet()->setCellValue("H".$team_total, "")->mergeCells("H".$team_total.":I".$team_total)->getStyle("H".$team_total.":I".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("K".$team_total, "")->mergeCells("K".$team_total.":O".$team_total)->getStyle("K".$team_total.":O".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("G".$team_total, $no_of_draw)->getStyle("G".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("J".$team_total, $total_actual_tons)->getStyle("J".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("P".$team_total, $total_first_check_major)->getStyle("P".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("Q".$team_total, $total_first_check_minor)->getStyle("Q".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("R".$team_total, $total_second_check_major)->getStyle("R".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("S".$team_total, $total_qa_major)->getStyle("S".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("T".$team_total, $total_qa_minor)->getStyle("T".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet()->setCellValue("U".$team_total, "")->mergeCells("U".$team_total.":V".$team_total)->getStyle("U".$team_total.":V".$team_total)->applyFromArray($RightBorderFoot);
 			}
-			$counter_rev=$m;
-			if($can_process){
-				foreach ($revision_result as $key => $details){
-					$rev_team_id = $details->team_id;
+			$obj->setActiveSheetIndex(0);
+							$obj->getActiveSheet()->setTitle('Detailing');
+			$i++;
+		}
 
-					if($prime_team_id === $rev_team_id){
-						$time_sheet_inside['A']  = $details->co_number;
-						$time_sheet_inside['B']  = $details->rdd_no;
-						$time_sheet_inside['C']  = $details->client_name;
-						$time_sheet_inside['D']  = $details->project_name;
-						$time_sheet_inside['E']  = $details->drawing_no;
-						$time_sheet_inside['F']  = $details->received_date;
-						$time_sheet_inside['G']  = $details->actual_billable_time;
-						$time_sheet_inside['H']  = $details->detailer_name;
-						$counter_rev++;	
-						for ($y = 0; $y <= 7; $y++) {
-							$excel_column  		= $revision_types[0]['excel_column'][$y];					
-							$value_of_excel  	= $time_sheet_inside[$excel_column];
-							// echo "$counter_rev :: $value_of_excel<br>";
-							
-							$obj->getActiveSheet(1)->setCellValue($excel_column.$counter_rev, $value_of_excel)->getStyle($excel_column.$counter_rev)->applyFromArray($verticalStyle);
-							$obj->setActiveSheetIndex(1);
-						}					
-						$m++;	
-				
+
+		/* REVISION SHEET */
+
+
+		$obj->createSheet();
+		$obj->setActiveSheetIndex(1);
+		$obj->getActiveSheet(1)->setTitle('Revision');
+
+		$revision_types[]['excel_column']= array('A','B','C','D','E','F','G','H');
+		$revision_types[]['excel_value']= array('CO Number','RDA####','Client','Name of Project','Drawing number','Date','Hours','Name of Detailer');
+		for ($x = 0; $x <= 7; $x++) {
+			$excel_column  = $revision_types[0]['excel_column'][$x];
+			$excel_value   = $revision_types[1]['excel_value'][$x];
+			$obj->getActiveSheet(1)->setCellValue('A'."1", "US DETAILING PROJECTS - REVISIONS DURING ".strtoupper($month_name)."-".$month_year)->mergeCells('A1:H1')->getStyle('A1:H1')->applyFromArray($header_first);
+			if($excel_column === 'A'){
+				$obj->getActiveSheet(1)->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($HeaderLeftBorder);
+			}else
+			if($excel_column === 'H'){
+				$obj->getActiveSheet(1)->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($HeaderRightBorder);
+			}
+			else{
+				$obj->getActiveSheet(1)->setCellValue($excel_column."2", $excel_value)->getStyle($excel_column.'2')->applyFromArray($styleArray);
+			}
+			
+		}
+
+		$revision_qry = 'select cw_co_register.co_number,cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_client.client_name,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master.received_date,cw_tonnage_approval.actual_billable_time,cw_employees.emp_name as detailer_name,prime_team_id,cw_tonnage_approval.team as team_id from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_co_register on cw_co_register.prime_co_register_id = cw_time_sheet_time_line.co_number inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_client on cw_client.prime_client_id = cw_tonnage_approval.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.work_type = 2 and cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1 '.$fliter_query.'';
+		$revision_info   			= $this->db->query("CALL sp_a_run ('SELECT','$revision_qry')");
+		$revision_result 			= $revision_info->result_array();
+		$revision_info->next_result();
+		$revision_result = array_reduce($revision_result, function($result, $arr){			
+		    $result[$arr['prime_team_id']][] = $arr;
+		    return $result;
+		}, array());
+		$m=3;
+		foreach ($revision_result as $team_id => $revisionData) {
+			for ($x = 0; $x <= 1; $x++) {
+				$excel_column  		= $excel_types[0]['excel_column'][$x];
+				$value_of_excel  	= $time_sheet_value[$excel_column];
+				$team_emp_name  = $team_emp_name_result[$team_id]['team_emp_name'];
+				foreach ($team_result as $team_name_id => $team_details) {
+					if($team_id === $team_name_id){
+						$team_id_with_name = $team_details['team_name'].">>>".$team_emp_name;
+						$obj->getActiveSheet(1)->setCellValue($excel_column.$m, $team_id_with_name)->mergeCells($excel_column.$m.':'.'H'.$m)->getStyle($excel_column.$m.':'.'H'.$m)->applyFromArray($teamStyle);
 					}
 				}
-			}		
-		$m++;	
-	}
-$obj->setActiveSheetIndex(0);
+			}
+			$counter_rev 	= $m;
+			$m++;
+			$total_billable_hrs 	 = array();
+			foreach ($revisionData as $revData) {
+				$total_billable_hrs[] 	 = $revData['actual_billable_time'];
+				$total_hours_billable 	 = $this->AddPlayTime($total_billable_hrs);
 
+				$time_sheet_inside['A']  = $revData['co_number'];
+				$time_sheet_inside['B']  = $revData['rdd_no'];
+				$time_sheet_inside['C']  = $revData['client_name'];
+				$time_sheet_inside['D']  = $revData['project_name'];
+				$time_sheet_inside['E']  = $revData['drawing_no'];
+				$time_sheet_inside['F']  = $revData['received_date'];
+				$time_sheet_inside['G']  = $revData['actual_billable_time'];
+				$time_sheet_inside['H']  = $revData['detailer_name'];
 
+				$counter_rev++;
+				for ($y = 0; $y <= 7; $y++) {
+					$excel_column  		= $revision_types[0]['excel_column'][$y];					
+					$value_of_excel  	= $time_sheet_inside[$excel_column];
+					if($excel_column === 'A'){
+						$obj->getActiveSheet(1)->setCellValue($excel_column.$counter_rev, $value_of_excel)->getStyle($excel_column.$counter_rev)->applyFromArray($LeftBorder);
+					}else
+					if($excel_column === 'H'){
+						$obj->getActiveSheet(1)->setCellValue($excel_column.$counter_rev, $value_of_excel)->getStyle($excel_column.$counter_rev)->applyFromArray($RightBorder);
+					}else{
+						$obj->getActiveSheet(1)->setCellValue($excel_column.$counter_rev, $value_of_excel)->getStyle($excel_column.$counter_rev)->applyFromArray($verticalStyle);
+					}
+					$obj->setActiveSheetIndex(1);
+				}	
+				$m++;
+			}
+			$team_total = $counter_rev+1;
+			for ($z = 0; $z <= 1; $z++) {
+				$excel_column  		= $excel_types[0]['excel_column'][$z];
+				$value_of_excel  	= $time_sheet_value[$excel_column];
+				$obj->getActiveSheet(1)->setCellValue("A".$team_total, "")->mergeCells("A".$team_total.":E".$team_total)->getStyle("A".$team_total.":E".$team_total)->applyFromArray($LeftBorderFoot);
+				$obj->getActiveSheet(1)->setCellValue("F".$team_total, "TOTAl")->getStyle("F".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet(1)->setCellValue("G".$team_total, $total_hours_billable)->getStyle("G".$team_total)->applyFromArray($FooterStyle);
+				$obj->getActiveSheet(1)->setCellValue("H".$team_total, "")->getStyle("H".$team_total)->applyFromArray($RightBorderFoot);
+			}
+			$m++;
+		}
+		$obj->setActiveSheetIndex(0);
 
-
-
-
-// die;
-
-
-
-
-
-
+		
 		$control_name		= $this->control_name;
 		$filename = $control_name.".xls"; //save our workbook as this file name
 		header('Content-Type: application/vnd.ms-excel'); //mime type

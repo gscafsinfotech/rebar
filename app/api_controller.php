@@ -8,12 +8,13 @@
 	}
 	if($frm === "get_employees"){
 		$rslt ="";
-		$sql_emp_rslt   = $api_model->get_sql_emp("SELECT CODE,EMPNAME,DOB,SEX,TERMFLAG,TERMDATE FROM EMPLY_MASTER");			
+		$sql_emp_rslt   = $api_model->get_sql_emp("SELECT CODE,EMPNAME,DOB,SEX,TERMFLAG,TERMDATE,DOJ FROM EMPLY_MASTER");			
 		$mysql_emp_rslt = $api_model->get_mysql_emp("select employee_code from cw_employees");
 		foreach ($sql_emp_rslt as $key => $value){
 			$employee_code = $value->CODE;				
 			$emp_name      = $value->EMPNAME;	
 			$dob           = $value->DOB;
+			$doj           = $value->DOJ;
 			$gender        = $value->SEX;
 			$term_flag     = $value->TERMFLAG;
 			$term_date     = $value->TERMDATE;
@@ -36,6 +37,11 @@
 			}else{
 				$dob  = "";
 			}
+			if($doj){
+				$doj  = $doj->format("Y-m-d");
+			}else{
+				$doj  = "";
+			}
 			if($term_date){
 				$term_date = $term_date->format("Y-m-d");
 			}else{
@@ -43,10 +49,10 @@
 			}
 			if($employee_code){
 				if($mysql_emp_rslt[$employee_code]['employee_code']){
-					$prime_update_query  = 'UPDATE cw_employees SET emp_name = "'. $emp_name .'",user_name = "'. $employee_code .'",password = "'. md5($employee_code) .'",date_of_birth = "'.$dob.'",gender = "'.$gender.'",employee_status = "'.$term_flag.'",inactive_date = "'.$term_date.'" WHERE employee_code = "'. $employee_code .'"';
+					$prime_update_query  = 'UPDATE cw_employees SET emp_name = "'. $emp_name .'",user_name = "'. $employee_code .'",password = "'. md5($employee_code) .'",date_of_birth = "'.$dob.'",date_of_joining = "'.$doj.'",gender = "'.$gender.'",employee_status = "'.$term_flag.'",inactive_date = "'.$term_date.'",trans_updated_by = "'.$term_date.'",inactive_date = "'.$term_date.'" WHERE employee_code = "'. $employee_code .'"';
 					$rslt = $api_model->runQuery($prime_update_query);
 				}else{
-					$sql = "insert into cw_employees (employee_code,emp_name,user_name,password,date_of_birth,gender,employee_status,inactive_date) values ('".$employee_code."','".$emp_name."','". $employee_code ."','".md5($employee_code)."','". $dob ."','". $gender ."','". $term_flag ."','". $term_date ."')";
+					$sql = "insert into cw_employees (employee_code,emp_name,user_name,password,date_of_birth,date_of_joining,gender,employee_status,inactive_date) values ('".$employee_code."','".$emp_name."','". $employee_code ."','".md5($employee_code)."','". $dob ."','". $doj ."','". $gender ."','". $term_flag ."','". $term_date ."')";
 					$rslt = $api_model->runQuery($sql);
 				}
 			}			
@@ -54,11 +60,11 @@
 		return_rslt($frm,$rslt);
 	}else
 	if($frm === "get_punched_data"){
-		$date = new DateTime('2021-01-01');
+		$date = new DateTime('2021-03-01');
 		$period = new DatePeriod(
-		     new DateTime('2021-01-02'),
+		     new DateTime('2021-03-01'),
 		     new DateInterval('P1D'),
-		     new DateTime('2021-01-31')
+		     new DateTime('2021-03-31')
 		);
 		$punched_qry = "";
 		foreach ($period as $key => $value) {
@@ -66,7 +72,7 @@
 		    $rslt ="";
 			$sql_emp_rslt   = $api_model->get_sql_emp("SELECT CODE,R_CODE,ENTRY_DATE,IN_TIME,IN_HOUR,OUT_TIME,OUT_HOUR,IN_DATE,OUT_DATE,VALID_DATA,ENTRY_TYPE,ENTRY_METHOD,HFDAY_TYPE,ENTRY_DAYS FROM TIME_ENTRY where ENTRY_DATE = '".$punch_date."'");	
 			if($sql_emp_rslt){
-				$mysql_emp_rslt = $api_model->get_mysql_emp("select employee_code from cw_punched_data_details where entry_date = '".$punch_date."'");
+				$mysql_emp_rslt = $api_model->get_mysql_emp("select employee_code from cw_punched_data_details where entry_date = '".$punch_date."'");				
 				foreach ($sql_emp_rslt as $key => $value){
 					$employee_code = $value->CODE;				
 					$rcode         = $value->R_CODE;	
@@ -104,15 +110,15 @@
 					}
 					if($employee_code){
 						if($mysql_emp_rslt[$employee_code]['employee_code']){
-							$prime_update_query  = 'UPDATE cw_punched_data_details SET entry_date = "'. $entry_date .'",in_time = "'. $in_time .'",in_hour = "'. $in_hour .'",out_time = "'.$out_time.'",out_hour = "'.$out_hour.'",in_date = "'.$in_date.'",out_date = "'.$out_date.'",valid_data = "'.$valid_data.'",entry_type = "'.$entry_type.'",entry_method = "'.$entry_method.'",half_day_type = "'.$halfday_type.'",entry_days = "'.$entry_days.'" WHERE employee_code = "'. $employee_code .'" and entry_date = "'. $entry_date .'"';
+							$prime_update_query  = 'UPDATE cw_punched_data_details SET entry_date = "'. $entry_date .'",in_time = "'. $in_time .'",in_hour = "'. $in_hour .'",out_time = "'.$out_time.'",out_hour = "'.$out_hour.'",in_date = "'.$in_date.'",out_date = "'.$out_date.'",valid_data = "'.$valid_data.'",entry_type = "'.$entry_type.'",entry_method = "'.$entry_method.'",half_day_type = "'.$halfday_type.'",entry_days = "'.$entry_days.'",trans_updated_by = "1",trans_updated_date = "'.date("Y-m-d H:i:s").'" WHERE employee_code = "'. $employee_code .'" and entry_date = "'. $entry_date .'"';
 							$rslt = $api_model->runQuery($prime_update_query);
 							if($rslt){
-								$prime_update_query  = 'UPDATE cw_time_sheet SET entry_date = "'. $entry_date .'",in_time = "'. $in_hour .'",out_time = "'.$out_hour.'",total_time = "'.$total_time.'" WHERE employee_code = "'. $employee_code .'" and entry_date = "'. $entry_date .'"';
+								$prime_update_query  = 'UPDATE cw_time_sheet SET entry_date = "'. $entry_date .'",in_time = "'. $in_hour .'",out_time = "'.$out_hour.'",total_time = "'.$total_time.'",trans_updated_by = "1",trans_updated_date = "'.date("Y-m-d H:i:s").'" WHERE employee_code = "'. $employee_code .'" and entry_date = "'. $entry_date .'"';
 								$rslt = $api_model->runQuery($prime_update_query);
 							}
 						}else{
-							$punched_qry .= "('".$employee_code."','".$entry_date."','". $in_time ."','".$in_hour."','". $out_time ."','". $out_hour ."','". $in_date ."','". $out_date ."','".$valid_data."','". $entry_type ."','". $entry_method ."','". $halfday_type ."','". $entry_days ."'),";	
-							$emp_qry .= "('".$employee_code."','".$entry_date."','". $in_hour ."','".$out_hour."','".$total_time."'),";											
+							$punched_qry .= "('".$employee_code."','".$entry_date."','". $in_time ."','".$in_hour."','". $out_time ."','". $out_hour ."','". $in_date ."','". $out_date ."','".$valid_data."','". $entry_type ."','". $entry_method ."','". $halfday_type ."','". $entry_days ."','1','".date("Y-m-d H:i:s") ."'),";	
+							$emp_qry .= "('".$employee_code."','".$entry_date."','". $in_hour ."','".$out_hour."','".$total_time."','1','".date("Y-m-d H:i:s") ."'),";											
 						}
 					}			
 				}
@@ -121,11 +127,11 @@
 		$punched_qry = rtrim($punched_qry,",");
 		$emp_qry     = rtrim($emp_qry,",");
 		if($punched_qry){
-			$sql = "insert into cw_punched_data_details(employee_code,entry_date,in_time,in_hour,out_time,out_hour,in_date,out_date,valid_data,entry_type,entry_method,half_day_type,entry_days) values $punched_qry";
+			$sql = "insert into cw_punched_data_details(employee_code,entry_date,in_time,in_hour,out_time,out_hour,in_date,out_date,valid_data,entry_type,entry_method,half_day_type,entry_days,trans_created_by,trans_created_date) values $punched_qry";
 			$punched_rslt = $api_model->runQuery($sql);
 		}		
 		if($punched_rslt){
-			$sql = "insert into cw_time_sheet(employee_code,entry_date,in_time,out_time,total_time) values $emp_qry";
+			$sql = "insert into cw_time_sheet(employee_code,entry_date,in_time,out_time,total_time,trans_created_by,trans_created_date) values $emp_qry";
 			$rslt = $api_model->runQuery($sql);
 		}	
 	return_rslt($frm,$rslt);

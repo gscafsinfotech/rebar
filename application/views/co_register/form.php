@@ -262,8 +262,10 @@ foreach($view_info as $view){
 					$validation_rule .=  "$label_id:{ $required $len },";
 				}else					
 				if((int)$field_type === 7){ //MULTI PICKLIST
-					$multi_name = $label_id."[]";
-					$validation_rule .= '"'.$multi_name.'":"required",'."\n";
+					if($label_id !== 'drawing_no'){
+						$multi_name = $label_id."[]";
+						$validation_rule .= '"'.$multi_name.'":"required",'."\n";
+					}
 				}else					
 				if((int)$field_type === 8){ //SUMMARY BOX
 					$validation_rule .=  "$label_id:{ $required $len },";

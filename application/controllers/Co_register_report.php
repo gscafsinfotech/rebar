@@ -662,7 +662,6 @@ class Co_register_report  extends Action_controller{
 
 	    $excel[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K');
 		$excel[]['excel_value']= array('CO#','Team','US PM','RDD No','Client',' Project Name',' Dwg No','Description of Revisions','Revision Hours','Estimation hours','Submitted date');
-
 		for ($x = 0; $x <= 10; $x++) {
 			$excel_column  = $excel[0]['excel_column'][$x];
 			$excel_value   = $excel[1]['excel_value'][$x];

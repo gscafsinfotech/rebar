@@ -438,85 +438,85 @@ $(document).ready(function(){
 	
 	
 	/* DELETE PROCESS - START*/
-	<?php 
-		if($access_delete === 1){
-	?>			
-			//var delete_btn = "<button class='btn btn-xs btn-danger fliter' id='delete_btn' style='margin-top:7px'  disabled='true'><i class='fa fa-trash' aria-hidden='true'></i> Delete</button>";
-		var delete_btn = "";
-	<?php
-		}else{
-	?>
-			var delete_btn = "";
-	<?php
-		}
-	?>
+	// <?php 
+	// 	if($access_delete === 1){
+	// ?>			
+	// 		//var delete_btn = "<button class='btn btn-xs btn-danger fliter' id='delete_btn' style='margin-top:7px'  disabled='true'><i class='fa fa-trash' aria-hidden='true'></i> Delete</button>";
+	// 	var delete_btn = "";
+	// <?php
+	// 	}else{
+	// ?>
+	// 		var delete_btn = "";
+	// <?php
+	// 	}
+	// ?>
 	
-	$("#table_length").prepend(delete_btn);
-	$("#table_length").css("display", "-webkit-inline-box");
-	$('.select-checkbox').on('click', "input[name='select_all']", function(){    
-	if(this.checked) {
-		$('.select_one').prop('checked', true);
-		var delete_ids = [];
-		$.each($("input[name='select_one']:checked"), function(){
-			delete_ids.push($(this).val());
-		});		
-		if(delete_ids.length > 0) {
-			$('#delete_btn').attr('disabled',false);
-		}else{
-			$('.select_all').prop('checked', false);
-			$('#delete_btn').attr('disabled',true);
-		}
-	}else{
-		$('.select_all').prop('checked', false);
-		$('.select_one').prop('checked', false);
-		$('#delete_btn').attr('disabled',true);
-	}
-	});
-	$table.on('change','.select_one',function(event){		
-		var delete_ids = [];
-		$.each($("input[name='select_one']:checked"), function(){
-			delete_ids.push($(this).val());
-		});		
-		if(delete_ids.length > 0) {
-			$('#delete_btn').attr('disabled',false);
-		}else{
-			$('#delete_btn').attr('disabled',true);
-		}	
-	});
+	// $("#table_length").prepend(delete_btn);
+	// $("#table_length").css("display", "-webkit-inline-box");
+	// $('.select-checkbox').on('click', "input[name='select_all']", function(){    
+	// if(this.checked) {
+	// 	$('.select_one').prop('checked', true);
+	// 	var delete_ids = [];
+	// 	$.each($("input[name='select_one']:checked"), function(){
+	// 		delete_ids.push($(this).val());
+	// 	});		
+	// 	if(delete_ids.length > 0) {
+	// 		$('#delete_btn').attr('disabled',false);
+	// 	}else{
+	// 		$('.select_all').prop('checked', false);
+	// 		$('#delete_btn').attr('disabled',true);
+	// 	}
+	// }else{
+	// 	$('.select_all').prop('checked', false);
+	// 	$('.select_one').prop('checked', false);
+	// 	$('#delete_btn').attr('disabled',true);
+	// }
+	// });
+	// $table.on('change','.select_one',function(event){		
+	// 	var delete_ids = [];
+	// 	$.each($("input[name='select_one']:checked"), function(){
+	// 		delete_ids.push($(this).val());
+	// 	});		
+	// 	if(delete_ids.length > 0) {
+	// 		$('#delete_btn').attr('disabled',false);
+	// 	}else{
+	// 		$('#delete_btn').attr('disabled',true);
+	// 	}	
+	// });
 	
-	$("#delete_btn").click(function(event){
-		if(confirm("Are you sure. you want delete select records?")){
-			var delete_ids = [];
-			$.each($("input[name='select_one']:checked"), function(){
-				delete_ids.push($(this).val());
-			});
-			//do ajax process
-			if(delete_ids){
-				$.ajax({
-					type: "POST",
-					url: '<?php echo site_url("$controller_name/delete"); ?>',
-					data:{delete_ids:delete_ids},
-					success: function(data) {
-						var rslt = JSON.parse(data);
-						if(rslt.success){
-							toastr.success(rslt.message);							
-							$('.select_all').prop('checked', false);
-							$('.select_one').prop('checked', false);
-							$('#delete_btn').attr('disabled',true);
-							$table.draw();
-						}else{
-							toastr.error(rslt.message);
-						}
-					}
+	// $("#delete_btn").click(function(event){
+	// 	if(confirm("Are you sure. you want delete select records?")){
+	// 		var delete_ids = [];
+	// 		$.each($("input[name='select_one']:checked"), function(){
+	// 			delete_ids.push($(this).val());
+	// 		});
+	// 		//do ajax process
+	// 		if(delete_ids){
+	// 			$.ajax({
+	// 				type: "POST",
+	// 				url: '<?php echo site_url("$controller_name/delete"); ?>',
+	// 				data:{delete_ids:delete_ids},
+	// 				success: function(data) {
+	// 					var rslt = JSON.parse(data);
+	// 					if(rslt.success){
+	// 						toastr.success(rslt.message);							
+	// 						$('.select_all').prop('checked', false);
+	// 						$('.select_one').prop('checked', false);
+	// 						$('#delete_btn').attr('disabled',true);
+	// 						$table.draw();
+	// 					}else{
+	// 						toastr.error(rslt.message);
+	// 					}
+	// 				}
 				
-				});
-			}		
-		}else{
-			$('.select_all').prop('checked', false);
-			$('.select_one').prop('checked', false);
-			$('#delete_btn').attr('disabled',true);
-		}
-		});
+	// 			});
+	// 		}		
+	// 	}else{
+	// 		$('.select_all').prop('checked', false);
+	// 		$('.select_one').prop('checked', false);
+	// 		$('#delete_btn').attr('disabled',true);
+	// 	}
+	// 	});
 	/* DELETE PROCESS - END*/
 	
 	$table.on('click','tr td:not(:first-child, :last-child)',function() {

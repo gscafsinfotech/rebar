@@ -16,7 +16,7 @@ class Project_manager_report  extends Action_controller{
 
 		$logged_role 		   = $this->session->userdata('logged_role');
 		$logged_emp_code 	   = $this->session->userdata('logged_emp_code');
-		if((int)$logged_role === 4){
+		if((int)$logged_role === 3){
 			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 3 and employee_code = "'.$logged_emp_code.'" and employee_status = 1 and trans_status = 1';
 		}else{
 			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 3 and employee_status = 1 and trans_status = 1';

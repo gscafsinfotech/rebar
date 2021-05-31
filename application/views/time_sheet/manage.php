@@ -289,7 +289,13 @@ $(document).ready(function (){
 						}
 							if(parseInt(completed_status) === 1){
 								if(parseInt(completed_count) === 0){
-									$("#process_status"+value).attr("disabled", true);
+									var logged_role = "<?php echo $logged_role;?>";
+									if(parseInt(logged_role)=== 1 || parseInt(logged_role)=== 2){
+										$("#process_status"+value).attr("disabled", false);
+									}else{
+										$("#process_status"+value).attr("disabled", true);
+									}
+									
 										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1" selected>Inprogress</option><option value="2">Completed</option></select>';
 									}else{
 										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1" selected>Inprogress</option><option value="2">Completed</option></select>';
@@ -300,7 +306,12 @@ $(document).ready(function (){
 								if(parseInt(logged_role) === 5){
 									
 									 if(parseInt(completed_count) === 0){
-									 	$('#process_status'+value).attr("disabled", true);
+									 	var logged_role = "<?php echo $logged_role;?>";
+										if(parseInt(logged_role)=== 1 || parseInt(logged_role)=== 2){
+											$("#process_status"+value).attr("disabled", false);
+										}else{
+											$("#process_status"+value).attr("disabled", true);
+										}
 									 	return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
 									 }else{
 									 	return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
@@ -308,7 +319,12 @@ $(document).ready(function (){
 									
 								}else{
 									if(parseInt(completed_count) === 0){
-										$('#process_status'+value).attr("disabled", true);
+										var logged_role = "<?php echo $logged_role;?>";
+										if(parseInt(logged_role)=== 1 || parseInt(logged_role)=== 2){
+											$("#process_status"+value).attr("disabled", false);
+										}else{
+											$("#process_status"+value).attr("disabled", true);
+										}
 										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
 									}else{
 										return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2" selected>Completed</option></select>';
@@ -316,7 +332,12 @@ $(document).ready(function (){
 								}
 							}else{
 								if(parseInt(completed_count) === 0){
-									$('#process_status'+value).attr("disabled", true);
+									var logged_role = "<?php echo $logged_role;?>";
+									if(parseInt(logged_role)=== 1 || parseInt(logged_role)=== 2){
+										$("#process_status"+value).attr("disabled", false);
+									}else{
+										$("#process_status"+value).attr("disabled", true);
+									}
 									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2">Completed</option></select>';
 								}else{
 									return '<select name="process_status" id="process_status'+value+'" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus(this,"'+value+'")><option value="">---- Status ----</option ><option value="1">Inprogress</option><option value="2">Completed</option></select>';
@@ -327,7 +348,12 @@ $(document).ready(function (){
 					}else{
 				?>		
 						if(parseInt(completed_count) === 0){
-							$("#process_status"+value).attr("disabled", true); 
+							var logged_role = "<?php echo $logged_role;?>";
+							if(parseInt(logged_role)=== 1 || parseInt(logged_role)=== 2){
+								$("#process_status"+value).attr("disabled", false);
+							}else{
+								$("#process_status"+value).attr("disabled", true);
+							}
 							return '<select name="process_status" id="process_status" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus("'+value+'")><option value="">---- Status ----</option><option value="1">Inprogress</option><option value="2">Completed</option></select>';
 						}else{
 							return '<select name="process_status" id="process_status" class="form-control input-sm select2 process_status" tabindex="-1" aria-hidden="true" onchange=processStatus("'+value+'")><option value="">---- Status ----</option><option value="1">Inprogress</option><option value="2">Completed</option></select>';
@@ -586,7 +612,7 @@ function processStatus(process_status,row_id){
 	var send_url 			= '<?php echo site_url("$controller_name/process_status"); ?>'; 
 	var logged_role 		= "<?php echo $logged_role;?>";
 
-	if(parseInt(logged_role) === 2){
+	if(parseInt(logged_role) === 2 || parseInt(logged_role) === 1){
 		if(parseInt(process_status) === 1){
 			$.confirm({
 				title: 'Confirm!',
@@ -672,7 +698,12 @@ function view_form_data(action,title,control,form_id){
 	});
 }
 </script>
-<?php if((int)$logged_role !== 1 || (int)$logged_role !== 2){ ?>
+<?php if((int)$logged_role === 1 || (int)$logged_role === 2){ ?>
+<style type="text/css">
+	
+</style>
+<?php }else{ ?>
+
 <style type="text/css">
 	/*tbody > tr:not(:first-child) > td > a{
 		pointer-events: none;

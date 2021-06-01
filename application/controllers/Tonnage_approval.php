@@ -232,8 +232,25 @@ class Tonnage_approval  extends Action_controller{
 				$value = date('Y-m-d H:i:s',strtotime($value));
 			}	
 			
+			if($label_id === "approval_status"){
+				if((int)$value === 2){
+					$curren_date = date('Y-m-d');
+				}else{
+					$curren_date = "";
+				}
+			}else{
+				if($label_id === "approved_date"){
+					$value = $curren_date;
+				}else{
+					$value = $value;
+				}
+				
+			}
 			if(($input_view_type === 1) || ($input_view_type === 2)){
 				if((int)$field_isdefault === 1){
+					if($label_id === 'approval_status'){
+
+					}
 					$prime_qry_key     .= $label_id.",";
 					$prime_qry_value   .= '"'.$value.'",';
 					$prime_upd_query   .= $label_id.' = "'.$value.'",';

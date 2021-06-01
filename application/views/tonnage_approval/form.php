@@ -746,8 +746,8 @@ $(document).ready(function(){
 });
 
 function default_hide(){
-	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type").parent().hide();
-	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type").addClass('ignore');
+	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type,#approved_date").parent().hide();
+	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type,#approved_date").addClass('ignore');
 }
 // FILE UPLOAD REMOVE
 function remove_file(prime_id,is_defult,input_name){

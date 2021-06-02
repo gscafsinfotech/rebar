@@ -13,7 +13,7 @@ class Co_register_report  extends Action_controller{
 		$data['master_pick']   = $this->master_pick;
 		$data['fliter_list']   = $this->fliter_list;
 
-		$from_query = 'select * from cw_form_setting where prime_module_id = "co_register" and field_show = "1" and search_show = 1 ORDER BY input_for,field_sort asc';
+		$from_query = 'select * from cw_form_setting where prime_module_id = "co_register" and field_show = "1" and label_name in("team","uspm","rdd_no","client_name") ORDER BY input_for,field_sort asc';
 		$form_data   = $this->db->query("CALL sp_a_run ('SELECT','$from_query')");
 		$form_result = $form_data->result();
 		$form_data->next_result();

@@ -23,7 +23,7 @@ class Submitted_log  extends Action_controller{
 			$team_list[$prime_team_id] = $team_name;
 		}
 		$data['team_list'] = $team_list;
-		$from_query = 'select * from cw_form_setting where  prime_module_id IN("project_and_drawing_master","tonnage_approval") and search_show = "1" ORDER BY input_for,field_sort asc';
+		$from_query = 'select * from cw_form_setting where  prime_module_id IN("project_and_drawing_master","tonnage_approval") and label_name in("client_name","project_name","project_manager","received_date","detailer_name","team_leader_name") ORDER BY input_for,field_sort asc';
 		$form_data   = $this->db->query("CALL sp_a_run ('SELECT','$from_query')");
 		$form_result = $form_data->result();
 		$form_data->next_result();
@@ -181,7 +181,6 @@ class Submitted_log  extends Action_controller{
 				if((int)$table_name === 1){ $fliter_query .= $table_qry.".". $db_name ." ". $db_cond .' '.$search_val.''; }
 			}		
 		}
-		$process_team 				= $this->input->post("process_team");
 		$process_month 				= $this->input->post("process_month");
 		$process_month  			= '01-'.$process_month;
 		$process_month  			= date('Y-m',strtotime($process_month));
@@ -191,8 +190,6 @@ class Submitted_log  extends Action_controller{
 		$team_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
 		$team_result  	= $team_info->result();
 		$team_info->next_result();
-		$process_team 	= $team_result[0]->prime_team_id;
-		
 		$team_wise_detailing_qry	= 'select count(*) as rlst_count from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.trans_status =1 '.$fliter_query.' and cw_project_and_drawing_master.trans_status =1';
 		$team_wise_detailing_info   			= $this->db->query("CALL sp_a_run ('SELECT','$team_wise_detailing_qry')");
 		$team_wise_detailing_result = $team_wise_detailing_info->result();

@@ -13,19 +13,19 @@
 <div class="form-inline" style="margin-top:20px;">
 	<div class="row" style='margin-bottom:0px;'>
 		<div class="col-md-9">
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<?php
 					$process_by_list = array(''=>"---- Select ----",'1'=>"All");
 					echo form_label("Process By", 'process_by', array('class' => 'required'));
 					echo form_dropdown(array( 'name' => 'process_by', 'id' => 'process_by', 'class' => 'form-control input-sm select2'), $process_by_list);
 				?>
-			</div>
-			<div class="form-group" style="display: none;">
+			</div> -->
+			<!-- <div class="form-group" style="display: none;">
 				<?php
 					echo form_label("Process Team", 'process_team', array('class' => 'required'));
 					echo form_dropdown(array( 'name' => 'process_team', 'id' => 'process_team', 'class' => 'form-control input-sm select2'), $team_list);
 				?>
-			</div>
+			</div> -->
 			<div class="form-group">
 				<?php
 					echo form_label("Process Month", 'process_month', array('class' => 'required'));
@@ -110,7 +110,6 @@
 <script src="dist/daterangepicker/daterangepicker.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 	$(document).ready(function (){
-		$("#process_team").hide();
 		$("#search_submit").click(function(){
 			$("#search_filter_div").toggle();
 		});
@@ -171,7 +170,6 @@
 		});
 		$('#submitted_log_export').click(function(){
 			var process_month 	= $("#process_month").val();
-			var process_team 	= $("#process_team").val();
 			// if(employee_code === ''){
 			// 	toastr.error("Employee Code Required");	
 			// }
@@ -194,12 +192,12 @@
 				$.ajax({
 					type: "POST",
 					url: '<?php echo site_url("$controller_name/datacount_check"); ?>',
-					data:{process_month:process_month,role:logged_role,fliter_label:fliter_label,fliter_type:fliter_type,field_type:field_type,filter_cond:filter_cond,fliter_val:fliter_val,multipick_val:multipick_val,process_team:process_team},
+					data:{process_month:process_month,role:logged_role,fliter_label:fliter_label,fliter_type:fliter_type,field_type:field_type,filter_cond:filter_cond,fliter_val:fliter_val,multipick_val:multipick_val},
 					success: function(data) {
 						var rslt = JSON.parse(data);
 						if(rslt.success){
 							var export_excel 	= "<?php echo $excel_export;?>";
-							var export_url   	= export_excel+'/'+process_team+'/'+process_month+'/'+fliter_label+'/'+fliter_type+'/'+field_type+'/'+filter_cond+'/'+fliter_val+'/'+multipick_val;
+							var export_url   	= export_excel+'/'+process_month+'/'+fliter_label+'/'+fliter_type+'/'+field_type+'/'+filter_cond+'/'+fliter_val+'/'+multipick_val;
 							$('#link').attr("href",export_url);
 							window.location = $('#link').attr('href');
 						}else{

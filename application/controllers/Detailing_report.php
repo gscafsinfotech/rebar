@@ -273,7 +273,7 @@ class Detailing_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		$invoice_detail_qry   	= 'select sum(invoice_ton) as invoice_ton,sum(cw_project_and_drawing_master_invoice_details.billing_rate_detailing) as billing_rate_detailing,SEC_TO_TIME(SUM(TIME_TO_SEC(cw_project_and_drawing_master_invoice_details.invoiced_hours))) as invoiced_hours,sum(cw_project_and_drawing_master_invoice_details.billing_rate_revision) as billing_rate_revision,  cw_project_and_drawing_master.prime_project_and_drawing_master_id from cw_project_and_drawing_master inner join cw_project_and_drawing_master_invoice_details on cw_project_and_drawing_master_invoice_details.prime_project_and_drawing_master_id = cw_project_and_drawing_master.prime_project_and_drawing_master_id where cw_project_and_drawing_master.trans_status = 1 and cw_project_and_drawing_master_invoice_details.trans_status = 1 group by cw_project_and_drawing_master.prime_project_and_drawing_master_id';
+		$invoice_detail_qry   	= 'select sum(invoiced_ton) as invoiced_ton,sum(cw_project_and_drawing_master_invoice_details.billing_rate_detailing) as billing_rate_detailing,SEC_TO_TIME(SUM(TIME_TO_SEC(cw_project_and_drawing_master_invoice_details.invoiced_hours))) as invoiced_hours,sum(cw_project_and_drawing_master_invoice_details.billing_rate_revision) as billing_rate_revision,  cw_project_and_drawing_master.prime_project_and_drawing_master_id from cw_project_and_drawing_master inner join cw_project_and_drawing_master_invoice_details on cw_project_and_drawing_master_invoice_details.prime_project_and_drawing_master_id = cw_project_and_drawing_master.prime_project_and_drawing_master_id where cw_project_and_drawing_master.trans_status = 1 and cw_project_and_drawing_master_invoice_details.trans_status = 1 group by cw_project_and_drawing_master.prime_project_and_drawing_master_id';
 		$invoice_detail_info   	= $this->db->query("CALL sp_a_run ('SELECT','$invoice_detail_qry')");
 		$invoice_detail_result  = $invoice_detail_info->result_array();
 		$invoice_detail_info->next_result();
@@ -608,7 +608,7 @@ class Detailing_report  extends Action_controller{
 			$release_status 			= $release_status_result[$release_status_id]['release_status'];
 			$billing_unit 				= $billing_unit_result[$billing_unit_id]['billing_unit'];
 			$billing_unit_revision 		= $billing_unit_result[$billing_unit_revision_id]['billing_unit'];
-			$invoice_tons 				= $invoice_detail_result[$project_id]['invoice_ton'];
+			$invoice_tons 				= $invoice_detail_result[$project_id]['invoiced_ton'];
 			$billing_rate_detailing 	= $invoice_detail_result[$project_id]['billing_rate_detailing'];
 			$balance_invoice_tons 		= $sum_of_tonnage-$invoice_tons;
 			$invoiced_hours 			= $invoice_detail_result[$project_id]['invoiced_hours'];

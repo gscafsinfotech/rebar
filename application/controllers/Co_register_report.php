@@ -19,8 +19,6 @@ class Co_register_report  extends Action_controller{
 		$form_data->next_result();
 		$fliter_list = $this->get_filter_data($form_result);
 		$data['fliter_list']  = $fliter_list;
-		// echo "<pre>";
-		// print_r($data['fliter_list']);die;
 		$this->load->view("$this->control_name/manage",$data);
 	}
 	public function get_filter_data($form_result){
@@ -57,33 +55,17 @@ class Co_register_report  extends Action_controller{
 							}else{
 							$qry = "";
 						}
-						if($pick_table == "cw_payroll_formula"){
-							$pick_query = "select $pick_list from $pick_table where trans_status = 1";
-							$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
-							$pick_result = $pick_data->result();
-							$pick_data->next_result();
-							$array_list[""] = "---- $label_name ----";
-							foreach($pick_result as $pick){
-								$pick_key = $pick->$pick_list_val_1;
-								$pick_val = ucwords(str_replace("_"," ",$pick->$pick_list_val_2));
-								$array_list[$pick_key] = $pick_val;
-							}
-						}else{
-							if($label_id === "excemption_component"){
-								$pick_query = "select $pick_list from $pick_table where trans_status = 1 and tax_section = 1 $qry";
-								}else{
-								$pick_query = "select $pick_list from $pick_table where trans_status = 1 $qry";
-							}
-							$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
-							$pick_result = $pick_data->result();
-							$pick_data->next_result();
-							
-							$array_list[""] = "---- $label_name ----";
-							foreach($pick_result as $pick){
-								$pick_key = $pick->$pick_list_val_1;
-								$pick_val = $pick->$pick_list_val_2;
-								$array_list[$pick_key] = $pick_val;
-							}
+						
+						$pick_query = "select $pick_list from $pick_table where trans_status = 1 $qry";
+						$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
+						$pick_result = $pick_data->result();
+						$pick_data->next_result();
+						
+						$array_list[""] = "---- $label_name ----";
+						foreach($pick_result as $pick){
+							$pick_key = $pick->$pick_list_val_1;
+							$pick_val = $pick->$pick_list_val_2;
+							$array_list[$pick_key] = $pick_val;
 						}
 					}else
 					if($pick_list_type === 2){ 
@@ -717,10 +699,6 @@ class Co_register_report  extends Action_controller{
 			}
 			$i++;
 		}
-
-
-// die;
-
 
 	    $filename= $control_name.".xls"; //save our workbook as this file name
 			header('Content-Type: application/vnd.ms-excel'); //mime type

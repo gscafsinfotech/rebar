@@ -54,33 +54,17 @@ class Detailing_report  extends Action_controller{
 							}else{
 							$qry = "";
 						}
-						if($pick_table == "cw_payroll_formula"){
-							$pick_query = "select $pick_list from $pick_table where trans_status = 1";
-							$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
-							$pick_result = $pick_data->result();
-							$pick_data->next_result();
-							$array_list[""] = "---- $label_name ----";
-							foreach($pick_result as $pick){
-								$pick_key = $pick->$pick_list_val_1;
-								$pick_val = ucwords(str_replace("_"," ",$pick->$pick_list_val_2));
-								$array_list[$pick_key] = $pick_val;
-							}
-						}else{
-							if($label_id === "excemption_component"){
-								$pick_query = "select $pick_list from $pick_table where trans_status = 1 and tax_section = 1 $qry";
-								}else{
-								$pick_query = "select $pick_list from $pick_table where trans_status = 1 $qry";
-							}
-							$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
-							$pick_result = $pick_data->result();
-							$pick_data->next_result();
-							
-							$array_list[""] = "---- $label_name ----";
-							foreach($pick_result as $pick){
-								$pick_key = $pick->$pick_list_val_1;
-								$pick_val = $pick->$pick_list_val_2;
-								$array_list[$pick_key] = $pick_val;
-							}
+						
+						$pick_query = "select $pick_list from $pick_table where trans_status = 1 $qry";
+						$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
+						$pick_result = $pick_data->result();
+						$pick_data->next_result();
+						
+						$array_list[""] = "---- $label_name ----";
+						foreach($pick_result as $pick){
+							$pick_key = $pick->$pick_list_val_1;
+							$pick_val = $pick->$pick_list_val_2;
+							$array_list[$pick_key] = $pick_val;
 						}
 					}else
 					if($pick_list_type === 2){ 
@@ -108,22 +92,6 @@ class Detailing_report  extends Action_controller{
 		}
 		return $filter;
 	}
-	// public function emp_suggest(){
-	// 	$search_term  = $this->input->post_get('term');
-	// 	$final_qry = 'select employee_code,emp_name from cw_employees where trans_status = 1 and employee_code like "'.$search_term.'%"';
-	// 	$final_data   = $this->db->query("CALL sp_a_run ('SELECT','$final_qry')");
-	// 	$final_result = $final_data->result();
-	// 	$final_data->next_result();
-	// 	foreach($final_result as $rslt){
-	// 		$employee_code = $rslt->employee_code;
-	// 		$emp_name      = $rslt->emp_name;
-	// 		$suggestions[] = array('value' => $employee_code, 'label' => "$employee_code - $emp_name");
-	// 	}
-	// 	if(empty($suggestions)){
-	// 		$suggestions[] = array('value' => "0", 'label' => "No data found for this search");
-	// 	}
-	// 	echo json_encode($suggestions);
-	// }
 	function AddPlayTime($times) {
 	    $minutes = 0; //declare minutes either it gives Notice: Undefined variable
 	    // loop throught all the times
@@ -213,10 +181,6 @@ class Detailing_report  extends Action_controller{
 			}		
 		}
 
-
-
-
-		// echo "string";die;
 		$control_name		= $this->control_name;
 		$from_date 			= date('Y-m-d',strtotime($from_date));
 		$to_date 			= date('Y-m-d',strtotime($to_date));
@@ -224,9 +188,8 @@ class Detailing_report  extends Action_controller{
 		$detailing_info   	= $this->db->query("CALL sp_a_run ('SELECT','$detailing_qry')");
 		$detailing_result  	= $detailing_info->result();
 		$detailing_info->next_result();
-		
 
-		$tons_project_wise_qry 		= 'select work_type,SEC_TO_TIME(SUM(TIME_TO_SEC(cw_tonnage_approval.actual_billable_time))) as actual_billable_time,approved_date,count(actual_tonnage) as count_sheet,sum(actual_tonnage) as actual_tonnage,project from cw_tonnage_approval where approval_status = 2 and trans_status = 1 group by project,work_type order by approved_date desc';
+		$tons_project_wise_qry 		= 'select cw_tonnage_approval.work_type,SEC_TO_TIME(SUM(TIME_TO_SEC(cw_tonnage_approval.actual_billable_time))) as actual_billable_time,cw_time_sheet.entry_date,count(cw_tonnage_approval.actual_tonnage) as count_sheet,sum(cw_tonnage_approval.actual_tonnage) as actual_tonnage,cw_tonnage_approval.project from cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_tonnage_approval.project,cw_tonnage_approval.work_type order by cw_time_sheet.entry_date desc';
 		$tons_project_wise_info   	= $this->db->query("CALL sp_a_run ('SELECT','$tons_project_wise_qry')");
 		$tons_project_wise_result  	= $tons_project_wise_info->result_array();
 		$tons_project_wise_info->next_result();
@@ -234,8 +197,15 @@ class Detailing_report  extends Action_controller{
 		    $result[$arr['project']][$arr['work_type']] = $arr;
 		    return $result;
 		}, array());
-		// echo "<pre>";
-		// print_r($tons_project_wise_result);
+
+		$submission_date_wise_qry 		= 'select cw_time_sheet.entry_date,cw_time_sheet_time_line.project from cw_time_sheet_time_line inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.project order by cw_time_sheet.entry_date desc';
+		$submission_date_wise_info   	= $this->db->query("CALL sp_a_run ('SELECT','$submission_date_wise_qry')");
+		$submission_date_wise_result  	= $submission_date_wise_info->result_array();
+		$submission_date_wise_info->next_result();
+		$submission_date_wise_result = array_reduce($submission_date_wise_result, function($result, $arr){	
+		    $result[$arr['project']] = $arr;
+		    return $result;
+		}, array());
 
 		$detailing_status_qry  		= 'select prime_detailing_status_id,detailing_status from cw_detailing_status where trans_status = 1';
 		$detailing_status_info   	= $this->db->query("CALL sp_a_run ('SELECT','$detailing_status_qry')");
@@ -308,12 +278,6 @@ class Detailing_report  extends Action_controller{
 		    $result[$arr['project']] = $arr;
 		    return $result;
 		}, array());
-
-
-
-
-		// echo "<pre>";
-		// print_r($detailing_hours_result);die;
 		
 		require_once APPPATH."/third_party/PHPExcel.php";
 		$obj = new PHPExcel();		
@@ -321,7 +285,6 @@ class Detailing_report  extends Action_controller{
 		$i =3;
 		$excel_types[]['excel_column']= array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE');
 		$excel_types[]['excel_value']= array('Client No','RDD No','PO#',' Project Name','Client','General Contractor','Office','Team','US PM','Received Date','Estimated Tons','Detailed Tons','Balance Tons','# Sheets Detailed','Last Submission','Detailing Status','Revision Status','Release Status','Billing Rate Detailing','Billing Unit','Invoiced ton','Balance to invoice','Detailing Hours','Checking Hours','QA + QC Hours','CO Hours','Invoiced CO Hours','Balance to Invoice CO','Billing Rate Revision','Billing Unit','COST OF JOB');
-// echo "latha";
 		$styleArray = array(
 			'borders' => array(
 			    'bottom' => array(
@@ -602,7 +565,7 @@ class Detailing_report  extends Action_controller{
 			$count_sheet2 				= $tons_project_wise_result[$project_id][2]['count_sheet'];
 			$sum_of_tonnage_count 		= $count_sheet1 +$count_sheet2;
 			$balance_tons 				= $estimated_tons-$sum_of_tonnage;
-			$last_submission 			= $tons_project_wise_result[$project_id]['approved_date'];
+			$last_submission 			= $submission_date_wise_result[$project_id]['entry_date'];
 			$detailing_status 			= $detailing_status_result[$detailing_status_id]['detailing_status'];
 			$revision_status 			= $revision_status_result[$revision_status_id]['revision_status'];
 			$release_status 			= $release_status_result[$release_status_id]['release_status'];

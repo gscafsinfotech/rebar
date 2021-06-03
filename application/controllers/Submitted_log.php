@@ -66,33 +66,16 @@ class Submitted_log  extends Action_controller{
 							}else{
 							$qry = "";
 						}
-						if($pick_table == "cw_payroll_formula"){
-							$pick_query = "select $pick_list from $pick_table where trans_status = 1";
-							$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
-							$pick_result = $pick_data->result();
-							$pick_data->next_result();
-							$array_list[""] = "---- $label_name ----";
-							foreach($pick_result as $pick){
-								$pick_key = $pick->$pick_list_val_1;
-								$pick_val = ucwords(str_replace("_"," ",$pick->$pick_list_val_2));
-								$array_list[$pick_key] = $pick_val;
-							}
-						}else{
-							if($label_id === "excemption_component"){
-								$pick_query = "select $pick_list from $pick_table where trans_status = 1 and tax_section = 1 $qry";
-								}else{
-								$pick_query = "select $pick_list from $pick_table where trans_status = 1 $qry";
-							}
-							$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
-							$pick_result = $pick_data->result();
-							$pick_data->next_result();
-							
-							$array_list[""] = "---- $label_name ----";
-							foreach($pick_result as $pick){
-								$pick_key = $pick->$pick_list_val_1;
-								$pick_val = $pick->$pick_list_val_2;
-								$array_list[$pick_key] = $pick_val;
-							}
+						$pick_query = "select $pick_list from $pick_table where trans_status = 1 $qry";
+						$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
+						$pick_result = $pick_data->result();
+						$pick_data->next_result();
+						
+						$array_list[""] = "---- $label_name ----";
+						foreach($pick_result as $pick){
+							$pick_key = $pick->$pick_list_val_1;
+							$pick_val = $pick->$pick_list_val_2;
+							$array_list[$pick_key] = $pick_val;
 						}
 					}else
 					if($pick_list_type === 2){ 
@@ -125,18 +108,6 @@ class Submitted_log  extends Action_controller{
 		$multi_val 			 = (int)$multipick_val-1;
 		$filter_cond 		 = urldecode($filter_cond);
 		$fliter_val 		 = $this->input->post("fliter_val");
-		$fliter_val_count 	 = count($fliter_val);
-		$first_value 		 = array_splice($fliter_val,2,$multipick_val);
-		$second_value 		 = array_splice($fliter_val,2,$fliter_val_count);
-		$first_value 		 = implode(',', $first_value);
-		$first_value 		 = rtrim($first_value,',');
-		$first_value 		 = array($first_value);
-		$first_value = array_reduce($first_value, function($result, $arr){			
-		    $result[2] = $arr;
-		    return $result;
-		}, array());
-		$first_value 	 	 = array_replace($fliter_val, $first_value, $first_value);
-		$fliter_val 		 = array_merge($first_value,$second_value);
 		$filter_count 		 = $this->input->post("filter_count");
 		$fliter_label 		 = $this->input->post("fliter_label");
 		$fliter_type 		 = $this->input->post("fliter_type");
@@ -211,17 +182,6 @@ class Submitted_log  extends Action_controller{
 		$filter_cond 		 = urldecode($filter_cond);
 		$fliter_val 		 = explode(',', $fliter_val);
 		$fliter_val_count 	 = count($fliter_val);
-		$first_value 		 = array_splice($fliter_val,2,$multipick_val);
-		$second_value 		 = array_splice($fliter_val,2,$fliter_val_count);
-		$first_value 		 = implode(',', $first_value);
-		$first_value 		 = rtrim($first_value,',');
-		$first_value 		 = array($first_value);
-		$first_value = array_reduce($first_value, function($result, $arr){			
-		    $result[2] = $arr;
-		    return $result;
-		}, array());
-		$first_value 	 	 = array_replace($fliter_val, $first_value, $first_value);
-		$fliter_val 		 = array_merge($first_value,$second_value);
 		$filter_cond 		 = explode(',', $filter_cond);
 		$field_types 	 	 = explode(',', $field_type);
 		$fliter_type 		 = explode(',', $fliter_type);
@@ -265,7 +225,7 @@ class Submitted_log  extends Action_controller{
 				if((int)$table_name === 1){ $fliter_query .= $table_qry.".". $db_name ." ". $db_cond .' '.$search_val.''; }
 			}				
 		}
-
+// echo "fliter_query ::$fliter_query";die;
 		require_once APPPATH."/third_party/PHPExcel.php";
 		$obj = new PHPExcel();	
 
@@ -554,7 +514,7 @@ class Submitted_log  extends Action_controller{
 			}
 			$obj->getActiveSheet()->calculateWorksheetDimension();
 		}
-		$detailing_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,team_name,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.'';
+		$detailing_qry = 'select count(*) as total_drawing_count,cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_time_sheet.entry_date,cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,team_name,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.' group by cw_tonnage_approval.drawing_no';
 		$detailing_info   			= $this->db->query("CALL sp_a_run ('SELECT','$detailing_qry')");
 		$detailing_result 			= $detailing_info->result_array();
 		$detailing_info->next_result();
@@ -562,6 +522,9 @@ class Submitted_log  extends Action_controller{
 		    $result[$arr['prime_team_id']][] = $arr;
 		    return $result;
 		}, array());
+		//  echo "<pre>";
+		// print_r($detailing_result);die;
+
 
 		$checker_name_qry = 'select cw_tonnage_approval.team,cw_employees.emp_name,prime_team_id,cw_employees.employee_code from cw_tonnage_approval inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.trans_status = 1 and cw_employees.trans_status = 1 and cw_tonnage_approval.approval_status = 2 and cw_employees.trans_status = 1';
 	    $checker_name_info   	= $this->db->query("CALL sp_a_run ('SELECT','$checker_name_qry')");
@@ -573,10 +536,18 @@ class Submitted_log  extends Action_controller{
 		$pm_name_result  	= $pm_name_info->result();
 		$pm_name_info->next_result();
 
-		$checker_time_qry = 'select cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as team_leader_name,prime_team_id,cw_tonnage_approval.detailer_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.approval_status  and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1';
+
+
+		$checker_time_qry = 'select cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(revision_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(cw_time_sheet_time_line.billable_hours))+SUM(TIME_TO_SEC(cw_time_sheet_time_line.non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(cw_time_sheet_time_line.actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))) as checking_time from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id = cw_project_and_drawing_master.prime_project_and_drawing_master_id where cw_time_sheet_time_line.emp_role = 4 and cw_time_sheet_time_line.work_type = 1 and cw_time_sheet_time_line.work_status = 3  and cw_time_sheet_time_line.trans_status =1  group by cw_project_and_drawing_master_drawings.drawing_no';
 		$checker_time_info   			= $this->db->query("CALL sp_a_run ('SELECT','$checker_time_qry')");
-		$checker_time_result 			= $checker_time_info->result();
+		$checker_time_result 			= $checker_time_info->result_array();
 		$checker_time_info->next_result();
+		$checker_time_result = array_reduce($checker_time_result, function($result, $arr){			
+		    $result[$arr['prime_project_and_drawing_master_drawings_id']] = $arr;
+		    return $result;
+		}, array());
+		// echo "<pre>";
+		// print_r($checker_time_result);die;
 
 		$team_qry  	= 'select prime_team_id,team_name from cw_team where trans_status = 1';
 		$team_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
@@ -633,6 +604,9 @@ class Submitted_log  extends Action_controller{
 				$total_qa_minor  		  += $team_data['qa_minor'];
 				$total_actual_tons 		  += $team_data['actual_tonnage'];
 				$no_of_draw				  += 1;
+				$drawing_id 			   = $team_data['prime_project_and_drawing_master_drawings_id'];
+				$checker_time 			   = $checker_time_result[$drawing_id]['checking_time'];
+				
 
 				$cummulate_booking_hours   = array();
 				$cummulate_booking_hours[] = $team_data['detailing_time'];
@@ -656,15 +630,13 @@ class Submitted_log  extends Action_controller{
 				$cummulate_booking_hours[] = $team_data['bar_listing_checking'];
 				$cummulate_booking_hours[] = $team_data['aec'];
 				$cummulate_booking_hours[] = $team_data['credit'];
-				$cummulate_booking_hours[] = $team_data['first_check_minor'];
-				$cummulate_booking_hours[] = $team_data['first_check_major'];
-				$cummulate_booking_hours[] = $team_data['second_check_major'];
-				$cummulate_booking_hours[] = $team_data['second_check_minor'];
-				$cummulate_booking_hours[] = $team_data['qa_major'];
-				$cummulate_booking_hours[] = $team_data['qa_minor'];
 				$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
 				$team_leader_name 		   = $team_data['team_leader_name'];
 				$project_manager_name 	   = $team_data['project_manager_name'];
+				$total_times 			 = array();
+				$total_times[] 			 = $cummulate_total_hours;
+				$total_times[] 			 = $checker_time;
+				$total_for_time 	   	 = $this->AddPlayTime($total_times);
 
 				$time_sheet_inside['A']  = $team_data['rdd_no'];
 				$time_sheet_inside['B']  = $team_data['uspm'];
@@ -672,9 +644,9 @@ class Submitted_log  extends Action_controller{
 				$time_sheet_inside['D']  = $team_data['project_name'];
 				$time_sheet_inside['E']  = $team_data['received_date'];
 				$time_sheet_inside['F']  = $team_data['drawing_no'];
-				$time_sheet_inside['G']  = "1";
+				$time_sheet_inside['G']  = $team_data['total_drawing_count'];
 				$time_sheet_inside['H']  = $team_data['drawing_description'];
-				$time_sheet_inside['I']  = date('d-m-Y',strtotime($team_data['trans_created_date']));
+				$time_sheet_inside['I']  = date('d-m-Y',strtotime($team_data['entry_date']));
 				$time_sheet_inside['J']  = $team_data['actual_tonnage'];
 				$time_sheet_inside['K']  = $team_data['detailer_name'];
 				$time_sheet_inside['L']  = $cummulate_total_hours;
@@ -685,44 +657,12 @@ class Submitted_log  extends Action_controller{
 						$time_sheet_inside['M']  = $checker_rlst->emp_name;
 					}
 				}
-				foreach ($checker_time_result as $key => $chk_rlst) {
-					$checker_booking_hours   = array();
-					$checker_booking_hours[] = $chk_rlst->detailing_time;
-					$checker_booking_hours[] = $chk_rlst->study;
-					$checker_booking_hours[] = $chk_rlst->discussion;
-					$checker_booking_hours[] = $chk_rlst->rfi;
-					$checker_booking_hours[] = $chk_rlst->checking;
-					$checker_booking_hours[] = $chk_rlst->correction_time;
-					$checker_booking_hours[] = $chk_rlst->other_works;
-					$checker_booking_hours[] = $chk_rlst->bar_listing_time;
-					$checker_booking_hours[] = $chk_rlst->revision_time;
-					$checker_booking_hours[] = $chk_rlst->change_order_time;
-					$checker_booking_hours[] = $chk_rlst->billable_hours;
-					$checker_booking_hours[] = $chk_rlst->non_billable_hours;
-					$checker_booking_hours[] = $chk_rlst->emails;
-					$checker_booking_hours[] = $chk_rlst->was;
-					$checker_booking_hours[] = $chk_rlst->co_checking;
-					$checker_booking_hours[] = $chk_rlst->actual_billable_time;
-					$checker_booking_hours[] = $chk_rlst->qa_checking;
-					$checker_booking_hours[] = $chk_rlst->monitoring;
-					$checker_booking_hours[] = $chk_rlst->bar_listing_checking;
-					$checker_booking_hours[] = $chk_rlst->aec;
-					$checker_booking_hours[] = $chk_rlst->credit;
-					$checker_booking_hours[] = $chk_rlst->first_check_minor;
-					$checker_booking_hours[] = $chk_rlst->first_check_major;
-					$checker_booking_hours[] = $chk_rlst->second_check_major;
-					$checker_booking_hours[] = $chk_rlst->second_check_minor;
-					$checker_booking_hours[] = $chk_rlst->qa_major;
-					$checker_booking_hours[] = $chk_rlst->qa_minor;
-					$checker_bookhours 	   	 = $this->AddPlayTime($checker_booking_hours);
-					$time_sheet_inside['N']  = $checker_bookhours;
 
-					$total_times 			 = array();
-					$total_times[] 			 = $cummulate_total_hours;
-					$total_times[] 			 = $checker_bookhours;
-					$total_times 	   	 	 = $this->AddPlayTime($total_times);
-					$time_sheet_inside['O']  = $total_times;
-				}
+				$time_sheet_inside['N']  = $checker_time;
+				$time_sheet_inside['O']  = $total_for_time;
+
+
+			
 				$time_sheet_inside['P']  = $team_data['first_check_major'];
 				$time_sheet_inside['Q']  = $team_data['first_check_minor'];
 				$time_sheet_inside['R']  = $team_data['second_check_major'];
@@ -773,6 +713,8 @@ class Submitted_log  extends Action_controller{
 			$i++;
 		}
 
+
+// die;
 
 		/* REVISION SHEET */
 

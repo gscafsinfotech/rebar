@@ -864,8 +864,10 @@ function get_client_list(rdd_no){
 			data:{rdd_no:rdd_no,client_name:client_name,project:project},
 			success: function(data) {
 				var rslt = JSON.parse(data);
+				console.log(rslt.drawing_list);
 				$('#client_name').html(rslt.client_list);
 				$('#project').html(rslt.project_list);
+				$('#drawing_no').html(rslt.drawing_list);
 			}
 		});
 	}

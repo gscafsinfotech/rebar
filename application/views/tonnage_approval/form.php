@@ -659,6 +659,12 @@ $(document).ready(function(){
 		}
 	});
 	*/
+	var approval_status = $("#approval_status").val();
+	if(parseInt(approval_status) === 2){
+		$("#approval_status,#actual_tonnage").attr('readonly', true);
+	}else{
+		$("#approval_status,#actual_tonnage").attr('readonly', false);
+	}
 	$('textarea').on('keyup keypress', function(e) {
 		if(e.keyCode === 13) {    
 			e.stopPropagation();

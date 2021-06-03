@@ -989,6 +989,10 @@ abstract class Action_controller extends Secure_Controller{
 		$today_date = date("Y-m-d h:i:s");
 		$final_qry = 'UPDATE '.$table_name.' SET trans_updated_by = "'.$logged_id.'",trans_updated_date = "'.$today_date.'" , trans_status = 0 WHERE '.$table_prime_id.' = "'.$row_id.'"';
 		$this->db->query("CALL sp_a_run ('SELECT','$final_qry')");
+		if($table_name === "cw_time_sheet_time_line"){
+			$approve_qry = 'UPDATE cw_tonnage_approval SET trans_updated_by = "'.$logged_id.'",trans_updated_date = "'.$today_date.'" , trans_status = 0 WHERE '.$table_prime_id.' = "'.$row_id.'"';
+			$this->db->query("CALL sp_a_run ('SELECT','$approve_qry')");
+		}
 		$row_set_data = $this->get_row_set_data($view_id,$prime_id);
 		echo json_encode(array('success' => TRUE, 'msg' => "Remove Successfully",'row_set_data' => $row_set_data));
 	}

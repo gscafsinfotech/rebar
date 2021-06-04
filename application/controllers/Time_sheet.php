@@ -285,6 +285,11 @@ class Time_sheet  extends Action_controller{
 			}else
 			if((int)$field_type === 13){
 				$value = date('Y-m-d H:i:s',strtotime($value));
+			}else
+			if((int)$field_type === 8){//textbox only
+				$value = str_replace('"',"xdbquot",$value);
+				$value = str_replace("'","xquot",$value);
+				$value = str_replace("&","xxamp",$value);
 			}	
 			
 			if(($input_view_type === 1) || ($input_view_type === 2)){
@@ -492,26 +497,6 @@ class Time_sheet  extends Action_controller{
 		$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
 		echo json_encode(array('success' => TRUE, 'message' => "Process Success"));
 	}
-	/*public function get_project_list(){
-		$client_name    = (int)$this->input->post("client_name");
-		$project_id     = (int)$this->input->post("project_name");
-		$client_qry     = 'select prime_project_and_drawing_master_id,project_name from cw_project_and_drawing_master where client_name ="'.$client_name.'" and trans_status = 1';
-		$client_info    = $this->db->query("CALL sp_a_run ('SELECT','$client_qry')");
-		$client_result  = $client_info->result();
-		$client_info->next_result();
-		$client_list = "<option value=''>--- Select Project ---</option>";
-		foreach($client_result as $result){
-			$id        	   = $result->prime_project_and_drawing_master_id;
-			$project_name  = $result->project_name;
-			if((int)$project_id === (int)$id){
-				$selected  = 'selected';
-			}else{
-				$selected  = '';
-			}
-			$client_list  .= "<option value='$id' $selected> $project_name </option>";
-		}
-		echo $client_list;
-	}*/
 	public function get_drawing_list(){
 		$project_name   = (int)$this->input->post("project_name");
 		$drawing_no     = (int)$this->input->post("drawing_no");
@@ -535,29 +520,9 @@ class Time_sheet  extends Action_controller{
 		}
 		echo json_encode(array('success' => TRUE, 'message' => "success",'project_list' => $project_list,'client_list' => $client_list));
 	}
-	/*public function get_co_number_list(){
-		$drawing_no   = (int)$this->input->post("drawing_no");
-		$co_number     = (int)$this->input->post("co_number");
-		$co_number_qry    = 'select prime_co_register_id,cw_co_register.co_number,drawing_description from cw_co_register where FIND_IN_SET("'.$drawing_no.'",cw_co_register.drawing_no) and cw_co_register.trans_status = 1';
-		$co_number_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_number_qry')");
-		$co_number_result = $co_number_info->result();
-		$co_number_info->next_result();
-		$co_number_list   = "<option value=''>--- Select Diagram No ---</option>";
-		foreach($co_number_result as $result){
-			$id        	    = $result->prime_co_register_id;
-			$drawing_description        	    = $result->drawing_description;
-			$co_number     = $result->co_number;
-			if((int)$co_number === (int)$id){
-				$selected = "selected";
-			}else{
-				$selected = "";
-			}
-			$co_number_list  .= "<option value='$id' $selected> $co_number - $drawing_description </option>";
-		}
-		echo $co_number_list;
-	}*/
 	public function get_co_list_list(){
 		$logged_team      = $this->session->userdata('logged_team');
+		$co_number_id  	  = (int)$this->input->post("co_number");
 		$co_number_qry    = 'select prime_co_register_id,cw_co_register.co_number,drawing_description from cw_co_register where FIND_IN_SET("'.$logged_team.'",cw_co_register.team) and cw_co_register.trans_status = 1';
 		$co_number_info   = $this->db->query("CALL sp_a_run ('SELECT','$co_number_qry')");
 		$co_number_result = $co_number_info->result();
@@ -568,12 +533,12 @@ class Time_sheet  extends Action_controller{
 			$id        	    = $result->prime_co_register_id;
 			$drawing_description        	    = $result->drawing_description;
 			$co_number     = $result->co_number;
-			if((int)$co_number === (int)$id){
+			if((int)$id === (int)$co_number_id){
 				$selected = "selected";
 			}else{
 				$selected = "";
 			}
-			$co_number_list  .= "<option value='$id' $selected> $co_number - $drawing_description </option>";
+			$co_number_list  .= "<option value='$id' $selected> $co_number</option>";
 		}
 		echo $co_number_list;
 	}

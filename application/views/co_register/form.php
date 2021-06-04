@@ -143,7 +143,9 @@ foreach($view_info as $view){
 			}else
 			//TEXT AREA
 			if((int)$field_type === 8){
-				$value = str_replace('^',"'",$input_value);
+				$value = str_replace("xdbquot",'"',$input_value);
+				$value = str_replace("xquot","'",$value);
+				$value = str_replace("xxamp","&",$value);
 				$input_box .= "<div class='form-group'> $form_label <textarea name='$label_id' id='$label_id' class='form-control' rows='4' placeholder='$label_name' $read = true>$value</textarea></div>";
 			}else
 			//AUTOCOMPLETE

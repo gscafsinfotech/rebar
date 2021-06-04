@@ -800,7 +800,13 @@ abstract class Action_controller extends Secure_Controller{
 			}else
 			if((int)$field_type === 13){
 				$value = date('Y-m-d H:i:s',strtotime($value));
-			}			
+			}else
+			if((int)$field_type === 8){//textbox only
+				$value = str_replace('"',"xdbquot",$value);
+				$value = str_replace("'","xquot",$value);
+				$value = str_replace("&","xxamp",$value);
+			}	
+
 			$prime_qry_key          .= $label_id.",";
 			$prime_qry_value        .= '"'.$value.'",';
 			$prime_upd_query        .= $label_id.' = "'.$value.'",';
@@ -907,8 +913,18 @@ abstract class Action_controller extends Secure_Controller{
 				$prime_update_query  = "UPDATE $table_name SET ". $prime_upd_query .' WHERE '. $table_prime .' = "'. $row_prime_id .'"';
 				$this->db->query("CALL sp_a_run ('UPDATE','$prime_update_query')");
 				$row_set_data = $this->get_row_set_data($view_id,$prime_id);
-				$update_query  = "UPDATE cw_tonnage_approval SET ". $approval_update .' WHERE prime_time_sheet_time_line_id = "'. $row_prime_id .'"';
-				$this->db->query("CALL sp_a_run ('UPDATE','$update_query')");
+				$logged_role 	    = $this->session->userdata('logged_role');
+				if((int)$logged_role === 5){
+					if((int)$work_type === 1 || (int)$work_type === 2){ 
+						if((int)$work_status === 3 && (int)$entry_type === 2){
+							$update_query  = "UPDATE cw_tonnage_approval SET ". $approval_update .',trans_status = 1 WHERE '.$table_prime.' = "'.$row_prime_id.'"';
+							$this->db->query("CALL sp_a_run ('UPDATE','$update_query')");
+						}else{
+							$approve_qry = 'UPDATE cw_tonnage_approval SET trans_updated_by = "'.$logged_id.'",trans_updated_date = "'.$today_date.'" , trans_status = 0 WHERE '.$table_prime.' = "'.$row_prime_id.'"';
+							$this->db->query("CALL sp_a_run ('SELECT','$approve_qry')");
+						}
+					}
+				}
 				echo json_encode(array('success' => TRUE, 'message' => "Successfully updated",'insert_id' => $row_prime_id,'row_set_data' => $row_set_data));
 			}
 			else{
@@ -925,7 +941,7 @@ abstract class Action_controller extends Secure_Controller{
 		$row_id          = (int)$this->input->post('row_id');
 		$view_id         = (int)$this->input->post('view_id');
 		$table_name      = $this->input->post('table_name');
-		$table_prime_id  =	 "prime_".$table_name."_id";
+		$table_prime_id  = "prime_".$table_name."_id";
 		$table_name      = $this->db->dbprefix($table_name);		
 		
 		$final_qry  = "select * from $table_name " .' where '.$table_prime_id.' = "'.$row_id.'" and  trans_status = "1"';
@@ -970,7 +986,14 @@ abstract class Action_controller extends Secure_Controller{
 				 $input_value = $pick_result[0]->$auto_dispaly_value;
 				 $label_name  = $label_name."_hidden_".$prime_form_id;
 				 $rslt_info[$label_name] = array('input_value'=>$input_value,'field_type'=>$field_type);
-			}else{
+			}else
+			if((int)$field_type === 8){
+				$input_value = str_replace("xdbquot",'"',$input_value);
+				$input_value = str_replace("xquot","'",$input_value);
+				$input_value = str_replace("xxamp","&",$input_value);
+				$rslt_info[$label_name] = array('input_value'=>$input_value,'field_type'=>$field_type);
+			}
+			else{
 				$rslt_info[$label_name] = array('input_value'=>$input_value,'field_type'=>$field_type);
 			}
 		}

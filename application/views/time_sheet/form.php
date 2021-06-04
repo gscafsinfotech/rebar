@@ -155,7 +155,9 @@ foreach($view_info as $view){
 			}else
 			//TEXT AREA
 			if((int)$field_type === 8){
-				$value = str_replace('^',"'",$input_value);
+				$value = str_replace("xdbquot",'"',$input_value);
+				$value = str_replace("xquot","'",$value);
+				$value = str_replace("xxamp","&",$value);
 				$input_box .= "<div class='form-group'> $form_label <textarea name='$label_id' id='$label_id' class='form-control' rows='4' placeholder='$label_name' $read = true>$value</textarea></div>";
 			}else
 			//AUTOCOMPLETE
@@ -657,26 +659,14 @@ $(document).ready(function(){
 		billable_wise(billable);
 	});
 	billable_wise(billable);
-	// var work_status 	= $("#work_status").val();
 	$("#work_status").change(function(){
 		var work_status = $(this).val();
 		work_status_wise(work_status);
 	});
-	// work_status_wise(work_status);
-	// $("#client_name").change(function(){
-	// 	var client_name  = $(this).val();
-	// 	get_project_list(client_name);
-	// });
 	$("#project").change(function(){
 		var project_name = $(this).val();
 		get_drawing_list(project_name);
 	});
-
-	/*$("#drawing_no").change(function(){
-		var drawing_no = $(this).val();
-		get_co_number_list(drawing_no);
-	});*/
-
 
 	if(date_exist === "1"){
 		$(function () {
@@ -933,11 +923,17 @@ function row_set_edit(row_id,table_name,view_id){
 								if(parseInt(approval_status) === 1){
 									$("#work_status,#tonnage").attr('readonly', false);
 								}
+							}else
+							if(key === "co_number"){
+								var co_number = optionVal;
+								get_co_list_list(co_number);
 							}
+							console.log("key"+key+"value"+optionVal);
 							var logged_role = "<?php echo $logged_role;?>";
 							$("#"+key).find("option[value='"+optionVal+"']").prop("selected", "selected");
 							inputs_hide_show(logged_role,work_type);
-							$('#work_type,#entry_type,#client_name,#project,#drawing_no').attr('readonly', true);
+							// $('#work_type,#entry_type,#client_name,#project,#drawing_no').attr('readonly', true);
+							// get_co_list_list();
 						}
 						$(function(){
 							$('.select2').select2({
@@ -1165,7 +1161,8 @@ function entry_type_wise(entry_type){
 				$("#co_number,#tonnage,#client_name,#approval_status").addClass('ignore');
 			}
 		}
-		get_co_list_list();
+		var co_number = $("#co_number").val();
+		get_co_list_list(co_number);
 	}
 }
 function billable_wise(billable){
@@ -1202,19 +1199,6 @@ function work_status_wise(work_status){
 		}
 	}
 }
-/*function get_project_list(client_name){
-	var project_name 	 = $("#project").val();
-	var send_url 	     = '<?php echo site_url("$controller_name/get_project_list"); ?>';
-	$.ajax({
-		type: "POST",
-		url: send_url,
-		data:{client_name:client_name,project_name:project_name},
-		success: function(data){
-			console.log(data);
-			$('#project').html(data);
-		}
-	});
-}*/
 function get_drawing_list(project_name){	
 	var drawing_no    = $("#drawing_no").val();
 	var client_name   = $("#client_name").val();
@@ -1230,14 +1214,13 @@ function get_drawing_list(project_name){
 		}
 	});
 }
-function get_co_list_list(){
+function get_co_list_list(co_number){
 	var send_url 	 = '<?php echo site_url("$controller_name/get_co_list_list"); ?>';
 	$.ajax({
 		type: "POST",
 		url: send_url,
-		data:{drawing_no:1},
+		data:{co_number:co_number},
 		success: function(data){
-			console.log(data);
 			$('#co_number').html(data);
 		}
 	});
@@ -1253,17 +1236,16 @@ function select_all(){
 		tokenSeparators: [',']
 	});
 }
-/*function get_co_number_list(drawing_no){
-	var co_number    = $("#co_number").val();
-	console.log("co_number "+co_number);
-	var send_url 	 = '<?php echo site_url("$controller_name/get_co_number_list"); ?>';
-	$.ajax({
-		type: "POST",
-		url: send_url,
-		data:{drawing_no:drawing_no,co_number:co_number},
-		success: function(data){
-			$('#co_number').html(data);
-		}
-	});
-}*/
 </script>
+<style type="text/css">
+.modal-body{
+	border: none;
+	padding: 5px;
+	height: 520px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.modal-open .modal{
+	overflow-y: hidden;
+}
+</style>

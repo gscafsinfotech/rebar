@@ -230,6 +230,11 @@ class Uspm  extends Action_controller{
 			}else
 			if((int)$field_type === 13){
 				$value = date('Y-m-d H:i:s',strtotime($value));
+			}else
+			if((int)$field_type === 8){//textbox only
+				$value = str_replace('"',"xdbquot",$value);
+				$value = str_replace("'","xquot",$value);
+				$value = str_replace("&","xxamp",$value);
 			}	
 			
 			if(($input_view_type === 1) || ($input_view_type === 2)){

@@ -565,17 +565,18 @@ foreach($view_info as $view){
 										toastr.success(rslt.message);
 										$('#'+rslt.row_set_data.div_id).html(rslt.row_set_data.row_set_view);
 										$row_clear_data
-										$(function(){
-											$('.select2').select2({
-												placeholder: '---- Select ----',
-												allowClear: true,
-												dropdownParent: $('.modal-dialog')
-											});
-											$('.select2-tags').select2({
-												tags: true,
-												tokenSeparators: [',']
-											});
-										});
+										// $(function(){
+										// 	$('.select2').select2({
+										// 		placeholder: '---- Select ----',
+										// 		allowClear: true,
+										// 		dropdownParent: $('.modal-dialog')
+										// 	});
+										// 	$('.select2-tags').select2({
+										// 		tags: true,
+										// 		tokenSeparators: [',']
+										// 	});
+										// });
+										select_all();
 										$('#team').val($logged_team);
 										$('#emp_role').val($logged_role);
 										default_hide();
@@ -590,17 +591,18 @@ foreach($view_info as $view){
 								});\n
 								$('#$cancel_btn_id').click(function(){
 									$row_clear_data
-									$(function(){
-										$('.select2').select2({
-											placeholder: '---- Select ----',
-											allowClear: true,
-											dropdownParent: $('.modal-dialog')
-										});
-										$('.select2-tags').select2({
-											tags: true,
-											tokenSeparators: [',']
-										});
-									});
+									// $(function(){
+									// 	$('.select2').select2({
+									// 		placeholder: '---- Select ----',
+									// 		allowClear: true,
+									// 		dropdownParent: $('.modal-dialog')
+									// 	});
+									// 	$('.select2-tags').select2({
+									// 		tags: true,
+									// 		tokenSeparators: [',']
+									// 	});
+									// });
+									select_all();
 								});\n
 								$('#$table_id').DataTable();\n";
 	}
@@ -688,19 +690,19 @@ $(document).ready(function(){
 		});
 	}
 	var drop_exist = "<?php echo $drop_exist;?>";
-	if(drop_exist === "1"){
-		$(function(){
-			$('.select2').select2({
-				placeholder: '---- Select ----',
-				allowClear: true,
-				dropdownParent: $('.modal-dialog')
-			});
-			$('.select2-tags').select2({
-				tags: true,
-				tokenSeparators: [',']
-			});
-		});
-	}
+	// if(drop_exist === "1"){
+		// $(function(){
+		// 	$('.select2').select2({
+		// 		placeholder: '---- Select ----',
+		// 		allowClear: true,
+		// 		dropdownParent: $('.modal-dialog')
+		// 	});
+		// 	$('.select2-tags').select2({
+		// 		tags: true,
+		// 		tokenSeparators: [',']
+		// 	});
+		// });
+	// }
 	/*
 	$('input').keypress(function(e){ 
 		e = e || event;
@@ -935,17 +937,6 @@ function row_set_edit(row_id,table_name,view_id){
 							// $('#work_type,#entry_type,#client_name,#project,#drawing_no').attr('readonly', true);
 							// get_co_list_list();
 						}
-						$(function(){
-							$('.select2').select2({
-								placeholder: '---- Select ----',
-								allowClear: true,
-								dropdownParent: $('.modal-dialog')
-							});
-							$('.select2-tags').select2({
-								tags: true,
-								tokenSeparators: [',']
-							});
-						});
 					}else 
 					if(value.field_type === "15"){
 						var now 	= value.input_value;
@@ -960,6 +951,7 @@ function row_set_edit(row_id,table_name,view_id){
 						$('#'+key).val(value.input_value);
 					}					
 				});
+				select_all();
 			}
 		});
 	}
@@ -996,6 +988,8 @@ function inputs_hide_show(logged_role,work_type){
 			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi,#submitted_date").val('00:00');
 			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
 			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no,#submitted_date").val('');
+
+			// $('.select2').select2('destroy');
 			select_all();
 		}else
 		if(parseInt(work_type) === 2){
@@ -1006,6 +1000,7 @@ function inputs_hide_show(logged_role,work_type){
 			$("#revision_time,#change_order_time,#billable,#billable_hours,#non_billable_hours,#emails,#was,#co_checking,#actual_billable_time,#qa_checking,#monitoring,#bar_listing_checking,#aec,#bar_listing_time,#rfi").val('00:00');
 			$("#detailing_time,#study,#discussion,#checking,#correction_time,#credit,#other_works").val('00:00');
 			$("#work_description,#bar_list_quantity,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor,#actual_tonnage,#tonnage,#work_status,#entry_type,#other_work_name,#client_name,#approval_status,#co_number,#project,#drawing_no").val('');
+			// $('.select2').select2('destroy');
 			select_all();
 		}else 
 		if(parseInt(work_type) === 3){
@@ -1233,8 +1228,11 @@ function get_co_list_list(co_number){
 	});
 }
 function select_all(){
+	// $("select").select2("destroy").select2();
+
+	$('.select2').select2('destroy');
 	$('.select2').select2({
-					placeholder: '---- Select ----',
+		placeholder: '---- Select ----',
 		allowClear: true,
 		dropdownParent: $('.modal-dialog')
 	});
@@ -1242,10 +1240,11 @@ function select_all(){
 		tags: true,
 		tokenSeparators: [',']
 	});
+	// $('.select2').select2('destroy');
 }
 </script>
 <style type="text/css">
-.modal-body{
+/*.modal-body{
 	border: none;
 	padding: 5px;
 	height: 520px;
@@ -1254,5 +1253,5 @@ function select_all(){
 }
 .modal-open .modal{
 	overflow-y: hidden;
-}
+}*/
 </style>

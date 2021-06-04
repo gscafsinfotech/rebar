@@ -1125,20 +1125,27 @@ function entry_type_wise(entry_type){
 			$("#drawing_no,#tonnage,#client_name,#approval_status,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").addClass('ignore');
 		}else 
 		if(parseInt(work_type) === 2){
-			$("#drawing_no,#co_number,#client_name,#approval_status").parent().hide();
-			$("#drawing_no,#co_number,#client_name,#approval_status").addClass('ignore');
+			$("#drawing_no,#co_number,#client_name,#approval_status,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().hide();
+			$("#drawing_no,#co_number,#client_name,#approval_status,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").addClass('ignore');
 		}
 	}else 
 	if(parseInt(entry_type) === 2 && parseInt(work_status) === 3){
 		var logged_role = "<?php echo $logged_role;?>";
 		if(parseInt(logged_role) === 5){
-			$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().show();
-			$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").removeClass('ignore');
+			if(parseInt(work_type) === 1){
+				$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().show();
+				$("#drawing_no,#project,#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").removeClass('ignore');
+			}else
+			if(parseInt(work_type) === 2){
+				$("#drawing_no,#project").parent().show();
+				$("#drawing_no,#project").removeClass('ignore');
+				$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().hide();
+				$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").addClass('ignore');
+			}
 		}else{
 			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").parent().hide();
 			$("#tonnage,#first_check_major,#first_check_minor,#second_check_major,#second_check_minor,#qa_major,#qa_minor").addClass('ignore');
 		}
-		
 	}else
 	if(parseInt(entry_type) === 2){
 		$("#drawing_no,#project").parent().show();

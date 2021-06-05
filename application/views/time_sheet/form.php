@@ -1108,6 +1108,7 @@ function inputs_hide_show(logged_role,work_type){
 	}
 }
 function entry_type_wise(entry_type){
+	$("#project,#drawing_no").val('');
 	var work_status  = $("#work_status").val();
 	var work_type = $("#work_type").val();
 	if(parseInt(entry_type) === 1){

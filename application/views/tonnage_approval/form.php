@@ -742,20 +742,20 @@ $(document).ready(function(){
 	if(parseInt(work_type) === 1){
 		$("#tonnage,#actual_tonnage").parent().show();
 		$("#tonnage,#actual_tonnage").removeClass('ignore');
-		$("#billable_hours,#non_billable_hours,#actual_billable_time").parent().hide();
-		$("#billable_hours,#non_billable_hours,#actual_billable_time").addClass('ignore');
+		$("#billable_hours,#non_billable_hours,#actual_billable_time,#co_number").parent().hide();
+		$("#billable_hours,#non_billable_hours,#actual_billable_time,#co_number").addClass('ignore');
 	}else 
 	if(parseInt(work_type) === 2){
 		$("#tonnage,#actual_tonnage").parent().hide();
 		$("#tonnage,#actual_tonnage").addClass('ignore');
-		$("#billable_hours,#non_billable_hours,#actual_billable_time").parent().show();
-		$("#billable_hours,#non_billable_hours,#actual_billable_time").removeClass('ignore');
+		$("#billable_hours,#non_billable_hours,#actual_billable_time,#co_number").parent().show();
+		$("#billable_hours,#non_billable_hours,#actual_billable_time,#co_number").removeClass('ignore');
 	}
 });
 
 function default_hide(){
-	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type,#approved_date").parent().hide();
-	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type,#approved_date").addClass('ignore');
+	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type,#approved_date,#co_number").parent().hide();
+	$("#prime_time_sheet_time_line_id,#detailer_name,#team_leader_name,#project_manager_name,#work_type,#approved_date,#co_number").addClass('ignore');
 }
 // FILE UPLOAD REMOVE
 function remove_file(prime_id,is_defult,input_name){

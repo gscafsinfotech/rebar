@@ -779,7 +779,7 @@ abstract class Action_controller extends Secure_Controller{
 						$target_value = $this->input->post($label_id);
 					}
 				}
-				if($label_id === 'client_name' || $label_id === 'project' || $label_id === 'drawing_no' || $label_id === 'tonnage' || $label_id === 'actual_tonnage' || $label_id === 'billable_hours' || $label_id === 'non_billable_hours' || $label_id === 'actual_billable_time'){
+				if($label_id === 'client_name' || $label_id === 'project' || $label_id === 'drawing_no' || $label_id === 'tonnage' || $label_id === 'actual_tonnage' || $label_id === 'billable_hours' || $label_id === 'non_billable_hours' || $label_id === 'actual_billable_time' || $label_id === 'co_number'){
 					$labelid_for_approval  .= $label_id.",";
 					$value_for_approval    .= '"'.$this->input->post($label_id).'",';
 					$approval_update       .= $label_id.' = "'.$this->input->post($label_id).'",';

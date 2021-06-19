@@ -220,7 +220,7 @@ class Co_register_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		$revision_qry = 'select submitted_date,prime_co_register_id from cw_co_register inner join cw_time_sheet_time_line on cw_time_sheet_time_line.co_number = cw_co_register.prime_co_register_id where cw_co_register.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 order by cw_time_sheet_time_line.prime_time_sheet_time_line_id ASC';
+		$revision_qry = 'select entry_date,prime_co_register_id from cw_co_register inner join cw_time_sheet_time_line on cw_time_sheet_time_line.co_number = cw_co_register.prime_co_register_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_co_register.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 order by cw_time_sheet_time_line.prime_time_sheet_time_line_id ASC';
 		$revision_qry   	= $this->db->query("CALL sp_a_run ('SELECT','$revision_qry')");
 		$revision_result 	= $revision_qry->result_array();
 		$revision_qry->next_result();
@@ -666,7 +666,7 @@ class Co_register_report  extends Action_controller{
 			$co_number_id 					 = $co_register_sheet->prime_co_register_id;
 			$team_name 						 = $team_result[$team]['team_name'];
 			$revision_actual_billable_hours  = $billable_hrs_result[$co_number_id]['actual_billable_time'];
-			$revision_submitted_date 	     = $revision_result[$co_number_id]['submitted_date'];
+			$revision_submitted_date 	     = $revision_result[$co_number_id]['entry_date'];
 			if($revision_submitted_date){
 				$revision_submitted_date		 = date('d-m-Y',strtotime($revision_submitted_date));
 			}

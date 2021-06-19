@@ -438,16 +438,19 @@ class Co_register  extends Action_controller{
 		$rdd_no         = (int)$this->input->post("rdd_no");
 		$client_id    	= (int)$this->input->post("client_name");
 		$project    	= (int)$this->input->post("project");
-		$client_qry     = 'select prime_project_and_drawing_master_id,cw_client.client_name,cw_project_and_drawing_master.client_name as client_name_id,project_name,cw_client.prime_client_id from cw_project_and_drawing_master inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name where prime_project_and_drawing_master_id ="'.$rdd_no.'" and cw_project_and_drawing_master.trans_status = 1';
+		$client_qry     = 'select cw_uspm.uspm,cw_project_and_drawing_master.project_manager,prime_project_and_drawing_master_id,cw_client.client_name,cw_project_and_drawing_master.client_name as client_name_id,project_name,cw_client.prime_client_id from cw_project_and_drawing_master inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager where prime_project_and_drawing_master_id ="'.$rdd_no.'" and cw_project_and_drawing_master.trans_status = 1';
+		// echo $client_qry;die;
 		$client_info    = $this->db->query("CALL sp_a_run ('SELECT','$client_qry')");
 		$client_result  = $client_info->result();
 		$client_info->next_result();
 		// $client_list = "<option value=''>--- Select ---</option>";
 		foreach($client_result as $result){
-			$id        	   = $result->prime_project_and_drawing_master_id;
-			$client_name   = $result->client_name;
-			$project_name  = $result->project_name;
+			$id        	   	= $result->prime_project_and_drawing_master_id;
+			$client_name   	= $result->client_name;
+			$project_name  	= $result->project_name;
 			$client_name_id = $result->prime_client_id;
+			$project_manager= $result->project_manager;
+			$uspm 			= $result->uspm;
 			$drawing_number = $drawing_result[$id]['drawing_no'];
 			if((int)$client_id === (int)$client_name_id){
 				$selected  = 'selected';
@@ -456,9 +459,21 @@ class Co_register  extends Action_controller{
 			}
 			$client_list  .= "<option value='$client_name_id' $selected> $client_name </option>";
 			$project_list  .= "<option value='$id' $selected> $project_name </option>";
+			$uspm_list  .= "<option value='$project_manager' $selected> $uspm </option>";
 			
 		}
 
+		$teams_qry 		= 'select cw_team.prime_team_id,cw_team.team_name from cw_project_and_drawing_master inner join cw_team on find_in_set(cw_team.prime_team_id,cw_project_and_drawing_master.team) where prime_project_and_drawing_master_id ="'.$rdd_no.'" and cw_project_and_drawing_master.trans_status = 1 and cw_team.trans_status = 1';
+		$teams_info    	= $this->db->query("CALL sp_a_run ('SELECT','$teams_qry')");
+		$teams_rlst  	= $teams_info->result();
+		$teams_info->next_result();
+		$team_list  = "";
+		foreach ($teams_rlst as $key => $teams) {
+			$teams_id        	   = $teams->prime_team_id;
+			$teams_name 		   = $teams->team_name;
+			$team_list  .= "<option value='$teams_id' selected> $teams_name </option>";
+		}
+		
 		$drawing_qry     = 'select prime_project_and_drawing_master_drawings_id,cw_project_and_drawing_master.prime_project_and_drawing_master_id,drawing_no from cw_project_and_drawing_master_drawings inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id where cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id ="'.$rdd_no.'" and cw_project_and_drawing_master.trans_status = 1 and cw_project_and_drawing_master_drawings.trans_status = 1';
 		$drawing_info    = $this->db->query("CALL sp_a_run ('SELECT','$drawing_qry')");
 		$drawing_result  = $drawing_info->result();
@@ -469,7 +484,7 @@ class Co_register  extends Action_controller{
 			$drawing_name 		   = $drawing->drawing_no;
 			$drawing_list  .= "<option value='$drawing_id' selected> $drawing_name </option>";
 		}
-		echo json_encode(array('success' => FALSE, 'message' => "Unable to process your request", 'client_list' => $client_list, 'project_list' => $project_list,'drawing_list' => $drawing_list));
+		echo json_encode(array('success' => FALSE, 'message' => "Unable to process your request", 'client_list' => $client_list, 'project_list' => $project_list,'drawing_list' => $drawing_list , 'uspm_list' => $uspm_list,'team_list' =>$team_list));
 	}
 	public function get_drawing_list(){
 		$drawing_no      = $this->input->post("drawing_no");

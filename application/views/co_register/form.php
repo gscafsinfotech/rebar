@@ -869,7 +869,9 @@ function get_client_list(rdd_no){
 				console.log(rslt.drawing_list);
 				$('#client_name').html(rslt.client_list);
 				$('#project').html(rslt.project_list);
+				$('#uspm').html(rslt.uspm_list);
 				$('#drawing_no').html(rslt.drawing_list);
+				$('#team').html(rslt.team_list);
 			}
 		});
 	}

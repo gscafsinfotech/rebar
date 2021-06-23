@@ -261,7 +261,7 @@ class Detailing_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		$checking_hours_qry 		= 'select project,SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(revision_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(billable_hours))+SUM(TIME_TO_SEC(non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))) as checking_hours from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where emp_role = 5 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by project';
+		$checking_hours_qry 		= 'select project,SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(revision_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(billable_hours))+SUM(TIME_TO_SEC(non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))) as checking_hours from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where emp_role = 4 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by project';
 		$checking_hours_info   		= $this->db->query("CALL sp_a_run ('SELECT','$checking_hours_qry')");
 		$checking_hours_result  	= $checking_hours_info->result_array();
 		$checking_hours_info->next_result();
@@ -270,7 +270,7 @@ class Detailing_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		$pm_hours_qry 			= 'select project,SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(revision_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(billable_hours))+SUM(TIME_TO_SEC(non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))) as pm_hours from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where emp_role = 5 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by project';
+		$pm_hours_qry 			= 'select project,SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(revision_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(billable_hours))+SUM(TIME_TO_SEC(non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))) as pm_hours from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where emp_role = 3 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by project';
 		$pm_hours_info   		= $this->db->query("CALL sp_a_run ('SELECT','$pm_hours_qry')");
 		$pm_hours_result  		= $pm_hours_info->result_array();
 		$pm_hours_info->next_result();
@@ -579,8 +579,21 @@ class Detailing_report  extends Action_controller{
 			$sum_of_tonnage_total 	   += $sum_of_tonnage;
 			$balance_tons_total 	   += $balance_tons;
 
-			$time1         				= new DateTime($actual_billable_time);
-			$time2         				= new DateTime($invoiced_hours);
+			$co_hrs = $actual_billable_time;
+			$inv_co_hrs = $invoiced_hours;
+
+			if($co_hrs){
+				$co_hrs = $co_hrs;
+			}else{
+				$co_hrs = '00:00:00';
+			}
+			if($inv_co_hrs){
+				$inv_co_hrs = $inv_co_hrs;
+			}else{
+				$inv_co_hrs = '00:00:00';
+			}
+			$time1         				= new DateTime($co_hrs);
+			$time2         				= new DateTime($inv_co_hrs);
 			$timediff      				= $time1->diff($time2);
 			$balance_invoice_time     	= $timediff->format('%H: %I');
 			$multiple_tons 				= $sum_of_tonnage * $billing_rate_detailing;
@@ -592,6 +605,7 @@ class Detailing_report  extends Action_controller{
 			$detailing_hours 			= $detailing_hours_result[$project_id]['detailing_hours'];
 			$checking_hours 			= $checking_hours_result[$project_id]['checking_hours'];
 			$pm_hours 					= $pm_hours_result[$project_id]['pm_hours'];
+
 
 			$detailing_value['A']       = $detailing_sheet->client_no;
 			$detailing_value['B']       = $detailing_sheet->rdd_no;

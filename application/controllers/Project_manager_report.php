@@ -1221,18 +1221,18 @@ class Project_manager_report  extends Action_controller{
 		$checked_sheet_rev_details = $checker_rev_detailing_result[0]->actual_billable_time;
 
 		$avg_qa_error = $qa_error_count/$checked_sheet_new_details;
-		if ($avg_qa_error = NAN || INF) {
-		    $avg_qa_error = 0;
+		if ((int)$avg_qa_error >0) {
+		    $avg_qa_error = $avg_qa_error;
 		}else{
-		    $avg_qa_error;
+		    $avg_qa_error = 0;
 		} 
 
 		$tons_new_detailing 		= $production_tons/500;
 		$team_ton_per_sheet 		= $actual_tonnage/$checked_sheet_new_details;
-		if ($team_ton_per_sheet = NAN || INF) {
-		    $team_ton_per_sheet = 0;
+		if ((int)$team_ton_per_sheet > 0) {
+		    $team_ton_per_sheet = $team_ton_per_sheet
 		}else{
-		    $team_ton_per_sheet;
+		    $team_ton_per_sheet = 0;
 		} 
 
 		$team_rev_hours_tons 		= $this->time_to_decimal($submitted_log_actual_billable_time);

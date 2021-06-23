@@ -637,12 +637,16 @@ class Checker_report  extends Action_controller{
 			}
 			$range_start 	= $k;
 			$range_end 		= $i;
-			$project 		= $time_sheet->project;
-			$project 		= $project_result[$project]['project_name'];
+			$projects_id 	= $time_sheet->project;
+			$project 		= $project_result[$projects_id]['project_name'];
 			$drawing_no 	= $time_sheet->drawing_no;
 			$drawing_no 	= $drawing_result[$drawing_no]['drawing_no'];
 			$work_status 	= $time_sheet->work_status;
 			$work_status 	= $work_status_result[$work_status]['work_status'];
+
+			if($drawing_no){
+				$all_cummulate[$projects_id][$work_type_time][] = $drawing_no;
+			}
 
 			$time_sheet_value['A']       = $time_sheet->entry_date;
 			if($project){
@@ -903,10 +907,14 @@ class Checker_report  extends Action_controller{
 				$cummulate_co_checking2 		= $work_type2['cummulate_co_checking'];
 				$cummulate_bar_listing_time3 	= $work_type3['cummulate_bar_listing_time'];
 				$cummulate_emails2 				= $work_type2['cummulate_emails'];
-				$detailing_count 				= $work_type1['count_project_wise'];
-				$revision_count 				= $work_type2['count_project_wise'];
+				// $detailing_count 				= $work_type1['count_project_wise'];
+				// $revision_count 				= $work_type2['count_project_wise'];
 				$total_emails_project_wise[] 	= $emails_project_wise; 
 				$emails_total     				= $this->AddPlayTime($total_emails_project_wise);
+				$detailing_count1 		= $all_cummulate[$key][1];
+				$revision_count1 		= $all_cummulate[$key][2];
+				$detailing_count 		= count($detailing_count1);
+				$revision_count 		= count($revision_count1);
 				$total_detailing_count 		   += $detailing_count;
 				$total_revision_count 		   += $revision_count;
 
@@ -1215,7 +1223,7 @@ class Checker_report  extends Action_controller{
 			$actual_billable_time;
 		}
 		$decimalHours 				= $this->decimalHours($actual_billable_time);
-		$decimalHours 				= $decimalHours/24;
+		// $decimalHours 				= $decimalHours/24;
 		$rev_hrs_tons 				= $decimalHours * 1.5;
 		$rev_hrs_tons 	  			= round($rev_hrs_tons, 2);
 		$production_tons 			= $rev_hrs_tons + $actual_tonnage;
@@ -1243,18 +1251,19 @@ class Checker_report  extends Action_controller{
 		$checker_rev_detailing_info->next_result();
 		$checked_sheet_rev_details = $checker_rev_detailing_result[0]->actual_billable_time;
 		$avg_qa_error = $qa_error_count/$checked_sheet_new_details;
-		if ($avg_qa_error = NAN || INF) {
-		    $avg_qa_error = 0;
+		if ((int)$avg_qa_error > 0 ) {
+		    $avg_qa_error = round($avg_qa_error,2);
 		}else{
-		    $avg_qa_error;
+		    $avg_qa_error = 0;
 		} 
 
 		$tons_new_detailing 		= $production_tons/500;
 		$team_ton_per_sheet 		= $actual_tonnage/$checked_sheet_new_details;
-		if ($team_ton_per_sheet = NAN || INF) {
-		    $team_ton_per_sheet = 0;
+		$team_ton_per_sheet_replace = (int)$team_ton_per_sheet;
+		if ($team_ton_per_sheet_replace > 0) {
+		    $team_ton_per_sheet = round($team_ton_per_sheet,2);
 		}else{
-		    $team_ton_per_sheet;
+		    $team_ton_per_sheet = 0;
 		} 
 
 		$min_different_office_hrs   = $this->time_to_decimal($diff_office_office);

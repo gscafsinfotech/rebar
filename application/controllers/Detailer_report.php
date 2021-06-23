@@ -732,20 +732,24 @@ class Detailer_report  extends Action_controller{
 
 			$range_start 	= $k;
 			$range_end 		= $i;
-			$project 		= $time_sheet->project;
-			$project 		= $project_result[$project]['project_name'];
+			$projects_id 	= $time_sheet->project;
+			$project 		= $project_result[$projects_id]['project_name'];
 			$drawing_no 	= $time_sheet->drawing_no;
 			$drawing_no 	= $drawing_result[$drawing_no]['drawing_no'];
 			$work_status 	= $time_sheet->work_status;
 			$work_status 	= $work_status_result[$work_status]['work_status'];
 			$time_sheet_value['A']       = $time_sheet->entry_date;
-				if($project){
-					$time_sheet_value['B']       = $project;
-				}else{
-					foreach ($other_work_result as $key => $other_work_only) {
-						$time_sheet_value['B']       = $other_work_only->other_works;
-					}
+			if($project){
+				$time_sheet_value['B']       = $project;
+			}else{
+				foreach ($other_work_result as $key => $other_work_only) {
+					$time_sheet_value['B']       = $other_work_only->other_works;
 				}
+			}
+
+			if($drawing_no){
+				$all_cummulate[$projects_id][$work_type_time][] = $drawing_no;
+			}
 			
 			$time_sheet_value['C']       = $drawing_no;
 			$time_sheet_value['D']       = $work_status;
@@ -839,6 +843,7 @@ class Detailer_report  extends Action_controller{
 			$previous_date = $date_only;
 
 		}
+		
 		$total_time_date_wise			 = $this->AddPlayTime($time_total);
 		$counter = $counter+1;
 		$obj->getActiveSheet()->setCellValue('A'.$counter, $total_sum_detail_work)->mergeCells('A'.$counter.':'.'E'.$counter)->getStyle('A'.$counter.':'.'E'.$counter)->applyFromArray($FooterLeftStyle);
@@ -931,7 +936,7 @@ class Detailer_report  extends Action_controller{
 			}
 		}
 
-		$project_wise_qry 			= 'SELECT work_status,count(*) as project_wise_count,count(*) as count_project_wise,count(cw_time_sheet_time_line.work_type) as work_type_count,cw_time_sheet_time_line.project,cw_project_and_drawing_master.project_name,cw_time_sheet_time_line.work_description,IF(SEC_TO_TIME( SUM(time_to_sec(credit)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(credit))),"%H:%i"),"") as cummulate_credit,IF(SEC_TO_TIME( SUM(time_to_sec(study)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(study))),"%H:%i"),"") as cummulate_study,IF(SEC_TO_TIME( SUM(time_to_sec(detailing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(detailing_time))),"%H:%i"),"") as cummulate_detailing_time,IF(SEC_TO_TIME( SUM(time_to_sec(discussion)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(discussion))),"%H:%i"),"") as cummulate_discussion,IF(SEC_TO_TIME( SUM(time_to_sec(checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(checking))),"%H:%i"),"") as cummulate_checking,IF(SEC_TO_TIME( SUM(time_to_sec(correction_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(correction_time))),"%H:%i"),"") as cummulate_correction_time,IF(SEC_TO_TIME( SUM(time_to_sec(rfi)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(rfi))),"%H:%i"),"") as cummulate_rfi,IF(SEC_TO_TIME( SUM(time_to_sec(aec)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(aec))),"%H:%i"),"") as cummulate_aec,IF(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours))),"%H:%i"),"") as cummulate_non_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(billable_hours))),"%H:%i"),"") as cummulate_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(change_order_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(change_order_time))),"%H:%i"),"") as cummulate_change_order_time,IF(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time))),"%H:%i"),"") as cummulate_bar_listing_time,IF(SEC_TO_TIME( SUM(time_to_sec(other_works)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(other_works))),"%H:%i"),"") as cummulate_other_works,sum(bar_list_quantity) as cummulate_bar_list_quantity,work_type,GROUP_CONCAT(work_description) as work_description FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.project,work_type order by cw_time_sheet_time_line.work_type';
+		$project_wise_qry 			= 'SELECT work_status,count(*) as project_wise_count,count(*) as count_project_wise,count(cw_time_sheet_time_line.work_type) as work_type_count,cw_time_sheet_time_line.project,cw_project_and_drawing_master.project_name,cw_time_sheet_time_line.work_description,IF(SEC_TO_TIME( SUM(time_to_sec(credit)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(credit))),"%H:%i"),"") as cummulate_credit,IF(SEC_TO_TIME( SUM(time_to_sec(study)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(study))),"%H:%i"),"") as cummulate_study,IF(SEC_TO_TIME( SUM(time_to_sec(detailing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(detailing_time))),"%H:%i"),"") as cummulate_detailing_time,IF(SEC_TO_TIME( SUM(time_to_sec(discussion)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(discussion))),"%H:%i"),"") as cummulate_discussion,IF(SEC_TO_TIME( SUM(time_to_sec(checking)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(checking))),"%H:%i"),"") as cummulate_checking,IF(SEC_TO_TIME( SUM(time_to_sec(correction_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(correction_time))),"%H:%i"),"") as cummulate_correction_time,IF(SEC_TO_TIME( SUM(time_to_sec(rfi)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(rfi))),"%H:%i"),"") as cummulate_rfi,IF(SEC_TO_TIME( SUM(time_to_sec(aec)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(aec))),"%H:%i"),"") as cummulate_aec,IF(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(non_billable_hours))),"%H:%i"),"") as cummulate_non_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(billable_hours)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(billable_hours))),"%H:%i"),"") as cummulate_billable_hours,IF(SEC_TO_TIME( SUM(time_to_sec(change_order_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(change_order_time))),"%H:%i"),"") as cummulate_change_order_time,IF(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(bar_listing_time))),"%H:%i"),"") as cummulate_bar_listing_time,IF(SEC_TO_TIME( SUM(time_to_sec(other_works)))>"00:00:00",TIME_FORMAT(SEC_TO_TIME( SUM(time_to_sec(other_works))),"%H:%i"),"") as cummulate_other_works,sum(bar_list_quantity) as cummulate_bar_list_quantity,work_type,GROUP_CONCAT(work_description) as work_description,drawing_no FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.project,work_type order by cw_time_sheet_time_line.work_type';
 
 		$project_wise_info   		= $this->db->query("CALL sp_a_run ('SELECT','$project_wise_qry')");
 		$project_wise_result 		= $project_wise_info->result_array();
@@ -965,12 +970,15 @@ class Detailer_report  extends Action_controller{
 		$sum_new_rev_count 			= 0;
 		$sum_value_bar_list_quantity_cummlate  = 0;
 
+
 		if((int)$project_wise_count === 0){
 			$cummuate_second_count  = $cummulative_detail_count;
 		}else{
 			$total_credit_project_wise 	= array();
 			$total_detailing_count 		= 0;
 			$total_revision_count 		= 0;
+			$revision_count = 0;
+			$detailing_count = 0;
 			foreach($project_wise_result as $key => $cummulative_time_sheet){
 				$credit_cummulate 		= array();
 				foreach ($cummulative_time_sheet as $aa => $value) {
@@ -982,10 +990,12 @@ class Detailer_report  extends Action_controller{
 					$credit_project_wise 	    = $this->AddPlayTime($credit_cummulate);
 					$project_name1 = $project_name[$key];
 				}
+				
 				$cummulate_booking_hours = array();
 					$work_type1 					= $cummulative_time_sheet[1];
 					$work_type2 					= $cummulative_time_sheet[2];
 					$work_type3 					= $cummulative_time_sheet[3];
+					$drawing_no1 					= $work_type1['drawing_no'];
 					$job_category1 					= $work_type1['job_category'];
 					$work_description1 				= $work_type1['work_description'];
 					$cummulate_study1 				= $work_type1['cummulate_study'];
@@ -993,7 +1003,8 @@ class Detailer_report  extends Action_controller{
 					$cummulate_discussion1 			= $work_type1['cummulate_discussion'];
 					$cummulate_checking1 			= $work_type1['cummulate_checking'];
 					$cummulate_correction_time1 	= $work_type1['cummulate_correction_time'];
-					$detailing_count 				= $work_type1['count_project_wise'];
+					$drawing_no2 					= $work_type2['drawing_no'];
+					// $detailing_count 				= $work_type1['count_project_wise'];
 					$cummulate_study2 				= $work_type2['cummulate_study'];
 					$cummulate_rfi2 				= $work_type2['cummulate_rfi'];
 					$cummulate_aec2 				= $work_type2['cummulate_aec'];
@@ -1004,15 +1015,20 @@ class Detailer_report  extends Action_controller{
 					$cummulate_discussion2 			= $work_type2['cummulate_discussion'];
 					$cummulate_change_order_time2 	= $work_type2['cummulate_change_order_time'];
 					$cummulate_credit2 				= $work_type2['cummulate_credit'];
-					$revision_count 				= $work_type2['count_project_wise'];
+					// $revision_count 				= $work_type2['count_project_wise'];
 					$cummulate_bar_listing_time3 	= $work_type3['cummulate_bar_listing_time'];
 					$cummulate_bar_list_quantity3 	= $work_type3['cummulate_bar_list_quantity'];
 					$cummulate_credit3 				= $work_type3['cummulate_credit'];
 					$sum_value_bar_list_quantity_cummlate  	+= $cummulate_bar_list_quantity3;
 					$total_credit_project_wise[] 			 = $credit_project_wise; 
 					$credit_total     						 = $this->AddPlayTime($total_credit_project_wise);
-					$total_detailing_count 					+= $detailing_count;
-					$total_revision_count 					+= $revision_count;
+
+					$detailing_count1 		= $all_cummulate[$key][1];
+					$revision_count1 		= $all_cummulate[$key][2];
+					$detailing_count 		= count($detailing_count1);
+					$revision_count 		= count($revision_count1);
+					$total_detailing_count += $detailing_count;
+					$total_revision_count  += $revision_count;
 
 					$cummulate_booking_hours[] = $cummulate_study1;
 					$cummulate_booking_hours[] = $cummulate_detailing_time1;
@@ -1186,10 +1202,6 @@ class Detailer_report  extends Action_controller{
 			}
 		}
 		
-		// die;
-		// echo "cummulate_credit1 :: $cummulate_credit1<br>";
-		// echo "cummulate_credit2 :: $cummulate_credit2<br>";
-		// echo "cummulate_credit3 :: $cummulate_credit3<br>";die;
 		$sum_value_cummulate_credit[]   = $credit_total;
 		$sum_value_cummulate_credit[]   = $sum_value_cummulate_total_hours2;
 		// $sum_value_cummulate_credit[]   = $cummulate_credit3;
@@ -1298,9 +1310,8 @@ class Detailer_report  extends Action_controller{
 		$datetime->modify('-' . $minute  . ' minutes');
 		$rev_hrs_tons = $datetime->format('H:i');*/
 
-
 		$decimalHours 				= $this->decimalHours($actual_billable_time);
-		$decimalHours 				= $decimalHours/24;
+		// $decimalHours 				= $decimalHours/24;
 		$rev_hrs_tons 				= $decimalHours * 1.5;
 		$production_tons 			= $rev_hrs_tons + $actual_tonnage;
 
@@ -1333,16 +1344,21 @@ class Detailer_report  extends Action_controller{
 		$detail_rev []= $detailing_tons;
 		$detail_rev []= $revision_tons;
 		$detail_rev 	   = $this->AddPlayTime($detail_rev);
-		$actual_tons 	   = $this->time_to_decimal($detail_rev);
-		$actual_tons       = $production_tons/$actual_tons;
-		$actual_tons 	   = round($actual_tons, 2);
-
-		$detail_ton_perHour 	  	= $this->time_to_decimal($detailing_tons);
-		$detail_ton_perHour      	= $production_tons/$detail_ton_perHour;
+		// $actual_tons 	   = $this->time_to_decimal($detail_rev);
+		// $actual_tons       = $production_tons/$actual_tons;
+		// $actual_tons 	   = round($actual_tons, 2);
+		// $rev_total_time $detail_total_time
+		$tons_actual 	   = $detail_total_time+$rev_total_time;
+		$tons_actual 	   = $production_tons/$tons_actual;
+		$actual_tons 	   = round($tons_actual, 2);
+		// $detail_ton_perHour 	  	= $this->time_to_decimal($detailing_tons);
+		// $detail_ton_perHour      	= $production_tons/$detail_ton_perHour;
+		// $detail_ton_perHour 	  	= round($detail_ton_perHour, 2);
+		$detail_ton_perHour         = $actual_tonnage/$detail_total_time;
 		$detail_ton_perHour 	  	= round($detail_ton_perHour, 2);
 		$pers_correction1 	  		= $this->time_to_decimal($sum_value_correction_time1);
 		$pers_detailing1 	  		= $this->time_to_decimal($sum_value_detailing_time1);
-
+		
 		$det_vs_clr 				= $pers_correction1/$pers_detailing1;
 		$det_vs_clr     			= $det_vs_clr * 100;
 		$det_vs_clr 				= round((int)$det_vs_clr);
@@ -1351,11 +1367,11 @@ class Detailer_report  extends Action_controller{
 		$min_std_working 			= round($min_std_working *100);
 
 		$productivity 				= $actual_tons/$min_std_working;
-		$productivity 				= round($productivity);
-		if ($productivity = NAN || INF) {
-		    $productivity = 0;
+		$productivity 				= round($productivity *100);
+		if ((int)$productivity >0) {
+		    $productivity = $productivity;
 		}else{
-		    $productivity;
+		    $productivity =0;
 		} 
 
 		$per_productivity   = array();
@@ -1379,10 +1395,10 @@ class Detailer_report  extends Action_controller{
 		$revision_tons 	  			= $this->time_to_decimal($revision_tons);
 		$claimed_hours  			= $claim_hrs/$revision_tons;
 		$claimed_hours  			= round($claimed_hours * 100);
-		if ($claimed_hours = NAN || INF) {
-		    $claimed_hours = 0;
+		if ((int)$claimed_hours > 0) {
+		    $claimed_hours = $claimed_hours;
 		}else{
-		    $claimed_hours;
+		    $claimed_hours = 0;
 		} 
 
 		$no_of_holiday 				= 0;
@@ -1393,25 +1409,28 @@ class Detailer_report  extends Action_controller{
 		$diff_time_multi 			= $no_of_working * 0.75;
 		$diff_time_multi 			= $diff_time_multi/24;
 		$min_diff 	  				= $this->time_to_decimal($total_time_date_wise);
-		$min_diff 					=($min_diff * $diff_time_multi)/$time_multi;
+		$min_diff 					= $min_diff * $diff_time_multi;
+		$min_diff 					= $min_diff/$time_multi;
 		$min_diff 					= round($min_diff * 100);
 		$min_diff 					= $this->decimal_to_time($min_diff);
 
 
-		$submit_log_qry 			= 'SELECT count(*) as detailed_sheet_count FROM cw_tonnage_approval inner join cw_time_sheet on cw_time_sheet.employee_code = cw_tonnage_approval.detailer_name where entry_date like "%'.$process_month.'%" and detailer_name = "'.$employee_code.'" and approval_status = 2 and cw_tonnage_approval.trans_status = 1';
+		// $submit_log_qry 			= 'SELECT count(*) as detailed_sheet_count FROM cw_tonnage_approval inner join cw_time_sheet on cw_time_sheet.employee_code = cw_tonnage_approval.detailer_name where entry_date like "%'.$process_month.'%" and detailer_name = "'.$employee_code.'" and approval_status = 2 and cw_tonnage_approval.trans_status = 1';
+
+		$submit_log_qry = 'select count(*) as detailed_sheet_count from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 and cw_tonnage_approval.detailer_name = "'.$employee_code.'" group by cw_tonnage_approval.drawing_no';
 		$submit_log_info   			= $this->db->query("CALL sp_a_run ('SELECT','$submit_log_qry')");
 		$submit_log_result 			= $submit_log_info->result();
 		$submit_log_info->next_result();
-		$detailed_sheet_count   	= $submit_log_result[0]->detailed_sheet_count;
+		$detailed_sheet_count 		= count($submit_log_result);
 		$detail_ton_per_sheet 		= (int)$credit_target/(int)$detailed_sheet_count;
-		if ($detail_ton_per_sheet = NAN || INF) {
-		    $detail_ton_per_sheet = 0;
+		if ((int)$detail_ton_per_sheet > 0) {
+		    $detail_ton_per_sheet = $detail_ton_per_sheet;
 		}else{
-		    $detail_ton_per_sheet;
+		    $detail_ton_per_sheet = 0;
 		} 
 		$logged_team      			= $this->session->userdata('logged_team');
 
-		$team_submit_log_qry 			= 'SELECT count(*) as sheet_count,count(DISTINCT detailer_name) as detailer_count FROM cw_time_sheet_time_line inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id inner join cw_tonnage_approval on cw_tonnage_approval.prime_time_sheet_time_line_id = cw_time_sheet_time_line.prime_time_sheet_time_line_id inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name where cw_employees.role = 5 and entry_date like "%'.$process_month.'%" and cw_tonnage_approval.trans_status = 1 and cw_tonnage_approval.team in('.$logged_team.') and cw_tonnage_approval.approval_status = 2';
+		$team_submit_log_qry 			= 'SELECT count(*) as sheet_count,count(DISTINCT detailer_name) as detailer_count FROM cw_time_sheet_time_line inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id inner join cw_tonnage_approval on cw_tonnage_approval.prime_time_sheet_time_line_id = cw_time_sheet_time_line.prime_time_sheet_time_line_id inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name where cw_employees.role = 5 and entry_date like "%'.$process_month.'%" and cw_tonnage_approval.trans_status = 1 and cw_tonnage_approval.approval_status = 2';
 		$team_submit_log_info   		= $this->db->query("CALL sp_a_run ('SELECT','$team_submit_log_qry')");
 		$team_submit_log_result 		= $team_submit_log_info->result();
 		$team_submit_log_info->next_result();
@@ -1419,29 +1438,34 @@ class Detailer_report  extends Action_controller{
 		$detailer_count  				= $team_submit_log_result[0]->detailer_count;
 		$team_ton_per_sheet 			= $sheet_count/$detailer_count;
 		$team_ton_per_sheet 	   		= round((int)$team_ton_per_sheet, 2);
+		if((int)$team_ton_per_sheet > 0){
+			$team_ton_per_sheet = $team_ton_per_sheet;
+		}else{
+			$team_ton_per_sheet = 0;
+		}
 		$detail_team_tons 	  			= $this->time_to_decimal($detailing_tons);
 		$hrs_dwg 						= $detail_team_tons/$detailed_sheet_count;
 		$hrs_dwg 	   					= round((int)$hrs_dwg, 2);
 		
-		$from_year 						= explode('-', $process_month);
-		$from_year	 					= $from_year[0];
-		$divide_month 					= $from_year[1];
+		$from_years 					= explode('-', $process_month);
+		$from_year	 					= $from_years[0];
+		$divide_month 					= $from_years[1];
+		$a_date 						= $from_year."-".$divide_month."-01";
+		$to_month_date 					=  date("Y-m-t", strtotime($a_date));
 		$from_month_date 				= $from_year.'-01-01';
-		$to_month_date  				= $process_month.'-31';
 
 		$productivity_qry 				= 'SELECT sum(cw_tonnage_approval.actual_tonnage) as productivitiy_actual_tonnage,SEC_TO_TIME(SUM(TIME_TO_SEC(cw_tonnage_approval.actual_billable_time))) as productivitiy_actual_billable_time FROM cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where entry_date >= "'.$from_month_date.'" and entry_date <= "'.$to_month_date.'" and employee_code = "'.$employee_code.'" and cw_tonnage_approval.trans_status = 1';
 		$productivity_info   			= $this->db->query("CALL sp_a_run ('SELECT','$productivity_qry')");
 		$productivity_result 			= $productivity_info->result();
 		$productivity_info->next_result();
-		
 		$productivitiy_actual_tonnage 	= $productivity_result[0]->productivitiy_actual_tonnage;
+		$productivitiy_actual_tonnage   = $this->time_to_decimal($productivitiy_actual_tonnage);
 		$productivitiy_actual_tonnage 	= $productivitiy_actual_tonnage/$divide_month;
-		if($productivitiy_actual_tonnage === NAN || INF) {
-		    $productivitiy_actual_tonnage = 0;
+		if((int)$productivitiy_actual_tonnage > 0) {
+		    $productivitiy_actual_tonnage = round($productivitiy_actual_tonnage * 100);
 		}else{
-		    $productivitiy_actual_tonnage = $productivitiy_actual_tonnage;
+		    $productivitiy_actual_tonnage = 0;
 		} 
-
 	/*	$test1 = $this->time_to_decimal('02:36:45');
 		echo $test1;echo"<br>";
 		$test1 = $test1/24;

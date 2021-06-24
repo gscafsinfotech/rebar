@@ -1404,15 +1404,32 @@ class Detailer_report  extends Action_controller{
 		$no_of_holiday 				= 0;
 		$no_of_leave_taken 			= 0;
 		$no_of_working 				= $working_days + $no_of_holiday - $no_of_leave_taken;
-		$time_multi 				= $no_of_working * 8.5;
-		$time_multi 				= $time_multi/24;
-		$diff_time_multi 			= $no_of_working * 0.75;
-		$diff_time_multi 			= $diff_time_multi/24;
-		$min_diff 	  				= $this->time_to_decimal($total_time_date_wise);
-		$min_diff 					= $min_diff * $diff_time_multi;
-		$min_diff 					= $min_diff/$time_multi;
-		$min_diff 					= round($min_diff * 100);
-		$min_diff 					= $this->decimal_to_time($min_diff);
+		// $time_multi 				= $no_of_working * 8.5;
+		// $time_multi 				= $time_multi/24;
+		// $diff_time_multi 			= $no_of_working * 0.75;
+		// $diff_time_multi 			= $diff_time_multi/24;
+		// $min_diff 	  				= $this->time_to_decimal($total_time_date_wise);
+		// $min_diff 					= $min_diff * $diff_time_multi;
+		// $min_diff 					= $min_diff/$time_multi;
+		// $min_diff 					= round($min_diff * 100);
+		// $min_diff 					= $this->decimal_to_time($min_diff);
+
+		$off_hours = $this->time_to_decimal('08:30');
+		$off_hours = $no_of_working * $off_hours;
+		$off_hours = $this->decimal_to_time($off_hours);
+
+		$off_break = $this->time_to_decimal('00:45');
+		$off_break = $no_of_working * $off_break;
+		$off_break = $this->decimal_to_time($off_break);
+		$off_total[] = $off_hours;
+		$off_total[] = $off_break;
+		$off_total_hours			= $this->AddPlayTime($off_total);
+
+
+		$office_total_hour    = $this->time_to_min($off_total_hours);
+		$bk_totals = $this->time_to_min($sum_value_total_hours);
+		$res3          = $office_total_hour-$bk_totals;
+		$balance_time = intdiv($res3, 60).':'. ($res3 % 60);
 
 
 		// $submit_log_qry 			= 'SELECT count(*) as detailed_sheet_count FROM cw_tonnage_approval inner join cw_time_sheet on cw_time_sheet.employee_code = cw_tonnage_approval.detailer_name where entry_date like "%'.$process_month.'%" and detailer_name = "'.$employee_code.'" and approval_status = 2 and cw_tonnage_approval.trans_status = 1';
@@ -1536,7 +1553,7 @@ class Detailer_report  extends Action_controller{
 				$obj->getActiveSheet()->setCellValue($column_cell, $column_value)->mergeCells($column_cell.':'.$column_end)->getStyle($column_cell.':'.$column_end)->applyFromArray($RightBordertwo);
 			}
 			$obj->getActiveSheet()->setCellValue('J'.$report_inc5, "Min Difference")->mergeCells('J'.$report_inc5.':K'.$report_inc5)->getStyle('J'.$report_inc5.':K'.$report_inc5)->applyFromArray($LeftBorder);
-			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $min_diff)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
+			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $balance_time)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
 		}
 			// die;
 			$filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name

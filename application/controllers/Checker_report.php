@@ -1266,11 +1266,30 @@ class Checker_report  extends Action_controller{
 		    $team_ton_per_sheet = 0;
 		} 
 
-		$min_different_office_hrs   = $this->time_to_decimal($diff_office_office);
-		$min_different1 			= $no_of_working_days*8.5/24;
-		$min_different2 			= $no_of_working_days*0.75/24;
-		$min_different  			= ($min_different_office_hrs * $min_different2)/$min_different1;
-		$min_different 				= $this->decimal_to_time($min_different);
+		// $min_different_office_hrs   = $this->time_to_decimal($diff_office_office);
+		// $min_different1 			= $no_of_working_days*8.5/24;
+		// $min_different2 			= $no_of_working_days*0.75/24;
+		// $min_different  			= ($min_different_office_hrs * $min_different2)/$min_different1;
+		// $min_different 				= $this->decimal_to_time($min_different);
+
+		$off_hours = $this->time_to_decimal('08:30');
+		$off_hours = $no_of_working_days * $off_hours;
+		$off_hours = $this->decimal_to_time($off_hours);
+
+		$off_break = $this->time_to_decimal('00:45');
+		$off_break = $no_of_working_days * $off_break;
+		$off_break = $this->decimal_to_time($off_break);
+		$off_total[] = $off_hours;
+		$off_total[] = $off_break;
+		$off_total_hours			= $this->AddPlayTime($off_total);
+
+
+		$office_total_hour    = $this->time_to_min($off_total_hours);
+		$bk_totals = $this->time_to_min($sum_value_total_hours);
+		$res3          = $office_total_hour-$bk_totals;
+		$balance_time = intdiv($res3, 60).':'. ($res3 % 60);
+
+
 		$project_excel[]['excel_column']= array('C'.$report_inc3,'C'.$report_inc4,'C'.$report_inc5,'C'.$report_inc6,'C'.$report_inc7,'C'.$report_inc8,'C'.$report_inc9,'C'.$report_inc10,'C'.$report_inc11,'C'.$report_inc12,'C'.$report_inc13,'C'.$report_inc14,'C'.$report_inc15,'C'.$report_inc16,'C'.$report_inc17,'C'.$report_inc18);
 		$project_excel[]['excel_value']= array('No. of Working Days','Total Office hours','Total Booking hours','Difference b/t Booking  & Office Hrs','X','Teams Tons Detailed (Submitted Log)','Teams Rev. hours (Submitted Log)','Teams Rev. hours in Tons','Teams Total Production Tons','Target Reached/Not Reached','Checked Sheets New (Submitted Log)','Checked Sheets Rev (Time Sheet)','Teams Tons per Hour New Detailing only','Teams Tons per Sheet','Total QA Error Count (Submitted Log)','Avg. QA Error Count per Sheet');
 		$project_excel[]['end_column']= array('G'.$report_inc3,'G'.$report_inc4,'G'.$report_inc5,'G'.$report_inc6,'G'.$report_inc7,'G'.$report_inc8,'G'.$report_inc9,'G'.$report_inc10,'G'.$report_inc11,'G'.$report_inc12,'G'.$report_inc13,'G'.$report_inc14,'G'.$report_inc15,'G'.$report_inc16,'G'.$report_inc17,'G'.$report_inc18);
@@ -1297,7 +1316,7 @@ class Checker_report  extends Action_controller{
 				$obj->getActiveSheet()->setCellValue($column_cell, $column_value)->mergeCells($column_cell.':'.$column_end)->getStyle($column_cell.':'.$column_end)->applyFromArray($RightBordertwo);
 			}
 			$obj->getActiveSheet()->setCellValue('J'.$report_inc5, "Min Difference")->mergeCells('J'.$report_inc5.':K'.$report_inc5)->getStyle('J'.$report_inc5.':K'.$report_inc5)->applyFromArray($LeftBorder);
-			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $min_different)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
+			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $balance_time)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
 		}
 
 		$filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name
@@ -1356,6 +1375,11 @@ class Checker_report  extends Action_controller{
 		}else{
 			echo json_encode(array('success' => TRUE, 'message' => "Data Available"));
 		}
+	}
+	public function time_to_min($time){
+		$timeArr = explode(':', $time);
+		$decTime = ($timeArr[0]*60) + ($timeArr[1]) + ($timeArr[2]/60);
+		return $decTime;
 	}
 }
 ?>

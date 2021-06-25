@@ -198,7 +198,8 @@ class Detailing_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		$submission_date_wise_qry 		= 'select cw_time_sheet.entry_date,cw_time_sheet_time_line.project from cw_time_sheet_time_line inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.project order by cw_time_sheet.entry_date desc';
+
+		$submission_date_wise_qry 		= 'select cw_time_sheet.entry_date,cw_time_sheet_time_line.project from cw_time_sheet_time_line inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project inner join cw_tonnage_approval on cw_tonnage_approval.prime_time_sheet_time_line_id = cw_time_sheet_time_line.prime_time_sheet_time_line_id where cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by cw_time_sheet_time_line.project order by cw_time_sheet.entry_date desc';
 		$submission_date_wise_info   	= $this->db->query("CALL sp_a_run ('SELECT','$submission_date_wise_qry')");
 		$submission_date_wise_result  	= $submission_date_wise_info->result_array();
 		$submission_date_wise_info->next_result();

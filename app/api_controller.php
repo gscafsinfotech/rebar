@@ -60,11 +60,11 @@
 		return_rslt($frm,$rslt);
 	}else
 	if($frm === "get_punched_data"){
-		$date = new DateTime('2021-03-01');
+		$date = new DateTime('2021-05-01');
 		$period = new DatePeriod(
-		     new DateTime('2021-03-01'),
+		     new DateTime('2021-05-01'),
 		     new DateInterval('P1D'),
-		     new DateTime('2021-03-31')
+		     new DateTime('2021-05-31')
 		);
 		$punched_qry = "";
 		foreach ($period as $key => $value) {
@@ -89,10 +89,6 @@
 					$hfday_type    = $value->HFDAY_TYPE;
 					$entry_days    = $value->ENTRY_DAYS;
 					//Get Total Time
-					$time1         = new DateTime($out_hour);
-					$time2         = new DateTime($in_hour);
-					$timediff      = $time1->diff($time2);
-					$total_time    = $timediff->format('%H: %I');
 					if($entry_date){
 						$entry_date  = $entry_date->format("Y-m-d");
 					}else{
@@ -108,6 +104,11 @@
 					}else{
 						$out_date = "";
 					}
+					$time1         = new DateTime("$out_date $out_hour");
+					$time2         = new DateTime("$in_date $in_hour");
+					$timediff      = $time1->diff($time2);					
+					$total_time    = $timediff->format('%H: %I');	
+					//echo "BSK $employee_code :: $in_date :: $in_hour :: $out_date :: $out_hour :: $total_time <br/>";
 					if($employee_code){
 						if($mysql_emp_rslt[$employee_code]['employee_code']){
 							$prime_update_query  = 'UPDATE cw_punched_data_details SET entry_date = "'. $entry_date .'",in_time = "'. $in_time .'",in_hour = "'. $in_hour .'",out_time = "'.$out_time.'",out_hour = "'.$out_hour.'",in_date = "'.$in_date.'",out_date = "'.$out_date.'",valid_data = "'.$valid_data.'",entry_type = "'.$entry_type.'",entry_method = "'.$entry_method.'",half_day_type = "'.$halfday_type.'",entry_days = "'.$entry_days.'",trans_updated_by = "1",trans_updated_date = "'.date("Y-m-d H:i:s").'" WHERE employee_code = "'. $employee_code .'" and entry_date = "'. $entry_date .'"';
@@ -124,29 +125,29 @@
 				}
 			}	
 		}
-		$punched_qry = rtrim($punched_qry,",");
-		$emp_qry     = rtrim($emp_qry,",");
-		if($punched_qry){
-			$sql = "insert into cw_punched_data_details(employee_code,entry_date,in_time,in_hour,out_time,out_hour,in_date,out_date,valid_data,entry_type,entry_method,half_day_type,entry_days,trans_created_by,trans_created_date) values $punched_qry";
-			$punched_rslt = $api_model->runQuery($sql);
-		}		
-		if($punched_rslt){
-			$sql = "insert into cw_time_sheet(employee_code,entry_date,in_time,out_time,total_time,trans_created_by,trans_created_date) values $emp_qry";
-			$rslt = $api_model->runQuery($sql);
-		}	
+	$punched_qry = rtrim($punched_qry,",");
+	$emp_qry     = rtrim($emp_qry,",");
+	if($punched_qry){
+		$sql = "insert into cw_punched_data_details(employee_code,entry_date,in_time,in_hour,out_time,out_hour,in_date,out_date,valid_data,entry_type,entry_method,half_day_type,entry_days,trans_created_by,trans_created_date) values $punched_qry";
+		$punched_rslt = $api_model->runQuery($sql);
+	}		
+	if($punched_rslt){
+		$sql = "insert into cw_time_sheet(employee_code,entry_date,in_time,out_time,total_time,trans_created_by,trans_created_date) values $emp_qry";
+		$rslt = $api_model->runQuery($sql);
+	}	
 	return_rslt($frm,$rslt);
+}else{
+    echo json_encode(array(
+		'Status' => 400,
+        'success' => False,
+        'data' => "Bad Request"
+    ));
+}
+function return_rslt($frm,$rslt){
+	if(!$rslt){
+		echo json_encode(array('success' => FALSE, 'sts' =>"No Record found"));
 	}else{
-	    echo json_encode(array(
-			'Status' => 400,
-	        'success' => False,
-	        'data' => "Bad Request"
-	    ));
+		echo json_encode(array('success' => TRUE, "$frm" => $rslt));
 	}
-	function return_rslt($frm,$rslt){
-		if(!$rslt){
-			echo json_encode(array('success' => FALSE, 'sts' =>"No Record found"));
-		}else{
-			echo json_encode(array('success' => TRUE, "$frm" => $rslt));
-		}
-	}
+}
 ?>

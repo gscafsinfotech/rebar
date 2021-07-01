@@ -856,7 +856,16 @@ class Checker_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		
+
+		$count_qry 		= 'select count(*) as count,project,cw_time_sheet_time_line.work_type,cw_time_sheet_time_line.drawing_no from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_work_type on cw_work_type.prime_work_type_id = cw_time_sheet_time_line.work_type inner join cw_employees on cw_employees.employee_code = cw_time_sheet.employee_code where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 and DATE_FORMAT(`entry_date`, "%m-%Y") = "'.$process_month.'" and drawing_no !="" group by project,cw_time_sheet_time_line.work_type,cw_time_sheet_time_line.drawing_no';
+		$count_info   		= $this->db->query("CALL sp_a_run ('SELECT','$count_qry')");
+		$count_rslt 		= $count_info->result_array();
+		$count_info->next_result();
+		$count_rslt = array_reduce($count_rslt, function($result, $arr){			
+		    $result[$arr['work_type']][$arr['project']][]= $arr;
+		    return $result;
+		}, array());
+
 
 		$q = $cummulative_detail_count;
 		$r = 0;
@@ -911,8 +920,8 @@ class Checker_report  extends Action_controller{
 				// $revision_count 				= $work_type2['count_project_wise'];
 				$total_emails_project_wise[] 	= $emails_project_wise; 
 				$emails_total     				= $this->AddPlayTime($total_emails_project_wise);
-				$detailing_count1 		= $all_cummulate[$key][1];
-				$revision_count1 		= $all_cummulate[$key][2];
+				$detailing_count1 		= $count_rslt[1][$key];
+				$revision_count1 		= $count_rslt[2][$key];
 				$detailing_count 		= count($detailing_count1);
 				$revision_count 		= count($revision_count1);
 				$total_detailing_count 		   += $detailing_count;
@@ -1279,9 +1288,13 @@ class Checker_report  extends Action_controller{
 		$off_break = $this->time_to_decimal('00:45');
 		$off_break = $no_of_working_days * $off_break;
 		$off_break = $this->decimal_to_time($off_break);
-		$off_total[] = $off_hours;
-		$off_total[] = $off_break;
-		$off_total_hours			= $this->AddPlayTime($off_total);
+		$off_hours = $this->time_to_min($off_hours);
+		$off_break = $this->time_to_min($off_break);
+		$off_diff  = $off_hours-$off_break;
+		$off_total_hours = intdiv($off_diff, 60).':'. ($off_diff % 60);
+		// $off_total[] = $off_hours;
+		// $off_total[] = $off_break;
+		// $off_total_hours			= $this->AddPlayTime($off_total);
 
 
 		$office_total_hour    = $this->time_to_min($off_total_hours);

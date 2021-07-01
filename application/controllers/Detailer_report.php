@@ -716,6 +716,7 @@ class Detailer_report  extends Action_controller{
 			$booking_hours[] = $bar_listing_time;
 			$booking_hours[] = $other_works;
 			$booking_hours[] = $rfi;
+			$booking_hours[] = $time_sheet->credit;
 			$total_hours 	 = $this->AddPlayTime($booking_hours);
 			$sum_total_hours[] 			 = $total_hours;
 			$sum_value_total_hours 		 = $this->AddPlayTime($sum_total_hours);
@@ -971,6 +972,16 @@ class Detailer_report  extends Action_controller{
 		$sum_value_bar_list_quantity_cummlate  = 0;
 
 
+		$count_qry 		= 'select count(*) as count,project,cw_time_sheet_time_line.work_type,cw_time_sheet_time_line.drawing_no from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_work_type on cw_work_type.prime_work_type_id = cw_time_sheet_time_line.work_type inner join cw_employees on cw_employees.employee_code = cw_time_sheet.employee_code where cw_time_sheet.employee_code = "'.$employee_code.'" and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 and DATE_FORMAT(`entry_date`, "%m-%Y") = "'.$process_month.'" and drawing_no !="" group by project,cw_time_sheet_time_line.work_type,cw_time_sheet_time_line.drawing_no';
+		$count_info   		= $this->db->query("CALL sp_a_run ('SELECT','$count_qry')");
+		$count_rslt 		= $count_info->result_array();
+		$count_info->next_result();
+		$count_rslt = array_reduce($count_rslt, function($result, $arr){			
+		    $result[$arr['work_type']][$arr['project']][]= $arr;
+		    return $result;
+		}, array());
+
+
 		if((int)$project_wise_count === 0){
 			$cummuate_second_count  = $cummulative_detail_count;
 		}else{
@@ -1022,9 +1033,8 @@ class Detailer_report  extends Action_controller{
 					$sum_value_bar_list_quantity_cummlate  	+= $cummulate_bar_list_quantity3;
 					$total_credit_project_wise[] 			 = $credit_project_wise; 
 					$credit_total     						 = $this->AddPlayTime($total_credit_project_wise);
-
-					$detailing_count1 		= $all_cummulate[$key][1];
-					$revision_count1 		= $all_cummulate[$key][2];
+					$detailing_count1 		= $count_rslt[1][$key];
+					$revision_count1 		= $count_rslt[2][$key];
 					$detailing_count 		= count($detailing_count1);
 					$revision_count 		= count($revision_count1);
 					$total_detailing_count += $detailing_count;
@@ -1045,6 +1055,7 @@ class Detailer_report  extends Action_controller{
 					$cummulate_booking_hours[] = $cummulate_discussion2;
 					$cummulate_booking_hours[] = $cummulate_change_order_time2;
 					$cummulate_booking_hours[] = $cummulate_bar_listing_time3;
+					$cummulate_booking_hours[]   = $value['cummulate_credit'];
 					$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
 
 					$pending_status_counting = $complete_pending_result[$key][1]['work_status_count'];
@@ -1154,6 +1165,11 @@ class Detailer_report  extends Action_controller{
 			$other_work_count   = $cummuate_second_count+1;
 			$m 					= $other_work_count;
 			foreach($other_work_result as $key => $other_work_detail){
+				$others_time = array();
+				$others_time[] = $other_work_detail->cummulate_works;
+				$others_time[] = $other_work_detail->cummulate_credit;
+				$others_time_total 	   = $this->AddPlayTime($others_time);
+				$cummulate_booking_hours[] = $cummulate_detailing_time1;
 				$time_sheet_value['A']       = "";
 				$time_sheet_value['B']       = $other_work_detail->other_works;
 				$time_sheet_value['C']       = "";
@@ -1177,9 +1193,13 @@ class Detailer_report  extends Action_controller{
 				$time_sheet_value['U']       = "";
 				$time_sheet_value['V'] 		 = "";
 				$time_sheet_value['W'] 		 = $other_work_detail->cummulate_works;
-				$time_sheet_value['X'] 		 = $other_work_detail->cummulate_works;
+				$time_sheet_value['X'] 		 = $others_time_total;
 				$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
+				// $sum_cummulate_works[]  	 = $other_work_detail->cummulate_credit;
+				$cum_credut[] = $others_time_total;
+				$final_credit_tot = $this->AddPlayTime($cum_credut);
 				$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
+				$test   = $this->AddPlayTime($others_time_total);
 				$sum_cummulate_credit2[]					= $other_work_detail->cummulate_credit;
 				$sum_value_cummulate_total_hours2			= $this->AddPlayTime($sum_cummulate_credit2);
 
@@ -1201,17 +1221,16 @@ class Detailer_report  extends Action_controller{
 				$m++;
 			}
 		}
+		// die;
 		
 		$sum_value_cummulate_credit[]   = $credit_total;
 		$sum_value_cummulate_credit[]   = $sum_value_cummulate_total_hours2;
-		// $sum_value_cummulate_credit[]   = $cummulate_credit3;
 		$sum_value_cummulate_credit     = $this->AddPlayTime($sum_value_cummulate_credit);
-		// echo "sum_value_cummulate_credit :: $sum_value_cummulate_credit<br>";die;
 
 		$cummuate_final_sumcount 		= $cummuate_final_count+1;
 		$cummuate_final_second_sumcount = $cummuate_final_sumcount+1;
 		$final_sum_total 				= array();
-		$final_sum_total[] 				= $sum_value_cummulate_works;
+		$final_sum_total[] 				= $final_credit_tot;
 		$final_sum_total[] 				= $sum_value_cummulate_total_hours;
 		$final_sum_total		 		= $this->AddPlayTime($final_sum_total);
 		$detail_total_time 				= array();
@@ -1254,7 +1273,7 @@ class Detailer_report  extends Action_controller{
 		$obj->getActiveSheet()->setCellValue('U'.$cummuate_final_sumcount,$sum_value_bar_list_quantity_cummlate)->getStyle('U'.$cummuate_final_sumcount)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('V'.$cummuate_final_sumcount,$sum_value_cummulate_bar_listing_time)->getStyle('V'.$cummuate_final_sumcount)->applyFromArray($FooterStyle);
 		$obj->getActiveSheet()->setCellValue('W'.$cummuate_final_sumcount,$sum_value_cummulate_works)->getStyle('W'.$cummuate_final_sumcount)->applyFromArray($FooterStyle);
-		$obj->getActiveSheet()->setCellValue('X'.$cummuate_final_sumcount,$final_sum_total)->getStyle('X'.$cummuate_final_sumcount)->applyFromArray($FooterRightStyle);
+		$obj->getActiveSheet()->setCellValue('X'.$cummuate_final_sumcount,$sum_value_total_hours)->getStyle('X'.$cummuate_final_sumcount)->applyFromArray($FooterRightStyle);
 		$obj->getActiveSheet()->setCellValue('A'.$cummuate_final_second_sumcount, "")->mergeCells('A'.$cummuate_final_second_sumcount.':'.'F'.$cummuate_final_second_sumcount)->getStyle('A'.$cummuate_final_second_sumcount.':'.'F'.$cummuate_final_second_sumcount);
 		$obj->getActiveSheet()->setCellValue('G'.$cummuate_final_second_sumcount, $detail_total_time)->mergeCells('G'.$cummuate_final_second_sumcount.':'.'K'.$cummuate_final_second_sumcount)->getStyle('G'.$cummuate_final_second_sumcount.':'.'K'.$cummuate_final_second_sumcount)->applyFromArray($verticalStyle);
 		$obj->getActiveSheet()->setCellValue('M'.$cummuate_final_second_sumcount,$rev_total_time)->mergeCells('M'.$cummuate_final_second_sumcount.':'.'S'.$cummuate_final_second_sumcount)->getStyle('M'.$cummuate_final_second_sumcount.':'.'S'.$cummuate_final_second_sumcount)->applyFromArray($verticalStyle);
@@ -1302,14 +1321,6 @@ class Detailer_report  extends Action_controller{
 			$actual_billable_time = 0;
 		}
 		
-		/*
-		$mult=1.5;
-		$datetime=DateTime::createFromFormat('H:i',$time,new DateTimeZone('America/Sao_Paulo'));
-		$minute=$datetime->format('i');
-		$datetime->modify('+' . ($minute * $mult) . ' minutes');
-		$datetime->modify('-' . $minute  . ' minutes');
-		$rev_hrs_tons = $datetime->format('H:i');*/
-
 		$decimalHours 				= $this->decimalHours($actual_billable_time);
 		// $decimalHours 				= $decimalHours/24;
 		$rev_hrs_tons 				= $decimalHours * 1.5;
@@ -1344,29 +1355,25 @@ class Detailer_report  extends Action_controller{
 		$detail_rev []= $detailing_tons;
 		$detail_rev []= $revision_tons;
 		$detail_rev 	   = $this->AddPlayTime($detail_rev);
-		// $actual_tons 	   = $this->time_to_decimal($detail_rev);
-		// $actual_tons       = $production_tons/$actual_tons;
-		// $actual_tons 	   = round($actual_tons, 2);
-		// $rev_total_time $detail_total_time
 		$tons_actual 	   = $detail_total_time+$rev_total_time;
 		$tons_actual 	   = $production_tons/$tons_actual;
 		$actual_tons 	   = round($tons_actual, 2);
-		// $detail_ton_perHour 	  	= $this->time_to_decimal($detailing_tons);
-		// $detail_ton_perHour      	= $production_tons/$detail_ton_perHour;
-		// $detail_ton_perHour 	  	= round($detail_ton_perHour, 2);
 		$detail_ton_perHour         = $actual_tonnage/$detail_total_time;
 		$detail_ton_perHour 	  	= round($detail_ton_perHour, 2);
-		$pers_correction1 	  		= $this->time_to_decimal($sum_value_correction_time1);
-		$pers_detailing1 	  		= $this->time_to_decimal($sum_value_detailing_time1);
+		$pers_correction1 	  		= $this->time_to_min($sum_value_cummulate_correction_time1);
+		$pers_detailing1 	  		= $this->time_to_min($sum_value_cummulate_detailing_time1);
 		
 		$det_vs_clr 				= $pers_correction1/$pers_detailing1;
 		$det_vs_clr     			= $det_vs_clr * 100;
 		$det_vs_clr 				= round((int)$det_vs_clr);
+
+
+
 		$min_std_working  			= $working_days * 8;
 		$min_std_working  			= $credit_target/$min_std_working;
 		$min_std_working 			= round($min_std_working *100);
 
-		$productivity 				= $actual_tons/$min_std_working;
+		$productivity 				= $actual_tons/$min_ton_cummlate;
 		$productivity 				= round($productivity *100);
 		if ((int)$productivity >0) {
 		    $productivity = $productivity;
@@ -1381,18 +1388,23 @@ class Detailer_report  extends Action_controller{
 		$per_productivity []= $sum_value_checking2;
 		$per_productivity []= $sum_value_non_billable_hours;
 		$per_productivity []= $sum_value_billable_hours;
-		$per_productivity 	= $this->AddPlayTime($per_productivity);
-		$per_productivity 	  		= $this->time_to_decimal($per_productivity);
-		$detail_rev 	  	  		= $this->time_to_decimal($detail_rev);
-		$total_productivity 		= $per_productivity/$detail_rev;
+		$per_productivitys 	= $this->AddPlayTime($per_productivity);
+
+		$total_entry_time   = array();
+		$total_entry_time[]   = $detail_total_time;
+		$total_entry_time[]   = $rev_total_time;
+		$total_entry_times 	= $this->AddPlayTime($total_entry_time);
+		$per_productivitys 	  		= $this->time_to_min($per_productivitys);
+		$total_entry_times 	  	  		= $this->time_to_min($total_entry_times);
+		$total_productivity 		= $per_productivitys/$total_entry_times;
 		$total_productivity 		= round($total_productivity * 100);
 
 		$claim_hrs   = array();
 		$claim_hrs []= $sum_value_billable_hours;
 		$claim_hrs []= $sum_value_non_billable_hours;
 		$claim_hrs 					= $this->AddPlayTime($claim_hrs);
-		$claim_hrs 	  				= $this->time_to_decimal($claim_hrs);
-		$revision_tons 	  			= $this->time_to_decimal($revision_tons);
+		$claim_hrs 	  				= $this->time_to_min($claim_hrs);
+		$revision_tons 	  			= $this->time_to_min($rev_total_time);
 		$claimed_hours  			= $claim_hrs/$revision_tons;
 		$claimed_hours  			= round($claimed_hours * 100);
 		if ((int)$claimed_hours > 0) {
@@ -1404,44 +1416,33 @@ class Detailer_report  extends Action_controller{
 		$no_of_holiday 				= 0;
 		$no_of_leave_taken 			= 0;
 		$no_of_working 				= $working_days + $no_of_holiday - $no_of_leave_taken;
-		// $time_multi 				= $no_of_working * 8.5;
-		// $time_multi 				= $time_multi/24;
-		// $diff_time_multi 			= $no_of_working * 0.75;
-		// $diff_time_multi 			= $diff_time_multi/24;
-		// $min_diff 	  				= $this->time_to_decimal($total_time_date_wise);
-		// $min_diff 					= $min_diff * $diff_time_multi;
-		// $min_diff 					= $min_diff/$time_multi;
-		// $min_diff 					= round($min_diff * 100);
-		// $min_diff 					= $this->decimal_to_time($min_diff);
 
 		$off_hours = $this->time_to_decimal('08:30');
+		// echo "$off_hours<br>";
 		$off_hours = $no_of_working * $off_hours;
 		$off_hours = $this->decimal_to_time($off_hours);
 
 		$off_break = $this->time_to_decimal('00:45');
 		$off_break = $no_of_working * $off_break;
 		$off_break = $this->decimal_to_time($off_break);
-		$off_total[] = $off_hours;
-		$off_total[] = $off_break;
-		$off_total_hours			= $this->AddPlayTime($off_total);
-
+		$offs_hours = $this->time_to_min($off_hours);
+		$off_breaks = $this->time_to_min($off_break);
+		$off_diff  = $offs_hours-$off_breaks;
+		$off_total_hours = intdiv($off_diff, 60).':'. ($off_diff % 60);
 
 		$office_total_hour    = $this->time_to_min($off_total_hours);
 		$bk_totals = $this->time_to_min($sum_value_total_hours);
 		$res3          = $office_total_hour-$bk_totals;
 		$balance_time = intdiv($res3, 60).':'. ($res3 % 60);
 
-
-		// $submit_log_qry 			= 'SELECT count(*) as detailed_sheet_count FROM cw_tonnage_approval inner join cw_time_sheet on cw_time_sheet.employee_code = cw_tonnage_approval.detailer_name where entry_date like "%'.$process_month.'%" and detailer_name = "'.$employee_code.'" and approval_status = 2 and cw_tonnage_approval.trans_status = 1';
-
 		$submit_log_qry = 'select count(*) as detailed_sheet_count from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 and cw_tonnage_approval.detailer_name = "'.$employee_code.'" group by cw_tonnage_approval.drawing_no';
 		$submit_log_info   			= $this->db->query("CALL sp_a_run ('SELECT','$submit_log_qry')");
 		$submit_log_result 			= $submit_log_info->result();
 		$submit_log_info->next_result();
 		$detailed_sheet_count 		= count($submit_log_result);
-		$detail_ton_per_sheet 		= (int)$credit_target/(int)$detailed_sheet_count;
+		$detail_ton_per_sheet 		= $actual_tonnage/(int)$detailed_sheet_count;
 		if ((int)$detail_ton_per_sheet > 0) {
-		    $detail_ton_per_sheet = $detail_ton_per_sheet;
+		    $detail_ton_per_sheet = round($detail_ton_per_sheet, 2);
 		}else{
 		    $detail_ton_per_sheet = 0;
 		} 
@@ -1468,7 +1469,7 @@ class Detailer_report  extends Action_controller{
 		$from_year	 					= $from_years[0];
 		$divide_month 					= $from_years[1];
 		$a_date 						= $from_year."-".$divide_month."-01";
-		$to_month_date 					=  date("Y-m-t", strtotime($a_date));
+		$to_month_date 					= date("Y-m-t", strtotime($a_date));
 		$from_month_date 				= $from_year.'-01-01';
 
 		$productivity_qry 				= 'SELECT sum(cw_tonnage_approval.actual_tonnage) as productivitiy_actual_tonnage,SEC_TO_TIME(SUM(TIME_TO_SEC(cw_tonnage_approval.actual_billable_time))) as productivitiy_actual_billable_time FROM cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where entry_date >= "'.$from_month_date.'" and entry_date <= "'.$to_month_date.'" and employee_code = "'.$employee_code.'" and cw_tonnage_approval.trans_status = 1';
@@ -1483,24 +1484,11 @@ class Detailer_report  extends Action_controller{
 		}else{
 		    $productivitiy_actual_tonnage = 0;
 		} 
-	/*	$test1 = $this->time_to_decimal('02:36:45');
-		echo $test1;echo"<br>";
-		$test1 = $test1/24;
-		echo "test1 :: $test1<br>";
-
-
-		$latha = $test1 * 24;
-		echo $latha;echo "<br>";
-
-		$testing = $this->decimal_to_time($latha);
-
-		echo $testing;
-		echo "<br>---------------------------------------------<br>";*/
 
 		$rev_hrs_tons = round($rev_hrs_tons * 1000)/1000;
 		$production_tons = round($production_tons * 1000)/1000;
 		$total_min     = $this->time_to_min($total_time_date_wise);
-		$final_sum_min = $this->time_to_min($final_sum_total);
+		$final_sum_min = $this->time_to_min($sum_value_total_hours);
 		$res3          = $total_min-$final_sum_min;
 		$different_bk_hrs = intdiv($res3, 60).':'. ($res3 % 60);
 		
@@ -1531,7 +1519,7 @@ class Detailer_report  extends Action_controller{
 		$project_excel[]['end_column']= array('G'.$report_inc3,'G'.$report_inc4,'G'.$report_inc5,'G'.$report_inc6,'G'.$report_inc7,'G'.$report_inc8,'G'.$report_inc9,'G'.$report_inc10,'G'.$report_inc11,'G'.$report_inc12,'G'.$report_inc13,'G'.$report_inc14,'G'.$report_inc15,'G'.$report_inc16,'G'.$report_inc17,'G'.$report_inc18,'G'.$report_inc19,'G'.$report_inc20,'G'.$report_inc21,'G'.$report_inc22);
 		$project_excel[]['column_cell']= array('H'.$report_inc3,'H'.$report_inc4,'H'.$report_inc5,'H'.$report_inc6,'H'.$report_inc7,'H'.$report_inc8,'H'.$report_inc9,'H'.$report_inc10,'H'.$report_inc11,'H'.$report_inc12,'H'.$report_inc13,'H'.$report_inc14,'H'.$report_inc15,'H'.$report_inc16,'H'.$report_inc17,'H'.$report_inc18,'H'.$report_inc19,'H'.$report_inc20,'H'.$report_inc21,'H'.$report_inc22);
 
-		$project_excel[]['column_value']= array($no_of_working,$total_time_date_wise,$final_sum_total,$different_bk_hrs,$actual_tonnage,$actual_billable_time,$rev_hrs_tons,$production_tons,$target_status,$actual_tons,$detail_ton_perHour,$detailed_sheet_count,$team_ton_per_sheet,$detail_ton_per_sheet,$hrs_dwg,$det_vs_clr.'%',$productivity.'%',$productivitiy_actual_tonnage.'%',$total_productivity.'%',$claimed_hours.'%');
+		$project_excel[]['column_value']= array($no_of_working,$total_time_date_wise,$sum_value_total_hours,$different_bk_hrs,$actual_tonnage,$actual_billable_time,$rev_hrs_tons,$production_tons,$target_status,$actual_tons,$detail_ton_perHour,$detailed_sheet_count,$team_ton_per_sheet,$detail_ton_per_sheet,$hrs_dwg,$det_vs_clr.'%',$productivity.'%',$productivitiy_actual_tonnage.'%',$total_productivity.'%',$claimed_hours.'%');
 
 		$project_excel[]['column_end']= array('I'.$report_inc3,'I'.$report_inc4,'I'.$report_inc5,'I'.$report_inc6,'I'.$report_inc7,'I'.$report_inc8,'I'.$report_inc9,'I'.$report_inc10,'I'.$report_inc11,'I'.$report_inc12,'I'.$report_inc13,'I'.$report_inc14,'I'.$report_inc15,'I'.$report_inc16,'I'.$report_inc17,'I'.$report_inc18,'I'.$report_inc19,'I'.$report_inc20,'I'.$report_inc21,'I'.$report_inc22);
 
@@ -1553,6 +1541,13 @@ class Detailer_report  extends Action_controller{
 				$obj->getActiveSheet()->setCellValue($column_cell, $column_value)->mergeCells($column_cell.':'.$column_end)->getStyle($column_cell.':'.$column_end)->applyFromArray($RightBordertwo);
 			}
 			$obj->getActiveSheet()->setCellValue('J'.$report_inc5, "Min Difference")->mergeCells('J'.$report_inc5.':K'.$report_inc5)->getStyle('J'.$report_inc5.':K'.$report_inc5)->applyFromArray($LeftBorder);
+			$obj->getActiveSheet()->setCellValue('J'.$report_head, "Office Hrs")->getStyle('J'.$report_head)->applyFromArray($verticalStyle);
+			$obj->getActiveSheet()->setCellValue('K'.$report_head, "Break Hrs")->getStyle('K'.$report_head)->applyFromArray($verticalStyle);
+			$obj->getActiveSheet()->setCellValue('L'.$report_head, "Diff Hrs")->getStyle('L'.$report_head)->applyFromArray($verticalStyle);
+			$obj->getActiveSheet()->setCellValue('J'.$report_inc3, $off_hours)->getStyle('J'.$report_inc3)->applyFromArray($verticalStyle);
+			$obj->getActiveSheet()->setCellValue('K'.$report_inc3, $off_break)->getStyle('K'.$report_inc3)->applyFromArray($verticalStyle);
+				$obj->getActiveSheet()->setCellValue('L'.$report_inc3, $off_total_hours)->getStyle('L'.$report_inc3)->applyFromArray($verticalStyle);
+
 			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $balance_time)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
 		}
 			// die;

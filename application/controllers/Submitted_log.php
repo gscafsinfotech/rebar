@@ -514,7 +514,7 @@ class Submitted_log  extends Action_controller{
 			}
 			$obj->getActiveSheet()->calculateWorksheetDimension();
 		}
-		$detailing_qry = 'select count(*) as total_drawing_count,cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_time_sheet.entry_date,cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,team_name,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.' group by cw_tonnage_approval.drawing_no,entry_date order by entry_date';
+		$detailing_qry = 'select count(*) as total_drawing_count,cw_time_sheet.employee_code,cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,cw_time_sheet.entry_date,cw_project_and_drawing_master.rdd_no,cw_project_and_drawing_master.project_name,cw_uspm.uspm,cw_client.client_name,cw_project_and_drawing_master.received_date,cw_project_and_drawing_master_drawings.drawing_no,cw_project_and_drawing_master_drawings.drawing_description,cw_tonnage_approval.trans_created_date,cw_tonnage_approval.actual_tonnage,cw_tonnage_approval.team as team_id,cw_tonnage_approval.project,cw_employees.emp_name as detailer_name,prime_team_id,team_name,cw_tonnage_approval.team_leader_name,cw_tonnage_approval.project_manager_name,cw_time_sheet_time_line.first_check_minor,cw_time_sheet_time_line.first_check_major,cw_time_sheet_time_line.second_check_major,cw_time_sheet_time_line.second_check_minor,cw_time_sheet_time_line.qa_major,cw_time_sheet_time_line.qa_minor,cw_branch.branch,detailing_time,study,discussion,rfi,checking,correction_time,other_works,bar_listing_time,revision_time,change_order_time,cw_time_sheet_time_line.billable_hours,cw_time_sheet_time_line.non_billable_hours,emails,was,co_checking,cw_time_sheet_time_line.actual_billable_time,qa_checking,monitoring,bar_listing_checking,aec,credit from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 '.$fliter_query.' group by cw_tonnage_approval.drawing_no,entry_date order by entry_date';
 		$detailing_info   			= $this->db->query("CALL sp_a_run ('SELECT','$detailing_qry')");
 		$detailing_result 			= $detailing_info->result_array();
 		$detailing_info->next_result();
@@ -536,16 +536,23 @@ class Submitted_log  extends Action_controller{
 
 
 
-		$checker_time_qry = 'select cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id,SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(revision_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(cw_time_sheet_time_line.billable_hours))+SUM(TIME_TO_SEC(cw_time_sheet_time_line.non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(cw_time_sheet_time_line.actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))) as checking_time from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_id = cw_project_and_drawing_master.prime_project_and_drawing_master_id where cw_time_sheet_time_line.emp_role = 4 and cw_time_sheet_time_line.work_type = 1 and cw_time_sheet_time_line.work_status = 3  and cw_time_sheet_time_line.trans_status =1  group by cw_project_and_drawing_master_drawings.drawing_no';
+		$checker_time_qry = 'select cw_project_and_drawing_master_drawings.drawing_no as drawing_name,employee_code,cw_time_sheet_time_line.drawing_no,discussion,correction_time,SEC_TO_TIME(SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(billable_hours))+SUM(TIME_TO_SEC(non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))+SUM(TIME_TO_SEC(revision_time))) as checkers_time from `cw_time_sheet_time_line` inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_time_sheet_time_line.drawing_no WHERE cw_time_sheet_time_line.trans_status = 1 and cw_time_sheet.trans_status =1 and cw_project_and_drawing_master_drawings.trans_status =1 and cw_time_sheet_time_line.work_type = 1 and cw_time_sheet_time_line.drawing_no !="" and emp_role =4 GROUP by cw_time_sheet_time_line.drawing_no,employee_code';
 		$checker_time_info   			= $this->db->query("CALL sp_a_run ('SELECT','$checker_time_qry')");
 		$checker_time_result 			= $checker_time_info->result_array();
 		$checker_time_info->next_result();
 		$checker_time_result = array_reduce($checker_time_result, function($result, $arr){			
-		    $result[$arr['prime_project_and_drawing_master_drawings_id']] = $arr;
+		    $result[$arr['employee_code']][$arr['drawing_no']] = $arr;
 		    return $result;
 		}, array());
-		// echo "<pre>";
-		// print_r($checker_time_result);die;
+		$detailer_time_qry = 'select cw_project_and_drawing_master_drawings.drawing_no as drawing_name,employee_code,cw_time_sheet_time_line.drawing_no,discussion,correction_time,SEC_TO_TIME(SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(billable_hours))+SUM(TIME_TO_SEC(non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))+SUM(TIME_TO_SEC(revision_time))) as detailers_time from `cw_time_sheet_time_line` inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_time_sheet_time_line.drawing_no WHERE cw_time_sheet_time_line.trans_status = 1 and cw_time_sheet.trans_status =1 and cw_project_and_drawing_master_drawings.trans_status =1 and cw_time_sheet_time_line.work_type = 1 and cw_time_sheet_time_line.drawing_no !="" and emp_role =5 GROUP by cw_time_sheet_time_line.drawing_no,employee_code';
+		$detailer_time_info   			= $this->db->query("CALL sp_a_run ('SELECT','$detailer_time_qry')");
+		$detailer_time_rslt 			= $detailer_time_info->result_array();
+		$detailer_time_info->next_result();
+
+		$detailer_time_rslt = array_reduce($detailer_time_rslt, function($result, $arr){			
+		    $result[$arr['employee_code']][$arr['drawing_no']] = $arr;
+		    return $result;
+		}, array());
 
 		$team_qry  	= 'select prime_team_id,team_name from cw_team where trans_status = 1';
 		$team_info   	= $this->db->query("CALL sp_a_run ('SELECT','$team_qry')");
@@ -572,7 +579,10 @@ class Submitted_log  extends Action_controller{
 		    return $result;
 		}, array());
 		$i = 3;
+		// echo "<pre>";
+		// print_r($checker_time_result);die;
 		foreach ($detailing_result as $team_id => $value) {
+			
 			for ($x = 0; $x <= 1; $x++) {
 				$excel_column  		= $excel_types[0]['excel_column'][$x];
 				$value_of_excel  	= $time_sheet_value[$excel_column];
@@ -595,6 +605,8 @@ class Submitted_log  extends Action_controller{
 			$total_actual_tons 		  = 0;
 			$no_of_draw				  = 0;
 			foreach ($value as $team_data) {
+				$employee_code = $team_data['employee_code'];
+			// echo "employee_code ::$employee_code<br>";
 				$total_first_check_minor  += $team_data['first_check_minor'];
 				$total_first_check_major  += $team_data['first_check_major'];
 				$total_second_check_major += $team_data['second_check_major'];
@@ -603,7 +615,11 @@ class Submitted_log  extends Action_controller{
 				$total_actual_tons 		  += $team_data['actual_tonnage'];
 				$no_of_draw				  += 1;
 				$drawing_id 			   = $team_data['prime_project_and_drawing_master_drawings_id'];
-				$checker_time 			   = $checker_time_result[$drawing_id]['checking_time'];
+				
+				$detailer_time 			   = $detailer_time_rslt[$employee_code][$drawing_id]['detailers_time'];
+				// echo "<pre>";
+				// print_r($checker_time_result[$employee_code][$drawing_id]);
+				// echo "$employee_code :: $detailer_time<br>";
 				
 
 				$cummulate_booking_hours   = array();
@@ -631,10 +647,7 @@ class Submitted_log  extends Action_controller{
 				$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
 				$team_leader_name 		   = $team_data['team_leader_name'];
 				$project_manager_name 	   = $team_data['project_manager_name'];
-				$total_times 			 = array();
-				$total_times[] 			 = $cummulate_total_hours;
-				$total_times[] 			 = $checker_time;
-				$total_for_time 	   	 = $this->AddPlayTime($total_times);
+				
 
 				$time_sheet_inside['A']  = $team_data['rdd_no'];
 				$time_sheet_inside['B']  = $team_data['uspm'];
@@ -647,18 +660,22 @@ class Submitted_log  extends Action_controller{
 				$time_sheet_inside['I']  = date('d-m-Y',strtotime($team_data['entry_date']));
 				$time_sheet_inside['J']  = $team_data['actual_tonnage'];
 				$time_sheet_inside['K']  = $team_data['detailer_name'];
-				$time_sheet_inside['L']  = $cummulate_total_hours;
+				$time_sheet_inside['L']  = $detailer_time;
 				foreach ($checker_name_result as $key => $checker_rlst) {
 					$checker_id_team 	 = $checker_rlst->team;
 					$emps_code 			 = $checker_rlst->employee_code;
+					$checker_time 			   = $checker_time_result[$emps_code][$drawing_id]['checkers_time'];
 					if($team_leader_name === $emps_code){
 						$time_sheet_inside['M']  = $checker_rlst->emp_name;
 					}
 				}
+				$total_times 			 = array();
+				$total_times[] 			 = $detailer_time;
+				$total_times[] 			 = $checker_time;
+				$total_for_time 	   	 = $this->AddPlayTime($total_times);
 
 				$time_sheet_inside['N']  = $checker_time;
 				$time_sheet_inside['O']  = $total_for_time;
-
 
 			
 				$time_sheet_inside['P']  = $team_data['first_check_major'];

@@ -721,6 +721,8 @@ class Submitted_log  extends Action_controller{
 		}
 
 
+// die;
+
 		/* REVISION SHEET */
 
 

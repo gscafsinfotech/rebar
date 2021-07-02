@@ -1416,24 +1416,29 @@ class Detailer_report  extends Action_controller{
 		$no_of_holiday 				= 0;
 		$no_of_leave_taken 			= 0;
 		$no_of_working 				= $working_days + $no_of_holiday - $no_of_leave_taken;
+		$off_hours 		= $this->time_to_decimal('08:30');
+		$off_hours 		= $no_of_working * $off_hours;
+		$off_hours 		= $this->decimal_to_time($off_hours);
 
-		$off_hours = $this->time_to_decimal('08:30');
-		// echo "$off_hours<br>";
-		$off_hours = $no_of_working * $off_hours;
-		$off_hours = $this->decimal_to_time($off_hours);
+		$off_break 		= $this->time_to_decimal('00:45');
+		$off_break 		= $no_of_working * $off_break;
+		$off_break 		= $this->decimal_to_time($off_break);
+		$offs_hours 	= $this->time_to_min($off_hours);
+		$off_breaks 	= $this->time_to_min($off_break);
+		$off_diff  		= $offs_hours-$off_breaks;
+		$off_total_hours= intdiv($off_diff, 60).':'. ($off_diff % 60);
 
-		$off_break = $this->time_to_decimal('00:45');
-		$off_break = $no_of_working * $off_break;
-		$off_break = $this->decimal_to_time($off_break);
-		$offs_hours = $this->time_to_min($off_hours);
-		$off_breaks = $this->time_to_min($off_break);
-		$off_diff  = $offs_hours-$off_breaks;
-		$off_total_hours = intdiv($off_diff, 60).':'. ($off_diff % 60);
+		$office_total_hour  = $this->time_to_min($off_total_hours);
+		$bk_totals 			= $this->time_to_min($sum_value_total_hours);
+		$res3          		= $office_total_hour-$bk_totals;
+		$balance_time 		= intdiv($res3, 60).':'. ($res3 % 60);
 
-		$office_total_hour    = $this->time_to_min($off_total_hours);
-		$bk_totals = $this->time_to_min($sum_value_total_hours);
-		$res3          = $office_total_hour-$bk_totals;
-		$balance_time = intdiv($res3, 60).':'. ($res3 % 60);
+		$max_off_hrs 		= $this->time_to_decimal($off_hours);
+		$max_off_bks 		= $this->time_to_decimal($off_break);
+		$max_tot_hrs 		= $this->time_to_decimal($total_time_date_wise);
+		$max_bk_allow 		= $max_tot_hrs * $max_off_bks;
+		$max_bk_allow 		= $max_bk_allow/$max_off_hrs;
+		$max_bk_allow 		= $this->decimal_to_time($max_bk_allow);
 
 		$submit_log_qry = 'select count(*) as detailed_sheet_count from cw_tonnage_approval inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_tonnage_approval.project inner join cw_uspm on cw_uspm.prime_uspm_id = cw_project_and_drawing_master.project_manager inner join cw_client on cw_client.prime_client_id = cw_project_and_drawing_master.client_name inner join cw_project_and_drawing_master_drawings on cw_project_and_drawing_master_drawings.prime_project_and_drawing_master_drawings_id = cw_tonnage_approval.drawing_no inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.detailer_name inner join cw_team on find_in_set(cw_team.prime_team_id,cw_tonnage_approval.team) inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_branch on cw_branch.prime_branch_id = cw_employees.branch inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.trans_status =1 and cw_project_and_drawing_master.trans_status =1 and cw_tonnage_approval.detailer_name = "'.$employee_code.'" group by cw_tonnage_approval.drawing_no';
 		$submit_log_info   			= $this->db->query("CALL sp_a_run ('SELECT','$submit_log_qry')");
@@ -1515,11 +1520,11 @@ class Detailer_report  extends Action_controller{
 		$report_inc22 	= $report_inc21+1;
 
 		$project_excel[]['excel_column']= array('C'.$report_inc3,'C'.$report_inc4,'C'.$report_inc5,'C'.$report_inc6,'C'.$report_inc7,'C'.$report_inc8,'C'.$report_inc9,'C'.$report_inc10,'C'.$report_inc11,'C'.$report_inc12,'C'.$report_inc13,'C'.$report_inc14,'C'.$report_inc15,'C'.$report_inc16,'C'.$report_inc17,'C'.$report_inc18,'C'.$report_inc19,'C'.$report_inc20,'C'.$report_inc21,'C'.$report_inc22);
-		$project_excel[]['excel_value']= array('No. of Working Days','Total Office hours','Total Booking hours','Difference b/t Booking  & Off Hrs','Detailed Tons (Submitted Log)','Rev. hours (Submitted Log)','Rev.hours in Tons','Total Production Tons','Target Reached/Not Reached','Actual Tons per Hour','Tons per Hour New Detailing only','Detailed Sheets (Submitted Log)','Team Tons per Sheet (From Sub. Log)','Detailed Tons per Sheet','Hrs/Dwg','Det vs Cor','Productivity %','Cumulative Productivity %','Productivity hours %','Claimed Hours %');
+		$project_excel[]['excel_value']= array('No. of Working Days','Total Office hours','Total Booking hours','Difference b/t Booking  & Off Hrs','Detailed Tons (Submitted Log)','Rev. hours (Submitted Log)','Rev.hours in Tons','Total Production Tons','Target Reached/Not Reached','Actual Tons per Hour','Tons per Hour New Detailing only','Detailed Sheets (Submitted Log)','Team Tons per Sheet (From Sub. Log)','Detailed Tons per Sheet','Hrs/Dwg','Det vs Cor','Productivity %','Productivity hours %','Claimed Hours %');
 		$project_excel[]['end_column']= array('G'.$report_inc3,'G'.$report_inc4,'G'.$report_inc5,'G'.$report_inc6,'G'.$report_inc7,'G'.$report_inc8,'G'.$report_inc9,'G'.$report_inc10,'G'.$report_inc11,'G'.$report_inc12,'G'.$report_inc13,'G'.$report_inc14,'G'.$report_inc15,'G'.$report_inc16,'G'.$report_inc17,'G'.$report_inc18,'G'.$report_inc19,'G'.$report_inc20,'G'.$report_inc21,'G'.$report_inc22);
 		$project_excel[]['column_cell']= array('H'.$report_inc3,'H'.$report_inc4,'H'.$report_inc5,'H'.$report_inc6,'H'.$report_inc7,'H'.$report_inc8,'H'.$report_inc9,'H'.$report_inc10,'H'.$report_inc11,'H'.$report_inc12,'H'.$report_inc13,'H'.$report_inc14,'H'.$report_inc15,'H'.$report_inc16,'H'.$report_inc17,'H'.$report_inc18,'H'.$report_inc19,'H'.$report_inc20,'H'.$report_inc21,'H'.$report_inc22);
 
-		$project_excel[]['column_value']= array($no_of_working,$total_time_date_wise,$sum_value_total_hours,$different_bk_hrs,$actual_tonnage,$actual_billable_time,$rev_hrs_tons,$production_tons,$target_status,$actual_tons,$detail_ton_perHour,$detailed_sheet_count,$team_ton_per_sheet,$detail_ton_per_sheet,$hrs_dwg,$det_vs_clr.'%',$productivity.'%',$productivitiy_actual_tonnage.'%',$total_productivity.'%',$claimed_hours.'%');
+		$project_excel[]['column_value']= array($no_of_working,$total_time_date_wise,$sum_value_total_hours,$different_bk_hrs,$actual_tonnage,$actual_billable_time,$rev_hrs_tons,$production_tons,$target_status,$actual_tons,$detail_ton_perHour,$detailed_sheet_count,$team_ton_per_sheet,$detail_ton_per_sheet,$hrs_dwg,$det_vs_clr.'%',$productivity.'%',$total_productivity.'%',$claimed_hours.'%');
 
 		$project_excel[]['column_end']= array('I'.$report_inc3,'I'.$report_inc4,'I'.$report_inc5,'I'.$report_inc6,'I'.$report_inc7,'I'.$report_inc8,'I'.$report_inc9,'I'.$report_inc10,'I'.$report_inc11,'I'.$report_inc12,'I'.$report_inc13,'I'.$report_inc14,'I'.$report_inc15,'I'.$report_inc16,'I'.$report_inc17,'I'.$report_inc18,'I'.$report_inc19,'I'.$report_inc20,'I'.$report_inc21,'I'.$report_inc22);
 
@@ -1540,7 +1545,7 @@ class Detailer_report  extends Action_controller{
 				$obj->getActiveSheet()->setCellValue($excel_column, $excel_value)->mergeCells($excel_column.':'.$end_column)->getStyle($excel_column.':'.$column_end)->applyFromArray($LeftBorder);
 				$obj->getActiveSheet()->setCellValue($column_cell, $column_value)->mergeCells($column_cell.':'.$column_end)->getStyle($column_cell.':'.$column_end)->applyFromArray($RightBordertwo);
 			}
-			$obj->getActiveSheet()->setCellValue('J'.$report_inc5, "Min Difference")->mergeCells('J'.$report_inc5.':K'.$report_inc5)->getStyle('J'.$report_inc5.':K'.$report_inc5)->applyFromArray($LeftBorder);
+			$obj->getActiveSheet()->setCellValue('J'.$report_inc5, "Max Break Allowed")->mergeCells('J'.$report_inc5.':K'.$report_inc5)->getStyle('J'.$report_inc5.':K'.$report_inc5)->applyFromArray($LeftBorder);
 			$obj->getActiveSheet()->setCellValue('J'.$report_head, "Office Hrs")->getStyle('J'.$report_head)->applyFromArray($verticalStyle);
 			$obj->getActiveSheet()->setCellValue('K'.$report_head, "Break Hrs")->getStyle('K'.$report_head)->applyFromArray($verticalStyle);
 			$obj->getActiveSheet()->setCellValue('L'.$report_head, "Diff Hrs")->getStyle('L'.$report_head)->applyFromArray($verticalStyle);
@@ -1548,7 +1553,7 @@ class Detailer_report  extends Action_controller{
 			$obj->getActiveSheet()->setCellValue('K'.$report_inc3, $off_break)->getStyle('K'.$report_inc3)->applyFromArray($verticalStyle);
 				$obj->getActiveSheet()->setCellValue('L'.$report_inc3, $off_total_hours)->getStyle('L'.$report_inc3)->applyFromArray($verticalStyle);
 
-			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $balance_time)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
+			$obj->getActiveSheet()->setCellValue('J'.$report_inc6, $max_bk_allow)->mergeCells('J'.$report_inc6.':K'.$report_inc6)->getStyle('J'.$report_inc6.':K'.$report_inc6)->applyFromArray($LeftBorder);
 		}
 			// die;
 			$filename= $control_name."_".$employee_code.".xls"; //save our workbook as this file name

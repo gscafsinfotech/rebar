@@ -524,10 +524,16 @@ class Submitted_log  extends Action_controller{
 		}, array());
 
 
-		$checker_name_qry = 'select cw_tonnage_approval.team,cw_employees.emp_name,prime_team_id,cw_employees.employee_code from cw_tonnage_approval inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.trans_status = 1 and cw_employees.trans_status = 1 and cw_tonnage_approval.approval_status = 2 and cw_employees.trans_status = 1';
+		$checker_name_qry = 'select cw_tonnage_approval.team,cw_employees.emp_name,prime_team_id,cw_employees.employee_code,cw_tonnage_approval.drawing_no from cw_tonnage_approval inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.team_leader_name inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.trans_status = 1 and cw_employees.trans_status = 1 and cw_tonnage_approval.approval_status = 2 and cw_employees.trans_status = 1';
 	    $checker_name_info   	= $this->db->query("CALL sp_a_run ('SELECT','$checker_name_qry')");
-		$checker_name_result  	= $checker_name_info->result();
+		$checker_name_result  	= $checker_name_info->result_array();
 		$checker_name_info->next_result();
+		$checker_name_result = array_reduce($checker_name_result, function($result, $arr){			
+		    $result[$arr['drawing_no']] = $arr;
+		    return $result;
+		}, array());
+		/*echo "<pre>";
+		print_r($checker_name_result);die;*/
 
 		$pm_name_qry = 'select cw_tonnage_approval.team,cw_employees.emp_name,prime_team_id,cw_employees.employee_code from cw_tonnage_approval inner join cw_employees on cw_employees.employee_code = cw_tonnage_approval.project_manager_name inner join cw_team on FIND_IN_SET(cw_team.prime_team_id,cw_tonnage_approval.team) where cw_tonnage_approval.trans_status = 1 and cw_employees.trans_status = 1 and cw_tonnage_approval.approval_status = 2 and cw_employees.trans_status = 1';
 	    $pm_name_info   	= $this->db->query("CALL sp_a_run ('SELECT','$pm_name_qry')");
@@ -579,8 +585,6 @@ class Submitted_log  extends Action_controller{
 		    return $result;
 		}, array());
 		$i = 3;
-		// echo "<pre>";
-		// print_r($checker_time_result);die;
 		foreach ($detailing_result as $team_id => $value) {
 			
 			for ($x = 0; $x <= 1; $x++) {
@@ -606,7 +610,6 @@ class Submitted_log  extends Action_controller{
 			$no_of_draw				  = 0;
 			foreach ($value as $team_data) {
 				$employee_code = $team_data['employee_code'];
-			// echo "employee_code ::$employee_code<br>";
 				$total_first_check_minor  += $team_data['first_check_minor'];
 				$total_first_check_major  += $team_data['first_check_major'];
 				$total_second_check_major += $team_data['second_check_major'];
@@ -617,11 +620,6 @@ class Submitted_log  extends Action_controller{
 				$drawing_id 			   = $team_data['prime_project_and_drawing_master_drawings_id'];
 				
 				$detailer_time 			   = $detailer_time_rslt[$employee_code][$drawing_id]['detailers_time'];
-				// echo "<pre>";
-				// print_r($checker_time_result[$employee_code][$drawing_id]);
-				// echo "$employee_code :: $detailer_time<br>";
-				
-
 				$cummulate_booking_hours   = array();
 				$cummulate_booking_hours[] = $team_data['detailing_time'];
 				$cummulate_booking_hours[] = $team_data['study'];
@@ -661,23 +659,17 @@ class Submitted_log  extends Action_controller{
 				$time_sheet_inside['J']  = $team_data['actual_tonnage'];
 				$time_sheet_inside['K']  = $team_data['detailer_name'];
 				$time_sheet_inside['L']  = $detailer_time;
-				foreach ($checker_name_result as $key => $checker_rlst) {
-					$checker_id_team 	 = $checker_rlst->team;
-					$emps_code 			 = $checker_rlst->employee_code;
-					$checker_time 			   = $checker_time_result[$emps_code][$drawing_id]['checkers_time'];
-					if($team_leader_name === $emps_code){
-						$time_sheet_inside['M']  = $checker_rlst->emp_name;
-					}
-				}
+				$checker_name  			 = $checker_name_result[$drawing_id]['emp_name'];
+				$checker_code  			 = $checker_name_result[$drawing_id]['employee_code'];
+				$checker_time  			 = $checker_time_result[$checker_code][$drawing_id]['checkers_time'];
 				$total_times 			 = array();
 				$total_times[] 			 = $detailer_time;
 				$total_times[] 			 = $checker_time;
 				$total_for_time 	   	 = $this->AddPlayTime($total_times);
 
+				$time_sheet_inside['M']  = $checker_name;
 				$time_sheet_inside['N']  = $checker_time;
 				$time_sheet_inside['O']  = $total_for_time;
-
-			
 				$time_sheet_inside['P']  = $team_data['first_check_major'];
 				$time_sheet_inside['Q']  = $team_data['first_check_minor'];
 				$time_sheet_inside['R']  = $team_data['second_check_major'];
@@ -728,8 +720,6 @@ class Submitted_log  extends Action_controller{
 			$i++;
 		}
 
-
-// die;
 
 		/* REVISION SHEET */
 

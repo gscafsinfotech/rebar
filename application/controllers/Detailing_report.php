@@ -595,10 +595,12 @@ class Detailing_report  extends Action_controller{
 			}else{
 				$inv_co_hrs = '00:00:00';
 			}
-			$time1         				= new DateTime($co_hrs);
-			$time2         				= new DateTime($inv_co_hrs);
-			$timediff      				= $time1->diff($time2);
-			$balance_invoice_time     	= $timediff->format('%H: %I');
+
+			$time1  		= $this->time_to_min($co_hrs);
+			$time2 			= $this->time_to_min($inv_co_hrs);
+			$res3          	= $time1-$time2;
+			$balance_invoice_time 	= intdiv($res3, 60).':'. ($res3 % 60);
+
 			$multiple_tons 				= $sum_of_tonnage * $billing_rate_detailing;
 			$time_to_hrs				= $this->time_to_min($actual_billable_time);
 			$time_to_hrs				= $time_to_hrs/60;

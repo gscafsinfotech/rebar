@@ -652,7 +652,7 @@ class Project_manager_report  extends Action_controller{
 			$work_status 	= $time_sheet->work_status;
 			$work_status 	= $work_status_result[$work_status]['work_status'];			
 
-			$time_sheet_value['A']       = $time_sheet->entry_date;
+			$time_sheet_value['A']       = date('d-m-Y',strtotime($time_sheet->entry_date));
 			if($project){
 				$time_sheet_value['B']       = $project;
 			}else{
@@ -1353,6 +1353,11 @@ class Project_manager_report  extends Action_controller{
 	    $seconds = round($seconds * 60);
 	 
 	    return str_pad($hours, 2, "0", STR_PAD_LEFT) . ":" . str_pad($minutes, 2, "0", STR_PAD_LEFT) . ":" . str_pad($seconds, 2, "0", STR_PAD_LEFT);
+	}
+	public function time_to_min($time){
+		$timeArr = explode(':', $time);
+		$decTime = ($timeArr[0]*60) + ($timeArr[1]) + ($timeArr[2]/60);
+		return $decTime;
 	}
 	function AddPlayTime($times) {
 	    $minutes = 0; //declare minutes either it gives Notice: Undefined variable

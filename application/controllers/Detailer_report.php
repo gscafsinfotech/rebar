@@ -14,6 +14,7 @@ class Detailer_report  extends Action_controller{
 		$data['master_pick']   = $this->master_pick;
 		$data['fliter_list']   = $this->fliter_list;
 
+		$logged_team 		   = $this->session->userdata('logged_team');
 		$logged_role 		   = $this->session->userdata('logged_role');
 		$logged_emp_code 	   = $this->session->userdata('logged_emp_code');
 		if((int)$logged_role === 4){
@@ -21,7 +22,11 @@ class Detailer_report  extends Action_controller{
 		}else
 		if((int)$logged_role === 5){
 			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 5 and employee_code = "'.$logged_emp_code.'" and employee_status = 1 and trans_status = 1';
-		}else{
+		}else
+		if((int)$logged_role === 3){
+			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 5 and team in('.$logged_team.') and employee_status = 1 and trans_status = 1';
+		}
+		else{
 			$emp_qry 		= 'SELECT employee_code,emp_name FROM cw_employees where role = 5 and employee_status = 1 and trans_status = 1';
 		}
 		$emp_info   		= $this->db->query("CALL sp_a_run ('SELECT','$emp_qry')");
@@ -739,7 +744,7 @@ class Detailer_report  extends Action_controller{
 			$drawing_no 	= $drawing_result[$drawing_no]['drawing_no'];
 			$work_status 	= $time_sheet->work_status;
 			$work_status 	= $work_status_result[$work_status]['work_status'];
-			$time_sheet_value['A']       = $time_sheet->entry_date;
+			$time_sheet_value['A']       = date('d-m-Y',strtotime($time_sheet->entry_date));
 			if($project){
 				$time_sheet_value['B']       = $project;
 			}else{

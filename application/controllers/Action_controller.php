@@ -105,12 +105,18 @@ abstract class Action_controller extends Secure_Controller{
 	}
 	// PROVIDE MODLE TABLE ROLE BASED SEARCH
 	public function get_role_condition(){
-		$table_search_query = 'select where_condition from cw_form_table_search  where query_module_id = "'.$this->control_name.'" and query_for = "'.$this->logged_user_role.'" and trans_status = "1"';
+		$table_search_query = 'select where_condition,prime_table_id from cw_form_table_search  where query_module_id = "'.$this->control_name.'" and query_for = "'.$this->logged_user_role.'" and trans_status = "1"';
 		$table_search_data   = $this->db->query("CALL sp_a_run ('SELECT','$table_search_query')");
 		$table_search_result = $table_search_data->result();
 		$table_search_data->next_result();
 		if($table_search_result){
-			$where_condition  = str_replace('^','"',$table_search_result[0]->where_condition);
+			$prime_table_id   = $table_search_result[0]->prime_table_id;
+			if((int)$prime_table_id  === 3 || (int)$prime_table_id === 9){
+				$where_condition  = str_replace('^','',$table_search_result[0]->where_condition);
+			}else{
+				$where_condition  = str_replace('^','"',$table_search_result[0]->where_condition);
+			}
+			
 			$session_query  = 'select session_value from cw_session_value  where session_for = 1 and trans_status = "1"';
 			$session_data   = $this->db->query("CALL sp_a_run ('SELECT','$session_query')");
 			$session_result = $session_data->result();

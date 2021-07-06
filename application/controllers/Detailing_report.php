@@ -608,7 +608,18 @@ class Detailing_report  extends Action_controller{
 			$detailing_hours 			= $detailing_hours_result[$project_id]['detailing_hours'];
 			$checking_hours 			= $checking_hours_result[$project_id]['checking_hours'];
 			$pm_hours 					= $pm_hours_result[$project_id]['pm_hours'];
-
+			$last_submission 			= date('d-m-Y',strtotime($last_submission));
+			$received_date              = date('d-m-Y',strtotime($detailing_sheet->received_date));
+			if($last_submission === '01-01-1970'){
+				$last_submission = "";
+			}else{
+				$last_submission;
+			}
+			if($received_date === '01-01-1970'){
+				$received_date = "";
+			}else{
+				$received_date;
+			}
 
 			$detailing_value['A']       = $detailing_sheet->client_no;
 			$detailing_value['B']       = $detailing_sheet->rdd_no;
@@ -619,7 +630,7 @@ class Detailing_report  extends Action_controller{
 			$detailing_value['G'] 		= $detailing_sheet->branch;
 			$detailing_value['H'] 		= $detailing_sheet->team_name;
 			$detailing_value['I']		= $detailing_sheet->uspm;
-			$detailing_value['J'] 		= $detailing_sheet->received_date;
+			$detailing_value['J'] 		= $received_date;
 			$detailing_value['K'] 		= $estimated_tons;
 			$detailing_value['L'] 		= $sum_of_tonnage;
 			$detailing_value['M'] 		= $balance_tons;

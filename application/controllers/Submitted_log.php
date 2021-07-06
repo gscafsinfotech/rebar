@@ -645,17 +645,29 @@ class Submitted_log  extends Action_controller{
 				$cummulate_total_hours 	   = $this->AddPlayTime($cummulate_booking_hours);
 				$team_leader_name 		   = $team_data['team_leader_name'];
 				$project_manager_name 	   = $team_data['project_manager_name'];
+				$received_date 			   = date('d-m-Y',strtotime($team_data['received_date']));
+				$entry_dates 			   = date('d-m-Y',strtotime($team_data['entry_date']));
+				if($received_date === '01-01-1970'){
+					$received_date = "";
+				}else{
+					$received_date;
+				}
+				if($entry_dates === '01-01-1970'){
+					$entry_dates = "";
+				}else{
+					$entry_dates;
+				}
 				
 
 				$time_sheet_inside['A']  = $team_data['rdd_no'];
 				$time_sheet_inside['B']  = $team_data['uspm'];
 				$time_sheet_inside['C']  = $team_data['client_name'];
 				$time_sheet_inside['D']  = $team_data['project_name'];
-				$time_sheet_inside['E']  = $team_data['received_date'];
+				$time_sheet_inside['E']  = $received_date;
 				$time_sheet_inside['F']  = $team_data['drawing_no'];
 				$time_sheet_inside['G']  = $team_data['total_drawing_count'];
 				$time_sheet_inside['H']  = $team_data['drawing_description'];
-				$time_sheet_inside['I']  = date('d-m-Y',strtotime($team_data['entry_date']));
+				$time_sheet_inside['I']  = $entry_dates;
 				$time_sheet_inside['J']  = $team_data['actual_tonnage'];
 				$time_sheet_inside['K']  = $team_data['detailer_name'];
 				$time_sheet_inside['L']  = $detailer_time;
@@ -781,7 +793,7 @@ class Submitted_log  extends Action_controller{
 				$time_sheet_inside['C']  = $revData['client_name'];
 				$time_sheet_inside['D']  = $revData['project_name'];
 				$time_sheet_inside['E']  = $revData['drawing_no'];
-				$time_sheet_inside['F']  = $revData['entry_date'];
+				$time_sheet_inside['F']  = date('d-m-Y',strtotime($revData['entry_date']));
 				$time_sheet_inside['G']  = $revData['actual_billable_time'];
 				$time_sheet_inside['H']  = $revData['detailer_name'];
 

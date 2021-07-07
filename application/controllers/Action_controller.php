@@ -134,13 +134,19 @@ abstract class Action_controller extends Secure_Controller{
 	}
 	// PROVIDE ROLE BASED PICK LIST /*UDY-13-02-2020*/
 	public function get_role_based_picklist($query_list_id,$module_id){		
-		$pick_query = 'select pick_where_condition from cw_pick_base_search  where pick_module_id = "'.$module_id.'" and query_list_id = "'.$query_list_id.'" and pick_query_for = "'.$this->logged_role.'" and trans_status = "1"';
+		$pick_query = 'select prime_pick_base_search_id,pick_where_condition from cw_pick_base_search  where pick_module_id = "'.$module_id.'" and query_list_id = "'.$query_list_id.'" and pick_query_for = "'.$this->logged_role.'" and trans_status = "1"';
 		$pick_data   = $this->db->query("CALL sp_a_run ('SELECT','$pick_query')");
 		$pick_result = $pick_data->result();
 		$pick_data->next_result();
+		
 		$where_condition = "";
 		if($pick_result){
-			$where_condition  = str_replace('^','"',$pick_result[0]->pick_where_condition);
+			$prime_pick_base_search_id = $pick_result[0]->prime_pick_base_search_id;
+			if((int)$prime_pick_base_search_id  === 13 || (int)$prime_pick_base_search_id === 14 || (int)$prime_pick_base_search_id === 15){
+				$where_condition  = str_replace('^','',$pick_result[0]->pick_where_condition);
+			}else{
+				$where_condition  = str_replace('^','"',$pick_result[0]->pick_where_condition);
+			}
 			$session_query  = 'select session_value from cw_session_value  where session_for = 1 and trans_status = "1"';
 			$session_data   = $this->db->query("CALL sp_a_run ('SELECT','$session_query')");
 			$session_result = $session_data->result();

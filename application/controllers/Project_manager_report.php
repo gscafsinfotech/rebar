@@ -1040,6 +1040,10 @@ class Project_manager_report  extends Action_controller{
 			$other_work_count   = $cummuate_second_count+1;
 			$m 					= $other_work_count;
 			foreach($other_work_result as $key => $other_work_detail){
+				$total_other_times 	= array();
+				$total_other_times[] 	= $other_work_detail->cummulate_emails;
+				$total_other_times[] 	= $other_work_detail->cummulate_works;
+				$total_other_time   	= $this->AddPlayTime($total_other_times);
 				$time_sheet_value['A']       = "";
 				$time_sheet_value['B']       = $other_work_detail->other_works;
 				$time_sheet_value['C']       = "";
@@ -1060,8 +1064,7 @@ class Project_manager_report  extends Action_controller{
 				$time_sheet_value['R'] 		 = "";
 				$time_sheet_value['S'] 		 = "";
 				$time_sheet_value['T'] 		 = $other_work_detail->cummulate_works;
-				$time_sheet_value['U']       = $other_work_detail->cummulate_works;
-				
+				$time_sheet_value['U']       = $total_other_time;
 				
 				$sum_cummulate_works[]  	 = $other_work_detail->cummulate_works;
 				$sum_value_cummulate_works   = $this->AddPlayTime($sum_cummulate_works);
@@ -1086,7 +1089,6 @@ class Project_manager_report  extends Action_controller{
 				$m++;
 			}
 		}
-		
 
 		$sum_value_cummulate_emails[]   = $emails_total;
 		$sum_value_cummulate_emails[]   = $sum_value_cummulate_emails2;
@@ -1206,19 +1208,20 @@ class Project_manager_report  extends Action_controller{
 		$submitted_log_approval_info->next_result();
 		$submitted_log_actual_tonnage 			= $submitted_log_approval_result[0]->submitted_log_actual_tonnage;
 		$submitted_log_actual_billable_time 	= $submitted_log_approval_result[0]->submitted_log_actual_billable_time;
-		if((int)$submitted_log_actual_tonnage === 0 ){
-			$submitted_log_actual_tonnage = 0;
-		}else{
-			$submitted_log_actual_tonnage;
-		}
-		$submitted_log_actual_billable_time 		= $actual_result[0]->submitted_log_actual_billable_time;
-		$submitted_log_actual_billable_time 		= explode(':', $submitted_log_actual_billable_time);
-		$submitted_log_actual_billable_time 		= $submitted_log_actual_billable_time[0].':'.$submitted_log_actual_billable_time[1];
-		if($submitted_log_actual_billable_time === ':'){
-			$submitted_log_actual_billable_time = 0;
-		}else{
-			$submitted_log_actual_billable_time;
-		}
+		// echo "$submitted_log_actual_billable_time";die;
+		// if((int)$submitted_log_actual_tonnage === 0 ){
+		// 	$submitted_log_actual_tonnage = 0;
+		// }else{
+		// 	$submitted_log_actual_tonnage;
+		// }
+		// $submitted_log_actual_billable_time 		= $actual_result[0]->submitted_log_actual_billable_time;
+		// $submitted_log_actual_billable_time 		= explode(':', $submitted_log_actual_billable_time);
+		// $submitted_log_actual_billable_time 		= $submitted_log_actual_billable_time[0].':'.$submitted_log_actual_billable_time[1];
+		// if($submitted_log_actual_billable_time === ':'){
+		// 	$submitted_log_actual_billable_time = 0;
+		// }else{
+		// 	$submitted_log_actual_billable_time;
+		// }
 
 
 		$checker_new_detailing_qry 			= 'SELECT qa_major,qa_minor FROM cw_tonnage_approval inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_time_line_id = cw_tonnage_approval.prime_time_sheet_time_line_id inner join cw_time_sheet on cw_time_sheet.prime_time_sheet_id = cw_time_sheet_time_line.prime_time_sheet_id where entry_date like "%'.$process_month.'%"  and project_manager_name = "'.$employee_code.'" and cw_tonnage_approval.work_type = 1 and cw_tonnage_approval.approval_status = 2 and cw_tonnage_approval.trans_status = 1';
@@ -1241,7 +1244,7 @@ class Project_manager_report  extends Action_controller{
 
 		$avg_qa_error = $qa_error_count/$checked_sheet_new_details;
 		if ((int)$avg_qa_error >0) {
-		    $avg_qa_error = $avg_qa_error;
+		    $avg_qa_error = round($avg_qa_error, 3);
 		}else{
 		    $avg_qa_error = 0;
 		} 
@@ -1249,16 +1252,17 @@ class Project_manager_report  extends Action_controller{
 		$tons_new_detailing 		= $production_tons/500;
 		$team_ton_per_sheet 		= $actual_tonnage/$checked_sheet_new_details;
 		if ((int)$team_ton_per_sheet > 0) {
-		    $team_ton_per_sheet = $team_ton_per_sheet;
+		    $team_ton_per_sheet = round($team_ton_per_sheet, 3);
 		}else{
 		    $team_ton_per_sheet = 0;
 		} 
 
 		$team_rev_hours_tons 		= $this->time_to_decimal($submitted_log_actual_billable_time);
-		$team_tot_production_tons	= $team_rev_hours_tons + $submitted_log_actual_tonnage;
-		$team_tot_production_tons 	= round($team_tot_production_tons,2);
+
 		$team_rev_hours_tons	 	= $team_rev_hours_tons * 1.5;
 		$team_rev_hours_tons 		= round($team_rev_hours_tons,2);
+		$team_tot_production_tons	= $team_rev_hours_tons + $submitted_log_actual_tonnage;
+		$team_tot_production_tons 	= round($team_tot_production_tons,2);
 		$team_ton_per_hrs_detail 	= $team_tot_production_tons/1000;
 		$team_ton_per_hrs_detail	= round($team_ton_per_hrs_detail,2);
 
@@ -1286,13 +1290,13 @@ class Project_manager_report  extends Action_controller{
 		$max_bk_allow 		= $max_bk_allow/$max_off_hrs;
 		$max_bk_allow 		= $this->decimal_to_time($max_bk_allow);
 
-
+// echo "$submitted_log_actual_billable_time ::$team_rev_hours_tons";die;
 		$project_excel[]['excel_column']= array('C'.$report_inc3,'C'.$report_inc4,'C'.$report_inc5,'C'.$report_inc6,'C'.$report_inc7,'C'.$report_inc8,'C'.$report_inc9,'C'.$report_inc10,'C'.$report_inc11,'C'.$report_inc12,'C'.$report_inc13,'C'.$report_inc14,'C'.$report_inc15,'C'.$report_inc16,'C'.$report_inc17,'C'.$report_inc18);
 		$project_excel[]['excel_value']= array('No. of Working Days','Total Office hours','Total Booking hours','Difference b/t Booking  & Office Hrs','X','Teams Tons Detailed (Submitted Log)','Teams Rev. hours (Submitted Log)','Teams Rev. hours in Tons','Teams Total Production Tons','Target Reached/Not Reached','Checked Sheets New (Submitted Log)','Checked Sheets Rev (Time Sheet)','Teams Tons per Hour New Detailing only','Teams Tons per Sheet','Total QA Error Count (Submitted Log)','Avg. QA Error Count per Sheet');
 		$project_excel[]['end_column']= array('G'.$report_inc3,'G'.$report_inc4,'G'.$report_inc5,'G'.$report_inc6,'G'.$report_inc7,'G'.$report_inc8,'G'.$report_inc9,'G'.$report_inc10,'G'.$report_inc11,'G'.$report_inc12,'G'.$report_inc13,'G'.$report_inc14,'G'.$report_inc15,'G'.$report_inc16,'G'.$report_inc17,'G'.$report_inc18);
 		$project_excel[]['column_cell']= array('H'.$report_inc3,'H'.$report_inc4,'H'.$report_inc5,'H'.$report_inc6,'H'.$report_inc7,'H'.$report_inc8,'H'.$report_inc9,'H'.$report_inc10,'H'.$report_inc11,'H'.$report_inc12,'H'.$report_inc13,'H'.$report_inc14,'H'.$report_inc15,'H'.$report_inc16,'H'.$report_inc17,'H'.$report_inc18);
 
-		$project_excel[]['column_value']= array($no_of_working_days,$total_time_date_wise,$sum_value_total_hours,$diff_office_office,"",$submitted_log_actual_tonnage,$submitted_log_actual_billable_time,$team_rev_hours_tons,$team_tot_production_tons,$target_status,$checked_sheet_new_details,$checked_sheet_rev_details,$tons_new_detailing,$team_ton_per_sheet,$qa_error_count,$avg_qa_error);
+		$project_excel[]['column_value']= array($no_of_working_days,$total_time_date_wise,$sum_value_total_hours,$diff_office_office,"",$submitted_log_actual_tonnage,$submitted_log_actual_billable_time,$team_rev_hours_tons,$team_tot_production_tons,$target_status,$checked_sheet_new_details,$checked_sheet_rev_details,$team_ton_per_hrs_detail,$team_ton_per_sheet,$qa_error_count,$avg_qa_error);
 
 		$project_excel[]['column_end']= array('I'.$report_inc3,'I'.$report_inc4,'I'.$report_inc5,'I'.$report_inc6,'I'.$report_inc7,'I'.$report_inc8,'I'.$report_inc9,'I'.$report_inc10,'I'.$report_inc11,'I'.$report_inc12,'I'.$report_inc13,'I'.$report_inc14,'I'.$report_inc15,'I'.$report_inc16,'I'.$report_inc17,'I'.$report_inc18);
 

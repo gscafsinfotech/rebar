@@ -273,12 +273,12 @@ class Detailing_report  extends Action_controller{
 		    return $result;
 		}, array());
 
-		$pm_hours_qry 			= 'select project,SEC_TO_TIME(SUM(TIME_TO_SEC(detailing_time))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(checking))+SUM(TIME_TO_SEC(correction_time))+SUM(TIME_TO_SEC(other_works))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(revision_time))+SUM(TIME_TO_SEC(change_order_time))+SUM(TIME_TO_SEC(billable_hours))+SUM(TIME_TO_SEC(non_billable_hours))+SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(actual_billable_time))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(bar_listing_checking))+SUM(TIME_TO_SEC(aec))+SUM(TIME_TO_SEC(credit))) as pm_hours from cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id where emp_role = 3 and cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 group by project';
+		$pm_hours_qry 			= 'SELECT project_name,project,employee_code,SEC_TO_TIME(SUM(TIME_TO_SEC(emails))+SUM(TIME_TO_SEC(study))+SUM(TIME_TO_SEC(qa_checking))+SUM(TIME_TO_SEC(discussion))+SUM(TIME_TO_SEC(was))+SUM(TIME_TO_SEC(monitoring))+SUM(TIME_TO_SEC(rfi))+SUM(TIME_TO_SEC(co_checking))+SUM(TIME_TO_SEC(bar_listing_time))+SUM(TIME_TO_SEC(other_works))) as pm_hours,sum(bar_list_quantity) as cummulate_bar_list_quantity,work_type FROM cw_time_sheet inner join cw_time_sheet_time_line on cw_time_sheet_time_line.prime_time_sheet_id = cw_time_sheet.prime_time_sheet_id inner join cw_project_and_drawing_master on cw_project_and_drawing_master.prime_project_and_drawing_master_id = cw_time_sheet_time_line.project left join cw_job_category on cw_job_category.prime_job_category_id = cw_project_and_drawing_master.job_category where emp_role = 3 and  cw_time_sheet.trans_status = 1 and cw_time_sheet_time_line.trans_status = 1 and cw_project_and_drawing_master.trans_status = 1 group by cw_time_sheet_time_line.project';
 		$pm_hours_info   		= $this->db->query("CALL sp_a_run ('SELECT','$pm_hours_qry')");
 		$pm_hours_result  		= $pm_hours_info->result_array();
 		$pm_hours_info->next_result();
 		$pm_hours_result  		= array_reduce($pm_hours_result, function($result, $arr){	
-		    $result[$arr['project']] = $arr;
+		    $result[$arr['project']]  = $arr;
 		    return $result;
 		}, array());
 		

@@ -83,8 +83,8 @@ class Project_and_drawing_master  extends Action_controller{
 						$search_val   = "";
 						if($field_type === 4){ // having issues in date search
 							if(strtotime($search)){
-								// $search_val = date('Y-m-d',strtotime($search));
-								// $common_search .= ' or '. $search_label .' like "'.$search_val.'%"';
+								$search_val = date('Y-m-d',strtotime($search));
+								$common_search .= ' or '. $search_label .' like "'.$search_val.'%"';
 							}
 						}else
 						if(($field_type === 5) || ($field_type === 7) || ($field_type === 9)){							
@@ -95,16 +95,13 @@ class Project_and_drawing_master  extends Action_controller{
 								return false;
 							});
 							if($result){
-								$pick_key   = implode(",",array_keys($result));
-								if($label_id === 'team'){
-									$common_search .= ' or '. $search_label .' in('.$pick_key.')';
-								}else{
-									$common_search .= ' or '. $search_label .' in("'.$pick_key.'")';
-								}
-								
+								$pick_key   = implode('",',array_keys($result));
+								$pick_replace = str_replace(',',',"',$pick_key);
+								$pick_replace = '"'.$pick_replace.'"';
+									$common_search .= ' or '. $search_label .' in('.$pick_replace.')';
 							}
 						}else{
-							// $common_search .= ' or '. $search_label .' like "%'.$search.'%"';
+							$common_search .= ' or '. $search_label .' like "%'.$search.'%"';
 						}
 					}
 				}

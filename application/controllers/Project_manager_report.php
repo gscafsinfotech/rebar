@@ -1257,7 +1257,7 @@ class Project_manager_report  extends Action_controller{
 		    $team_ton_per_sheet = 0;
 		} 
 
-		$team_rev_hours_tons 		= $this->time_to_decimal($submitted_log_actual_billable_time);
+		$team_rev_hours_tons 		= $this->decimalHours($submitted_log_actual_billable_time);
 
 		$team_rev_hours_tons	 	= $team_rev_hours_tons * 1.5;
 		$team_rev_hours_tons 		= round($team_rev_hours_tons,2);

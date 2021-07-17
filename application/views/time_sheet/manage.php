@@ -509,16 +509,16 @@ $(document).ready(function (){
 		view_form_data(action,title,control,form_id);
 	});
 	/* DELETE PROCESS - START*/
-	var delete_btn = "<button class='btn btn-xs btn-danger fliter disabled' id='delete_btn' style='margin-top:7px'><i class='fa fa-trash' aria-hidden='true'></i> Delete</button>";
+	// var delete_btn = "<button class='btn btn-xs btn-danger fliter disabled' id='delete_btn' style='margin-top:7px'><i class='fa fa-trash' aria-hidden='true'></i> Delete</button>";
 	$("#table_length").prepend(delete_btn);
 	$("#table_length").css("display", "-webkit-inline-box");
 	$('.select-checkbox').on('click', "input[name='select_all']", function(){    
 		if(this.checked) {
 			$('.select_one').prop('checked', true);
-			$("#delete_btn").removeClass("disabled");
+			// $("#delete_btn").removeClass("disabled");
 		}else{
 			$('.select_one').prop('checked', false);
-			$("#delete_btn").addClass("disabled");
+			// $("#delete_btn").addClass("disabled");
 		}
 	});
 	$table.on('change','.select_one',function(event){		

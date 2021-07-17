@@ -36,13 +36,11 @@ class Project_and_drawing_master  extends Action_controller{
 		}
 		$team     		  = $this->session->userdata('logged_team');
 		$logged_role 	  = $this->session->userdata('logged_role');
-		if((int)$logged_role === 1 || (int)$logged_role === 2){
-			$team = "";
-		}else{
-			$team_replace 	= str_replace(',', '|', $team);
-			$team 			= " and (team in (".$team.") or team REGEXP '(^|,)(".$team_replace.")(,|$)')";
+		$team_qry 		  = "";
+		if((int)$logged_role === 3 || (int)$logged_role === 4){
+			$team 	= str_replace(',', '|', $team);
+			$team_qry 			= " and team REGEXP '(^|,)(".$team.")(,|$)'";
 		}
-		
 		
 		$fliter_query = "";
 		foreach($this->fliter_list as $fliter){
@@ -129,12 +127,12 @@ class Project_and_drawing_master  extends Action_controller{
 		$total_count        = $search_total_info[0]->allcount;
 		
 		$count_query        = str_replace("@SELECT@","count(*) as allcount",$this->base_query);
-		$count_query       .= " where $this->prime_table.trans_status = 1 $role_condition $fliter_query $common_search";
+		$count_query       .= " where $this->prime_table.trans_status = 1 $team_qry $role_condition $fliter_query $common_search";
 		$search_count       = $this->db->query($count_query);
 		$search_info        = $search_count->result();
 		$filtered_count     = $search_info[0]->allcount;
 		
-		$search_query      .= " where $this->prime_table.trans_status = 1 $team $role_condition $fliter_query $common_search";
+		$search_query      .= " where $this->prime_table.trans_status = 1 $team_qry $role_condition $fliter_query $common_search";
 		$search_query      .= " ORDER BY  $order_col $order_sor";
 		if((int)$per_page !== -1){
 			$search_query  .= " LIMIT  $start,$per_page";

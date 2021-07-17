@@ -143,7 +143,9 @@ abstract class Action_controller extends Secure_Controller{
 		if($pick_result){
 			$prime_pick_base_search_id = $pick_result[0]->prime_pick_base_search_id;
 			if((int)$prime_pick_base_search_id  === 13 || (int)$prime_pick_base_search_id === 14 || (int)$prime_pick_base_search_id === 15){
-				$where_condition  = str_replace('^','',$pick_result[0]->pick_where_condition);
+				$team_mem_team    = $this->session->userdata('logged_team');
+				$where_condition 	= str_replace(',','|', $team_mem_team);
+				$where_condition 			= ' and team REGEXP "(^|,)('.$where_condition.')(,|$)"';
 			}else{
 				$where_condition  = str_replace('^','"',$pick_result[0]->pick_where_condition);
 			}
